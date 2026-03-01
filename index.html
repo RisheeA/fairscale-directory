@@ -415,12 +415,18 @@
       margin-top: 4px;
     }
 
+    .agent-score .base-score {
+      font-size: 0.85rem;
+      color: var(--text-dim);
+      margin-top: 8px;
+    }
+
     /* Badges */
     .badges {
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
-      margin-bottom: 28px;
+      margin-bottom: 20px;
     }
 
     .badge {
@@ -436,6 +442,60 @@
       background: var(--primary);
       color: var(--bg);
     }
+
+    /* Info Section */
+    .info-section {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 24px;
+    }
+
+    .info-description {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+
+    .info-highlights {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .highlight-item {
+      color: var(--primary);
+      font-size: 0.85rem;
+    }
+
+    .info-skills {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      margin-bottom: 12px;
+    }
+
+    .skills-label {
+      color: var(--text-dim);
+      font-family: 'Advercase', serif;
+    }
+
+    .info-tier {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .tier-value {
+      font-family: 'Advercase', serif;
+      text-transform: capitalize;
+    }
+
+    .tier-value.tier-gold { color: #ffd700; }
+    .tier-value.tier-silver { color: #c0c0c0; }
+    .tier-value.tier-bronze { color: #cd7f32; }
+    .tier-value.tier-platinum { color: #e5e4e2; }
 
     /* Features Grid */
     .features-grid {
@@ -747,11 +807,14 @@
             </div>
             <div class="agent-score">
               <div class="score" id="resultScore">0</div>
-              <div class="label">Agent Score</div>
+              <div class="label">Agent FairScore</div>
+              <div class="base-score">Base FairScore: <span id="resultBaseScore">0</span></div>
             </div>
           </div>
 
           <div class="badges" id="resultBadges"></div>
+
+          <div class="info-section" id="resultInfo"></div>
 
           <div class="features-grid">
             <div class="feature-item">
@@ -881,7 +944,8 @@
       const name = data.said?.name || `Agent ${data.wallet.slice(0, 8)}...`;
       document.getElementById('resultName').textContent = name;
       document.getElementById('resultWallet').textContent = data.wallet;
-      document.getElementById('resultScore').textContent = data.fairscale_agent_score || 0;
+      document.getElementById('resultScore').textContent = data.agent_fairscore || 0;
+      document.getElementById('resultBaseScore').textContent = data.fairscore_base || 0;
 
       document.getElementById('resultBadges').innerHTML = (data.badges || []).map(b => 
         `<span class="badge ${b.id}">${b.label}</span>`
@@ -891,6 +955,34 @@
       document.getElementById('featExperience').textContent = data.features?.experience || 0;
       document.getElementById('featConviction').textContent = data.features?.conviction || 0;
       document.getElementById('featCapital').textContent = data.features?.capital || 0;
+
+      // Render info section
+      const infoSection = document.getElementById('resultInfo');
+      let infoHtml = '';
+      
+      if (data.info?.description) {
+        infoHtml += `<p class="info-description">${data.info.description}</p>`;
+      }
+      
+      if (data.info?.highlights?.length > 0) {
+        infoHtml += `<div class="info-highlights">
+          ${data.info.highlights.map(h => `<span class="highlight-item">• ${h}</span>`).join('')}
+        </div>`;
+      }
+      
+      if (data.info?.skills?.length > 0) {
+        infoHtml += `<div class="info-skills">
+          <span class="skills-label">Skills:</span> 
+          ${data.info.skills.slice(0, 6).join(', ')}${data.info.skills.length > 6 ? ` +${data.info.skills.length - 6} more` : ''}
+        </div>`;
+      }
+      
+      if (data.info?.tier) {
+        infoHtml += `<div class="info-tier">Tier: <span class="tier-value tier-${data.info.tier}">${data.info.tier}</span></div>`;
+      }
+      
+      infoSection.innerHTML = infoHtml;
+      infoSection.style.display = infoHtml ? 'block' : 'none';
 
       document.getElementById('resultCard').classList.add('show');
     }
@@ -910,7 +1002,8 @@
       if (exists) {
         Object.assign(exists, {
           name: data.said?.name || `Agent ${data.wallet.slice(0, 8)}...`,
-          score: data.fairscale_agent_score,
+          score: data.agent_fairscore,
+          baseScore: data.fairscore_base,
           badges: data.badges,
           features: data.features,
           said: data.said,
@@ -920,7 +1013,8 @@
         directory.push({
           wallet: data.wallet,
           name: data.said?.name || `Agent ${data.wallet.slice(0, 8)}...`,
-          score: data.fairscale_agent_score,
+          score: data.agent_fairscore,
+          baseScore: data.fairscore_base,
           badges: data.badges,
           features: data.features,
           said: data.said,
@@ -1083,11 +1177,11 @@
 
       document.getElementById('compare1Name').textContent = name1;
       document.getElementById('compare1Wallet').textContent = `${data1.wallet.slice(0, 8)}...${data1.wallet.slice(-4)}`;
-      document.getElementById('compare1Score').textContent = data1.fairscale_agent_score || 0;
+      document.getElementById('compare1Score').textContent = data1.agent_fairscore || 0;
 
       document.getElementById('compare2Name').textContent = name2;
       document.getElementById('compare2Wallet').textContent = `${data2.wallet.slice(0, 8)}...${data2.wallet.slice(-4)}`;
-      document.getElementById('compare2Score').textContent = data2.fairscale_agent_score || 0;
+      document.getElementById('compare2Score').textContent = data2.agent_fairscore || 0;
 
       const features = ['longevity', 'experience', 'conviction', 'capital'];
       
