@@ -6,765 +6,142 @@
   <title>FairScale Agent Directory</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
-    @font-face {
-      font-family: 'Advercase';
-      src: url('assets/Advercase-Regular.ttf') format('truetype');
-      font-weight: 400;
-    }
-    @font-face {
-      font-family: 'Advercase';
-      src: url('assets/Advercase-Bold.ttf') format('truetype');
-      font-weight: 700;
-    }
-
+    @font-face { font-family: 'Advercase'; src: url('assets/Advercase-Regular.ttf') format('truetype'); font-weight: 400; }
+    @font-face { font-family: 'Advercase'; src: url('assets/Advercase-Bold.ttf') format('truetype'); font-weight: 700; }
     * { margin: 0; padding: 0; box-sizing: border-box; }
-
     :root {
-      --bg: #0a0a0a;
-      --bg-card: #111111;
-      --bg-card-hover: #161616;
-      --border: #1a1a1a;
-      --border-hover: #2a2a2a;
-      --primary: #e8d4c4;
-      --primary-dim: #c4b0a0;
-      --secondary: #263b4e;
-      --accent: #4a9079;
-      --text: #ffffff;
-      --text-muted: #888888;
-      --text-dim: #555555;
-    }
-
-    body {
-      font-family: 'Inter', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      line-height: 1.5;
-    }
-
-    /* Header */
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 20px 40px;
-      border-bottom: 1px solid var(--border);
-      position: sticky;
-      top: 0;
-      background: var(--bg);
-      z-index: 100;
-    }
-
-    .header-logo {
-      height: 32px;
-    }
-
-    .header-nav {
-      display: flex;
-      gap: 32px;
-      align-items: center;
-    }
-
-    .header-nav a {
-      font-family: 'Advercase', serif;
-      color: var(--text-muted);
-      text-decoration: none;
-      font-size: 0.9rem;
-      transition: color 0.2s;
-    }
-
-    .header-nav a:hover {
-      color: var(--primary);
-    }
-
-    /* Main Container */
-    .container {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 40px 20px;
-    }
-
-    /* Tabs */
-    .tabs {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 32px;
-      border-bottom: 1px solid var(--border);
-      padding-bottom: 16px;
-    }
-
-    .tab {
-      font-family: 'Advercase', serif;
-      background: none;
-      border: 1px solid var(--border);
-      color: var(--text-muted);
-      padding: 10px 20px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 0.9rem;
-      transition: all 0.2s;
-    }
-
-    .tab:hover {
-      border-color: var(--border-hover);
-      color: var(--text);
-    }
-
-    .tab.active {
-      background: var(--primary);
-      border-color: var(--primary);
-      color: var(--bg);
-    }
-
-    /* Stats Bar */
-    .stats-bar {
-      display: flex;
-      gap: 32px;
-      margin-bottom: 24px;
-      padding: 16px 0;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .stat-item {
-      text-align: center;
-    }
-
-    .stat-item .value {
-      font-family: 'Advercase', serif;
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: var(--primary);
-    }
-
-    .stat-item .label {
-      font-size: 0.7rem;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    /* Toolbar */
-    .toolbar {
-      display: flex;
-      gap: 12px;
-      margin-bottom: 24px;
-      flex-wrap: wrap;
-    }
-
-    .search-input {
-      flex: 1;
-      min-width: 200px;
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 12px 16px;
-      font-size: 0.95rem;
-      color: var(--text);
-      font-family: 'Inter', sans-serif;
-    }
-
-    .search-input:focus {
-      outline: none;
-      border-color: var(--primary);
-    }
-
-    .search-input::placeholder {
-      color: var(--text-dim);
-    }
-
-    .filter-dropdown {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 12px 16px;
-      font-size: 0.9rem;
-      color: var(--text);
-      font-family: 'Advercase', serif;
-      cursor: pointer;
-      min-width: 150px;
-    }
-
-    .filter-dropdown:focus {
-      outline: none;
-      border-color: var(--primary);
-    }
-
-    /* Directory List */
-    .directory-list {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .directory-item {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 20px 24px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .directory-item:hover {
-      border-color: var(--border-hover);
-      background: var(--bg-card-hover);
-    }
-
-    .directory-item .info {
-      display: flex;
-      align-items: center;
-      gap: 20px;
-    }
-
-    .directory-item .rank {
-      font-family: 'Advercase', serif;
-      font-size: 1.25rem;
-      color: var(--text-dim);
-      width: 36px;
-    }
-
-    .directory-item .name {
-      font-family: 'Advercase', serif;
-      font-size: 1.1rem;
-      color: var(--primary);
-    }
-
-    .directory-item .wallet {
-      font-family: monospace;
-      font-size: 0.8rem;
-      color: var(--text-dim);
-      margin-top: 2px;
-    }
-
-    .directory-item .badges-mini {
-      display: flex;
-      gap: 6px;
-      margin-top: 8px;
-      flex-wrap: wrap;
-    }
-
-    .badge-mini {
-      background: var(--secondary);
-      border-radius: 4px;
-      padding: 3px 8px;
-      font-size: 0.65rem;
-      color: var(--text-muted);
-    }
-
-    .badge-mini.verified {
-      background: var(--primary);
-      color: var(--bg);
-    }
-
-    .badge-mini.x402 {
-      background: rgba(139, 92, 246, 0.3);
-      color: #a78bfa;
-    }
-
-    .directory-item .score {
-      font-family: 'Advercase', serif;
-      font-size: 2rem;
-      font-weight: 700;
-      color: var(--primary);
-    }
-
-    .directory-item .compare-btn {
-      background: var(--secondary);
-      border: none;
-      border-radius: 6px;
-      padding: 8px 12px;
-      font-size: 0.75rem;
-      color: var(--text);
-      cursor: pointer;
-      margin-left: 16px;
-      font-family: 'Advercase', serif;
-      transition: background 0.2s;
-    }
-
-    .directory-item .compare-btn:hover {
-      background: #324d63;
-    }
-
-    .directory-item .compare-btn.selected {
-      background: var(--primary);
-      color: var(--bg);
-    }
-
-    /* Empty State */
-    .empty-state {
-      text-align: center;
-      padding: 80px 20px;
-      color: var(--text-dim);
-    }
-
-    .empty-state .icon {
-      width: 64px;
-      height: 64px;
-      margin: 0 auto 20px;
-      opacity: 0.3;
-    }
-
-    /* Check Section */
-    .check-section {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 32px;
-      margin-bottom: 32px;
-    }
-
-    .section-title {
-      font-family: 'Advercase', serif;
-      font-size: 1.1rem;
-      color: var(--primary);
-      margin-bottom: 20px;
-    }
-
-    .input-group {
-      display: flex;
-      gap: 12px;
-    }
-
-    .input-group input {
-      flex: 1;
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 16px 20px;
-      font-size: 1rem;
-      color: var(--text);
-      font-family: 'Inter', monospace;
-    }
-
-    .input-group input:focus {
-      outline: none;
-      border-color: var(--primary);
-    }
-
-    .input-group input::placeholder {
-      color: var(--text-dim);
-    }
-
-    .btn {
-      background: var(--primary);
-      color: var(--bg);
-      border: none;
-      border-radius: 10px;
-      padding: 16px 32px;
-      font-size: 0.95rem;
-      font-weight: 600;
-      cursor: pointer;
-      font-family: 'Advercase', serif;
-      transition: all 0.2s;
-    }
-
-    .btn:hover {
-      background: #f5e6da;
-    }
-
-    .btn:disabled {
-      background: var(--border);
-      color: var(--text-dim);
-      cursor: not-allowed;
-    }
-
-    .btn-secondary {
-      background: var(--secondary);
-      color: var(--text);
-    }
-
-    .btn-secondary:hover {
-      background: #324d63;
-    }
-
-    /* Result Card */
-    .result-card {
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 28px;
-      margin-top: 24px;
-      display: none;
-    }
-
-    .result-card.show {
-      display: block;
-    }
-
-    .result-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 24px;
-      padding-bottom: 24px;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .result-name {
-      font-family: 'Advercase', serif;
-      font-size: 1.5rem;
-      color: var(--primary);
-    }
-
-    .result-wallet {
-      font-family: monospace;
-      font-size: 0.85rem;
-      color: var(--text-dim);
-      margin-top: 6px;
-    }
-
-    .agent-score {
-      text-align: right;
-    }
-
-    .agent-score .score {
-      font-family: 'Advercase', serif;
-      font-size: 3.5rem;
-      font-weight: 700;
-      color: var(--primary);
-      line-height: 1;
-    }
-
-    .agent-score .label {
-      font-size: 0.7rem;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      margin-top: 4px;
-    }
-
-    /* Badges */
-    .badges {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 28px;
-    }
-
-    .badge {
-      background: var(--secondary);
-      border-radius: 6px;
-      padding: 6px 14px;
-      font-size: 0.8rem;
-      color: var(--text);
-    }
-
-    .badge.said_verified,
-    .badge.said_trusted {
-      background: var(--primary);
-      color: var(--bg);
-    }
-
-    /* Features Grid */
-    .features-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 12px;
-    }
-
-    .feature-item {
-      text-align: center;
-      padding: 20px 12px;
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-    }
-
-    .feature-item .value {
-      font-family: 'Advercase', serif;
-      font-size: 2rem;
-      font-weight: 700;
-      color: var(--text);
-    }
-
-    .feature-item .label {
-      font-size: 0.7rem;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin-top: 8px;
-    }
-
-    /* Services Tab */
-    .services-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-      gap: 16px;
-    }
-
-    .service-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 20px;
-      transition: all 0.2s;
-    }
-
-    .service-card:hover {
-      border-color: var(--accent);
-    }
-
-    .service-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 12px;
-    }
-
-    .service-name {
-      font-family: 'Advercase', serif;
-      font-size: 1rem;
-      color: var(--primary);
-    }
-
-    .service-price {
-      font-family: 'Advercase', serif;
-      font-size: 1.1rem;
-      color: var(--accent);
-    }
-
-    .service-description {
-      font-size: 0.85rem;
-      color: var(--text-muted);
-      margin-bottom: 12px;
-      line-height: 1.5;
-    }
-
-    .service-meta {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding-top: 12px;
-      border-top: 1px solid var(--border);
-    }
-
-    .service-category {
-      font-size: 0.7rem;
-      padding: 4px 8px;
-      background: var(--secondary);
-      border-radius: 4px;
-      color: var(--primary);
-      text-transform: uppercase;
-    }
-
-    .service-source {
-      font-size: 0.65rem;
-      color: var(--text-dim);
-    }
-
-    /* Skills Tab */
-    .skills-categories {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-      gap: 12px;
-      margin-bottom: 24px;
-    }
-
-    .skill-category {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 16px;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .skill-category:hover {
-      border-color: var(--primary);
-    }
-
-    .skill-category.active {
-      border-color: var(--primary);
-      background: var(--secondary);
-    }
-
-    .skill-category .icon {
-      font-size: 1.5rem;
-      margin-bottom: 8px;
-    }
-
-    .skill-category .name {
-      font-family: 'Advercase', serif;
-      font-size: 0.85rem;
-      color: var(--primary);
-    }
-
-    .skill-category .count {
-      font-size: 0.7rem;
-      color: var(--text-dim);
-      margin-top: 4px;
-    }
-
-    .skills-list {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .skill-item {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 16px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .skill-item:hover {
-      background: var(--bg-card-hover);
-    }
-
-    .skill-name {
-      font-family: 'Advercase', serif;
-      color: var(--primary);
-    }
-
-    .skill-agent {
-      font-size: 0.75rem;
-      color: var(--text-dim);
-      font-family: monospace;
-      margin-top: 4px;
-    }
-
-    .skill-price {
-      font-family: 'Advercase', serif;
-      color: var(--accent);
-    }
-
-    /* Compare Section */
-    .compare-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 24px;
-    }
-
-    .compare-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 24px;
-    }
-
-    .compare-card .name {
-      font-family: 'Advercase', serif;
-      font-size: 1.25rem;
-      color: var(--primary);
-      margin-bottom: 4px;
-    }
-
-    .compare-card .wallet {
-      font-family: monospace;
-      font-size: 0.75rem;
-      color: var(--text-dim);
-      margin-bottom: 16px;
-    }
-
-    .compare-card .score-big {
-      font-family: 'Advercase', serif;
-      font-size: 3rem;
-      font-weight: 700;
-      color: var(--primary);
-      margin-bottom: 20px;
-    }
-
-    .compare-feature {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 8px 0;
-    }
-
-    .compare-feature .label {
-      font-size: 0.85rem;
-      color: var(--text-muted);
-    }
-
-    .compare-feature .value {
-      font-family: 'Advercase', serif;
-      font-size: 1.25rem;
-      font-weight: 700;
-    }
-
-    .compare-feature .value.winner {
-      color: var(--primary);
-    }
-
-    /* Error & Loading */
-    .error {
-      background: #1a0a0a;
-      border: 1px solid #4a2020;
-      border-radius: 10px;
-      padding: 16px;
-      color: #c87070;
-      margin-top: 16px;
-      display: none;
-    }
-
-    .error.show {
-      display: block;
-    }
-
-    .loading {
-      display: none;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-      padding: 40px;
-      color: var(--text-muted);
-    }
-
-    .loading.show {
-      display: flex;
-    }
-
-    .spinner {
-      width: 20px;
-      height: 20px;
-      border: 2px solid var(--border);
-      border-top-color: var(--primary);
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    /* Footer */
-    .footer {
-      margin-top: 80px;
-      padding: 40px 20px;
-      border-top: 1px solid var(--border);
-      text-align: center;
-    }
-
-    .footer-links {
-      display: flex;
-      justify-content: center;
-      gap: 24px;
-      font-family: 'Advercase', serif;
-    }
-
-    .footer-links a {
-      color: var(--text-muted);
-      text-decoration: none;
-      font-size: 0.9rem;
-      transition: color 0.2s;
-    }
-
-    .footer-links a:hover {
-      color: var(--primary);
-    }
-
-    /* Responsive */
+      --bg: #0a0a0a; --bg-card: #111111; --bg-card-hover: #161616;
+      --border: #1a1a1a; --border-hover: #2a2a2a;
+      --primary: #e8d4c4; --primary-dim: #c4b0a0; --secondary: #263b4e; --accent: #4a9079;
+      --text: #ffffff; --text-muted: #888888; --text-dim: #555555;
+    }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; line-height: 1.5; }
+    
+    .header { display: flex; justify-content: space-between; align-items: center; padding: 20px 40px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--bg); z-index: 100; }
+    .header-logo { height: 32px; }
+    .header-nav { display: flex; gap: 32px; align-items: center; }
+    .header-nav a { font-family: 'Advercase', serif; color: var(--text-muted); text-decoration: none; font-size: 0.9rem; transition: color 0.2s; }
+    .header-nav a:hover { color: var(--primary); }
+    
+    .container { max-width: 1100px; margin: 0 auto; padding: 40px 20px; }
+    
+    .tabs { display: flex; gap: 8px; margin-bottom: 32px; border-bottom: 1px solid var(--border); padding-bottom: 16px; flex-wrap: wrap; }
+    .tab { font-family: 'Advercase', serif; background: none; border: 1px solid var(--border); color: var(--text-muted); padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 0.9rem; transition: all 0.2s; }
+    .tab:hover { border-color: var(--border-hover); color: var(--text); }
+    .tab.active { background: var(--primary); border-color: var(--primary); color: var(--bg); }
+    
+    .stats-bar { display: flex; gap: 32px; margin-bottom: 24px; padding: 16px 0; border-bottom: 1px solid var(--border); }
+    .stat-item { text-align: center; }
+    .stat-item .value { font-family: 'Advercase', serif; font-size: 1.5rem; font-weight: 700; color: var(--primary); }
+    .stat-item .label { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+    
+    .toolbar { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
+    .search-input { flex: 1; min-width: 200px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; font-size: 0.95rem; color: var(--text); }
+    .search-input:focus { outline: none; border-color: var(--primary); }
+    .search-input::placeholder { color: var(--text-dim); }
+    .filter-dropdown { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; font-size: 0.9rem; color: var(--text); font-family: 'Advercase', serif; cursor: pointer; min-width: 150px; }
+    .filter-dropdown:focus { outline: none; border-color: var(--primary); }
+    
+    .directory-list { display: flex; flex-direction: column; gap: 12px; }
+    .directory-item { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 20px 24px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: all 0.2s; }
+    .directory-item:hover { border-color: var(--border-hover); background: var(--bg-card-hover); }
+    .directory-item .info { display: flex; align-items: center; gap: 20px; }
+    .directory-item .rank { font-family: 'Advercase', serif; font-size: 1.25rem; color: var(--text-dim); width: 36px; }
+    .directory-item .name { font-family: 'Advercase', serif; font-size: 1.1rem; color: var(--primary); }
+    .directory-item .wallet { font-family: monospace; font-size: 0.8rem; color: var(--text-dim); margin-top: 2px; }
+    .directory-item .badges-mini { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+    .badge-mini { background: var(--secondary); border-radius: 4px; padding: 3px 8px; font-size: 0.65rem; color: var(--text-muted); }
+    .badge-mini.verified { background: var(--primary); color: var(--bg); }
+    .badge-mini.x402 { background: rgba(139, 92, 246, 0.3); color: #a78bfa; }
+    .directory-item .score { font-family: 'Advercase', serif; font-size: 2rem; font-weight: 700; color: var(--primary); }
+    .directory-item .compare-btn { background: var(--secondary); border: none; border-radius: 6px; padding: 8px 12px; font-size: 0.75rem; color: var(--text); cursor: pointer; margin-left: 16px; font-family: 'Advercase', serif; transition: background 0.2s; }
+    .directory-item .compare-btn:hover { background: #324d63; }
+    .directory-item .compare-btn.selected { background: var(--primary); color: var(--bg); }
+    
+    .empty-state { text-align: center; padding: 80px 20px; color: var(--text-dim); }
+    .empty-state .icon { width: 64px; height: 64px; margin: 0 auto 20px; opacity: 0.3; }
+    
+    .check-section { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 32px; margin-bottom: 32px; }
+    .section-title { font-family: 'Advercase', serif; font-size: 1.1rem; color: var(--primary); margin-bottom: 20px; }
+    .input-group { display: flex; gap: 12px; }
+    .input-group input { flex: 1; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 16px 20px; font-size: 1rem; color: var(--text); font-family: 'Inter', monospace; }
+    .input-group input:focus { outline: none; border-color: var(--primary); }
+    .input-group input::placeholder { color: var(--text-dim); }
+    
+    .btn { background: var(--primary); color: var(--bg); border: none; border-radius: 10px; padding: 16px 32px; font-size: 0.95rem; font-weight: 600; cursor: pointer; font-family: 'Advercase', serif; transition: all 0.2s; }
+    .btn:hover { background: #f5e6da; }
+    .btn:disabled { background: var(--border); color: var(--text-dim); cursor: not-allowed; }
+    .btn-secondary { background: var(--secondary); color: var(--text); }
+    .btn-secondary:hover { background: #324d63; }
+    
+    .result-card { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 28px; margin-top: 24px; display: none; }
+    .result-card.show { display: block; }
+    .result-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; padding-bottom: 24px; border-bottom: 1px solid var(--border); }
+    .result-name { font-family: 'Advercase', serif; font-size: 1.5rem; color: var(--primary); }
+    .result-wallet { font-family: monospace; font-size: 0.85rem; color: var(--text-dim); margin-top: 6px; }
+    .agent-score { text-align: right; }
+    .agent-score .score { font-family: 'Advercase', serif; font-size: 3.5rem; font-weight: 700; color: var(--primary); line-height: 1; }
+    .agent-score .label { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 4px; }
+    
+    .badges { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 28px; }
+    .badge { background: var(--secondary); border-radius: 6px; padding: 6px 14px; font-size: 0.8rem; color: var(--text); }
+    .badge.said_verified, .badge.said_trusted { background: var(--primary); color: var(--bg); }
+    
+    .features-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    .feature-item { text-align: center; padding: 20px 12px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; }
+    .feature-item .value { font-family: 'Advercase', serif; font-size: 2rem; font-weight: 700; color: var(--text); }
+    .feature-item .label { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 8px; }
+    
+    .services-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
+    .service-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; transition: all 0.2s; cursor: pointer; }
+    .service-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+    .service-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+    .service-name { font-family: 'Advercase', serif; font-size: 1rem; color: var(--primary); }
+    .service-price { font-family: 'Advercase', serif; font-size: 1.1rem; color: var(--accent); }
+    .service-description { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px; line-height: 1.5; }
+    .service-meta { display: flex; justify-content: space-between; align-items: center; padding-top: 12px; border-top: 1px solid var(--border); }
+    .service-category { font-size: 0.7rem; padding: 4px 8px; background: var(--secondary); border-radius: 4px; color: var(--primary); text-transform: uppercase; }
+    .service-source { font-size: 0.65rem; color: var(--text-dim); }
+    
+    .skills-categories { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 12px; margin-bottom: 24px; }
+    .skill-category { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 16px; text-align: center; cursor: pointer; transition: all 0.2s; }
+    .skill-category:hover { border-color: var(--primary); }
+    .skill-category.active { border-color: var(--primary); background: var(--secondary); }
+    .skill-category .icon { font-size: 1.5rem; margin-bottom: 8px; }
+    .skill-category .name { font-family: 'Advercase', serif; font-size: 0.75rem; color: var(--primary); }
+    .skill-category .count { font-size: 0.65rem; color: var(--text-dim); margin-top: 4px; }
+    
+    .skills-list { display: flex; flex-direction: column; gap: 10px; }
+    .skill-item { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: all 0.2s; }
+    .skill-item:hover { background: var(--bg-card-hover); border-color: var(--accent); }
+    .skill-name { font-family: 'Advercase', serif; color: var(--primary); }
+    .skill-agent { font-size: 0.75rem; color: var(--text-dim); font-family: monospace; margin-top: 4px; }
+    .skill-price { font-family: 'Advercase', serif; color: var(--accent); }
+    
+    .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    .compare-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; }
+    .compare-card .name { font-family: 'Advercase', serif; font-size: 1.25rem; color: var(--primary); margin-bottom: 4px; }
+    .compare-card .wallet { font-family: monospace; font-size: 0.75rem; color: var(--text-dim); margin-bottom: 16px; }
+    .compare-card .score-big { font-family: 'Advercase', serif; font-size: 3rem; font-weight: 700; color: var(--primary); margin-bottom: 20px; }
+    .compare-feature { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; }
+    .compare-feature .label { font-size: 0.85rem; color: var(--text-muted); }
+    .compare-feature .value { font-family: 'Advercase', serif; font-size: 1.25rem; font-weight: 700; }
+    .compare-feature .value.winner { color: var(--primary); }
+    
+    .error { background: #1a0a0a; border: 1px solid #4a2020; border-radius: 10px; padding: 16px; color: #c87070; margin-top: 16px; display: none; }
+    .error.show { display: block; }
+    .loading { display: none; align-items: center; justify-content: center; gap: 12px; padding: 40px; color: var(--text-muted); }
+    .loading.show { display: flex; }
+    .spinner { width: 20px; height: 20px; border: 2px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    
+    .footer { margin-top: 80px; padding: 40px 20px; border-top: 1px solid var(--border); text-align: center; }
+    .footer-links { display: flex; justify-content: center; gap: 24px; font-family: 'Advercase', serif; }
+    .footer-links a { color: var(--text-muted); text-decoration: none; font-size: 0.9rem; transition: color 0.2s; }
+    .footer-links a:hover { color: var(--primary); }
+    
     @media (max-width: 768px) {
-      .header { padding: 16px 20px; }
-      .header-nav { gap: 16px; }
+      .header { padding: 16px 20px; } .header-nav { gap: 16px; }
       .features-grid { grid-template-columns: repeat(2, 1fr); }
       .compare-grid { grid-template-columns: 1fr; }
       .input-group { flex-direction: column; }
@@ -795,10 +172,11 @@
       <button class="tab" onclick="showTab('compare')">Compare</button>
     </div>
 
+    <!-- DIRECTORY TAB -->
     <div id="tab-directory" class="tab-content">
       <div class="stats-bar">
         <div class="stat-item"><div class="value" id="totalAgents">0</div><div class="label">Agents</div></div>
-        <div class="stat-item"><div class="value" id="avgScore">0</div><div class="label">Avg Score</div></div>
+        <div class="stat-item"><div class="value" id="avgScore">0</div><div class="label">Avg FairScore</div></div>
         <div class="stat-item"><div class="value" id="verifiedCount">0</div><div class="label">Verified</div></div>
       </div>
       <div class="toolbar">
@@ -811,40 +189,42 @@
           <option value="diverse">Diverse</option>
           <option value="experienced">Experienced</option>
           <option value="said_verified">SAID Verified</option>
-          <option value="said_trusted">SAID Trusted</option>
           <option value="x402_enabled">x402 Enabled</option>
         </select>
       </div>
       <div class="directory-list" id="directoryList">
-        <div class="empty-state"><img src="assets/icon.png" alt="" class="icon"><p>No agents in directory yet.<br>Check an agent and add them.</p></div>
+        <div class="empty-state"><img src="assets/icon.png" alt="" class="icon"><p>No agents in directory yet.<br>Check an agent to add them.</p></div>
       </div>
     </div>
 
+    <!-- SERVICES TAB -->
     <div id="tab-services" class="tab-content" style="display: none;">
       <div class="section-title">x402 Services</div>
-      <p style="color: var(--text-muted); margin-bottom: 24px;">Pay-per-request APIs from the x402 ecosystem</p>
+      <p style="color: var(--text-muted); margin-bottom: 24px;">Click a service to open its endpoint</p>
       <div class="toolbar">
         <input type="text" class="search-input" id="servicesSearch" placeholder="Search services..." oninput="filterServices()">
         <select class="filter-dropdown" id="serviceCategory" onchange="filterServices()">
           <option value="">All Categories</option>
           <option value="data">Data</option>
           <option value="ai">AI</option>
-          <option value="compute">Compute</option>
-          <option value="trading">Trading</option>
           <option value="infrastructure">Infrastructure</option>
+          <option value="security">Security</option>
+          <option value="trading">Trading</option>
         </select>
       </div>
       <div class="services-grid" id="servicesGrid"><div class="loading show"><div class="spinner"></div><span>Loading...</span></div></div>
     </div>
 
+    <!-- SKILLS TAB -->
     <div id="tab-skills" class="tab-content" style="display: none;">
       <div class="section-title">Skill Marketplace</div>
-      <p style="color: var(--text-muted); margin-bottom: 24px;">Browse agent capabilities by category</p>
+      <p style="color: var(--text-muted); margin-bottom: 24px;">Click a skill to view the agent</p>
       <div class="skills-categories" id="skillsCategories"></div>
       <div class="toolbar"><input type="text" class="search-input" id="skillsSearch" placeholder="Search skills..." oninput="filterSkills()"></div>
       <div class="skills-list" id="skillsList"></div>
     </div>
 
+    <!-- CHECK TAB -->
     <div id="tab-check" class="tab-content" style="display: none;">
       <div class="check-section">
         <h2 class="section-title">Check Agent Reputation</h2>
@@ -871,12 +251,13 @@
       </div>
     </div>
 
+    <!-- COMPARE TAB -->
     <div id="tab-compare" class="tab-content" style="display: none;">
       <div class="section-title">Compare Agents</div>
-      <p style="color: var(--text-muted); margin-bottom: 24px;">Select 2 agents from the directory or enter wallet addresses</p>
+      <p style="color: var(--text-muted); margin-bottom: 24px;">Enter two wallet addresses to compare their FairScores</p>
       <div class="input-group" style="margin-bottom: 24px;">
-        <input type="text" id="compare1Input" placeholder="First wallet address...">
-        <input type="text" id="compare2Input" placeholder="Second wallet address...">
+        <input type="text" id="compare1Input" placeholder="First wallet...">
+        <input type="text" id="compare2Input" placeholder="Second wallet...">
         <button class="btn" onclick="compareAgents()">Compare</button>
       </div>
       <div class="loading" id="compareLoading"><div class="spinner"></div><span>Loading...</span></div>
@@ -884,7 +265,7 @@
         <div class="compare-card"><div class="name" id="compare1Name">Agent 1</div><div class="wallet" id="compare1Wallet">wallet...</div><div class="score-big" id="compare1Score">0</div><div id="compare1Features"></div></div>
         <div class="compare-card"><div class="name" id="compare2Name">Agent 2</div><div class="wallet" id="compare2Wallet">wallet...</div><div class="score-big" id="compare2Score">0</div><div id="compare2Features"></div></div>
       </div>
-      <div style="text-align: center; margin-top: 24px; display: none;" id="compareClear"><button class="btn btn-secondary" onclick="clearCompare()">Clear Comparison</button></div>
+      <div style="text-align: center; margin-top: 24px; display: none;" id="compareClear"><button class="btn btn-secondary" onclick="clearCompare()">Clear</button></div>
     </div>
 
     <footer class="footer">
@@ -898,27 +279,46 @@
 
   <script>
     const API_URL = 'https://fairscale-reputation-api-production.up.railway.app';
-    let directory = JSON.parse(localStorage.getItem('fairscale_directory') || '[]');
-    let services = [], skills = [], selectedCategory = null, compareSelection = [];
+    
+    // State
+    let directory = [];
+    let services = [];
+    let skills = [];
+    let selectedCategory = null;
+    let compareSelection = [];
 
-    const SKILL_CATEGORIES = { defi: { icon: '💰', label: 'DeFi' }, data: { icon: '📊', label: 'Data' }, trading: { icon: '📈', label: 'Trading' }, social: { icon: '💬', label: 'Social' }, nft: { icon: '🎨', label: 'NFT' }, security: { icon: '🔒', label: 'Security' }, ai: { icon: '🤖', label: 'AI' }, infrastructure: { icon: '⚙️', label: 'Infra' }, utility: { icon: '🔧', label: 'Utility' } };
+    // Badges to hide
+    const HIDDEN_BADGES = ['staker'];
 
-    const DEMO_SERVICES = [
-      { id: 'svc_1', name: 'Jupiter Price Feed', description: 'Real-time token prices from Jupiter aggregator', category: 'data', source: 'x402_bazaar', pricing: { price: '$0.001' } },
-      { id: 'svc_2', name: 'Helius RPC', description: 'High-performance Solana RPC endpoint', category: 'infrastructure', source: 'x402_bazaar', pricing: { price: '$0.0001' } },
-      { id: 'svc_3', name: 'GPT-4 Inference', description: 'OpenAI GPT-4 via x402 micropayments', category: 'ai', source: 'x402_community', pricing: { price: '$0.01' } },
-      { id: 'svc_4', name: 'Wallet Risk Score', description: 'Wallet reputation and risk assessment', category: 'security', source: 'x402_community', pricing: { price: '$0.005' } }
-    ];
+    // Skill categories
+    const SKILL_CATEGORIES = {
+      defi: { icon: '💰', label: 'DeFi' },
+      data: { icon: '📊', label: 'Data' },
+      trading: { icon: '📈', label: 'Trading' },
+      social: { icon: '💬', label: 'Social' },
+      nft: { icon: '🎨', label: 'NFT' },
+      security: { icon: '🔒', label: 'Security' },
+      ai: { icon: '🤖', label: 'AI' },
+      infrastructure: { icon: '⚙️', label: 'Infra' },
+      utility: { icon: '🔧', label: 'Utility' }
+    };
 
-    const DEMO_SKILLS = [
-      { id: 'sk_1', name: 'Yield Optimization', category: 'defi', agentWallet: '9VaDVp...', pricing: { price: '$0.05' } },
-      { id: 'sk_2', name: 'On-chain Analytics', category: 'data', agentWallet: '7nYV6p...', pricing: { price: '$0.02' } },
-      { id: 'sk_3', name: 'Arbitrage Detection', category: 'trading', agentWallet: 'BvK9nZ...', pricing: { price: '$0.05' } },
-      { id: 'sk_4', name: 'Rug Detection', category: 'security', agentWallet: 'CpR7mV...', pricing: { price: '$0.03' } }
-    ];
+    // Load from localStorage
+    try { directory = JSON.parse(localStorage.getItem('fairscale_directory') || '[]'); } catch (e) { directory = []; }
 
-    renderDirectory(); updateStats(); loadServices(); loadSkills();
+    // Filter badges helper
+    function filterBadges(badges) {
+      if (!badges) return [];
+      return badges.filter(b => !HIDDEN_BADGES.includes(b.id));
+    }
 
+    // Init
+    renderDirectory();
+    updateStats();
+    loadServices();
+    loadSkills();
+
+    // Tab switching
     function showTab(tab) {
       document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
       document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
@@ -926,48 +326,105 @@
       document.getElementById(`tab-${tab}`).style.display = 'block';
     }
 
+    // ==================== CHECK AGENT ====================
     async function checkAgent() {
       const wallet = document.getElementById('walletInput').value.trim();
       const btn = document.getElementById('checkBtn');
       const loading = document.getElementById('loading');
       const error = document.getElementById('errorMsg');
       const result = document.getElementById('resultCard');
-      error.classList.remove('show'); result.classList.remove('show');
-      if (!wallet || wallet.length < 32 || wallet.length > 44) { showError('Please enter a valid wallet address'); return; }
-      btn.disabled = true; loading.classList.add('show');
+
+      error.classList.remove('show');
+      result.classList.remove('show');
+
+      if (!wallet || wallet.length < 32 || wallet.length > 44) {
+        showError('Please enter a valid Solana wallet address');
+        return;
+      }
+
+      btn.disabled = true;
+      loading.classList.add('show');
+
       try {
         const response = await fetch(`${API_URL}/score?wallet=${encodeURIComponent(wallet)}`);
         const data = await response.json();
-        if (data.error) { showError(data.error); return; }
+
+        if (data.error) {
+          showError(data.error);
+          return;
+        }
+
         window.currentAgentData = data;
         renderResult(data);
-      } catch (e) { showError('Failed to fetch reputation.'); console.error(e); }
-      finally { btn.disabled = false; loading.classList.remove('show'); }
+      } catch (e) {
+        showError('Failed to fetch reputation. Check the wallet address.');
+        console.error(e);
+      } finally {
+        btn.disabled = false;
+        loading.classList.remove('show');
+      }
     }
 
     function renderResult(data) {
-      const name = data.said?.name || data.name || `Agent ${data.wallet.slice(0, 8)}...`;
-      document.getElementById('resultName').textContent = name;
+      document.getElementById('resultName').textContent = data.name || `Agent ${data.wallet.slice(0, 8)}...`;
       document.getElementById('resultWallet').textContent = data.wallet;
-      document.getElementById('resultScore').textContent = data.agent_fairscore || data.fairscale_agent_score || 0;
-      document.getElementById('resultBadges').innerHTML = (data.badges || []).map(b => `<span class="badge ${b.id}">${b.label}</span>`).join('');
+
+      // USE fairscore_base - the REAL FairScale score
+      const score = data.fairscore_base || 0;
+      document.getElementById('resultScore').textContent = score;
+
+      // Filter badges
+      const badges = filterBadges(data.badges);
+      document.getElementById('resultBadges').innerHTML = badges.map(b =>
+        `<span class="badge ${b.id}">${b.label}</span>`
+      ).join('');
+
       document.getElementById('featLongevity').textContent = data.features?.longevity || 0;
       document.getElementById('featExperience').textContent = data.features?.experience || 0;
       document.getElementById('featConviction').textContent = data.features?.conviction || 0;
       document.getElementById('featCapital').textContent = data.features?.capital || 0;
+
       document.getElementById('resultCard').classList.add('show');
     }
 
-    function showError(msg) { const error = document.getElementById('errorMsg'); error.textContent = msg; error.classList.add('show'); }
+    function showError(msg) {
+      const error = document.getElementById('errorMsg');
+      error.textContent = msg;
+      error.classList.add('show');
+    }
 
+    // ==================== DIRECTORY ====================
     function addToDirectory() {
-      const data = window.currentAgentData; if (!data) return;
-      const exists = directory.find(a => a.wallet === data.wallet);
-      const agentData = { wallet: data.wallet, name: data.said?.name || data.name || `Agent ${data.wallet.slice(0, 8)}...`, score: data.agent_fairscore || data.fairscale_agent_score || 0, badges: data.badges, features: data.features, said: data.said, updatedAt: Date.now() };
-      if (exists) { Object.assign(exists, agentData); } else { agentData.addedAt = Date.now(); directory.push(agentData); }
+      const data = window.currentAgentData;
+      if (!data) { alert('No agent data'); return; }
+
+      // Use fairscore_base as the real score
+      const score = data.fairscore_base || 0;
+      const badges = filterBadges(data.badges);
+
+      const agentData = {
+        wallet: data.wallet,
+        name: data.name || `Agent ${data.wallet.slice(0, 8)}...`,
+        score: score,
+        badges: badges,
+        features: data.features,
+        updatedAt: Date.now()
+      };
+
+      const idx = directory.findIndex(a => a.wallet === data.wallet);
+      if (idx >= 0) {
+        directory[idx] = { ...directory[idx], ...agentData };
+      } else {
+        agentData.addedAt = Date.now();
+        directory.push(agentData);
+      }
+
       directory.sort((a, b) => b.score - a.score);
       localStorage.setItem('fairscale_directory', JSON.stringify(directory));
-      renderDirectory(); updateStats();
+
+      renderDirectory();
+      updateStats();
+
       document.getElementById('walletInput').value = '';
       document.getElementById('resultCard').classList.remove('show');
       document.querySelectorAll('.tab')[0].click();
@@ -976,42 +433,263 @@
     function renderDirectory() {
       const list = document.getElementById('directoryList');
       const filtered = getFilteredDirectory();
-      if (filtered.length === 0) { list.innerHTML = `<div class="empty-state"><img src="assets/icon.png" alt="" class="icon"><p>No agents found.<br>${directory.length === 0 ? 'Check an agent and add them.' : 'Try a different search.'}</p></div>`; return; }
+
+      if (filtered.length === 0) {
+        list.innerHTML = `<div class="empty-state"><img src="assets/icon.png" alt="" class="icon"><p>No agents found.<br>${directory.length === 0 ? 'Check an agent to add them.' : 'Try a different search.'}</p></div>`;
+        return;
+      }
+
       list.innerHTML = filtered.map((agent, i) => {
-        const verifiedBadge = agent.badges?.find(b => b.id === 'said_verified');
-        const x402Badge = agent.badges?.find(b => b.id === 'x402_enabled');
+        const badges = filterBadges(agent.badges);
+        const verified = badges.find(b => b.id === 'said_verified');
+        const x402 = badges.find(b => b.id === 'x402_enabled');
+        const others = badges.filter(b => !['said_verified', 'x402_enabled'].includes(b.id)).slice(0, 2);
         const shortWallet = `${agent.wallet.slice(0, 6)}...${agent.wallet.slice(-4)}`;
-        const isSelected = compareSelection.includes(agent.wallet);
-        return `<div class="directory-item" onclick="viewAgent('${agent.wallet}')"><div class="info"><span class="rank">${i + 1}</span><div><div class="name">${agent.name}</div><div class="wallet">${shortWallet}</div><div class="badges-mini">${verifiedBadge ? '<span class="badge-mini verified">Verified</span>' : ''}${x402Badge ? '<span class="badge-mini x402">x402</span>' : ''}${agent.badges?.slice(0, 3).filter(b => !['said_verified', 'x402_enabled'].includes(b.id)).map(b => `<span class="badge-mini">${b.label}</span>`).join('') || ''}</div></div></div><div style="display: flex; align-items: center;"><div class="score">${agent.score}</div><button class="compare-btn ${isSelected ? 'selected' : ''}" onclick="event.stopPropagation(); toggleCompare('${agent.wallet}')">${isSelected ? '✓' : '+'}</button></div></div>`;
+        const selected = compareSelection.includes(agent.wallet);
+
+        return `
+          <div class="directory-item" onclick="viewAgent('${agent.wallet}')">
+            <div class="info">
+              <span class="rank">${i + 1}</span>
+              <div>
+                <div class="name">${agent.name}</div>
+                <div class="wallet">${shortWallet}</div>
+                <div class="badges-mini">
+                  ${verified ? '<span class="badge-mini verified">Verified</span>' : ''}
+                  ${x402 ? '<span class="badge-mini x402">x402</span>' : ''}
+                  ${others.map(b => `<span class="badge-mini">${b.label}</span>`).join('')}
+                </div>
+              </div>
+            </div>
+            <div style="display: flex; align-items: center;">
+              <div class="score">${agent.score}</div>
+              <button class="compare-btn ${selected ? 'selected' : ''}" onclick="event.stopPropagation(); toggleCompare('${agent.wallet}')">${selected ? '✓' : '+'}</button>
+            </div>
+          </div>
+        `;
       }).join('');
     }
 
     function getFilteredDirectory() {
-      const search = document.getElementById('searchInput').value.toLowerCase();
-      const badge = document.getElementById('badgeFilter').value;
-      return directory.filter(agent => { const matchesSearch = !search || agent.name.toLowerCase().includes(search) || agent.wallet.toLowerCase().includes(search); const matchesBadge = !badge || agent.badges?.some(b => b.id === badge); return matchesSearch && matchesBadge; });
+      const search = document.getElementById('searchInput')?.value.toLowerCase() || '';
+      const badge = document.getElementById('badgeFilter')?.value || '';
+      return directory.filter(agent => {
+        const matchSearch = !search || agent.name.toLowerCase().includes(search) || agent.wallet.toLowerCase().includes(search);
+        const matchBadge = !badge || filterBadges(agent.badges).some(b => b.id === badge);
+        return matchSearch && matchBadge;
+      });
     }
 
     function filterDirectory() { renderDirectory(); }
-    function updateStats() { document.getElementById('totalAgents').textContent = directory.length; const avg = directory.length > 0 ? Math.round(directory.reduce((sum, a) => sum + a.score, 0) / directory.length) : 0; document.getElementById('avgScore').textContent = avg; const verified = directory.filter(a => a.badges?.some(b => b.id === 'said_verified')).length; document.getElementById('verifiedCount').textContent = verified; }
-    function viewAgent(wallet) { document.getElementById('walletInput').value = wallet; document.querySelectorAll('.tab')[3].click(); checkAgent(); }
 
-    async function loadServices() { try { const res = await fetch(`${API_URL}/services`); if (res.ok) { const data = await res.json(); services = data.services || []; } } catch (e) { } if (services.length === 0) services = DEMO_SERVICES; renderServices(); }
-    function renderServices() { const grid = document.getElementById('servicesGrid'); const search = document.getElementById('servicesSearch')?.value.toLowerCase() || ''; const category = document.getElementById('serviceCategory')?.value || ''; let filtered = services.filter(s => { const matchesSearch = !search || s.name?.toLowerCase().includes(search) || s.description?.toLowerCase().includes(search); const matchesCategory = !category || s.category === category; return matchesSearch && matchesCategory; }); if (filtered.length === 0) { grid.innerHTML = `<div class="empty-state" style="grid-column: 1/-1;"><p>No services found</p></div>`; return; } grid.innerHTML = filtered.map(s => `<div class="service-card"><div class="service-header"><div class="service-name">${s.name || 'Unnamed Service'}</div><div class="service-price">${s.pricing?.price || '—'}</div></div><div class="service-description">${s.description || 'No description'}</div><div class="service-meta"><span class="service-category">${s.category || 'utility'}</span><span class="service-source">${s.source?.replace('_', ' ') || ''}</span></div></div>`).join(''); }
+    function updateStats() {
+      document.getElementById('totalAgents').textContent = directory.length;
+      const avg = directory.length > 0 ? Math.round(directory.reduce((s, a) => s + (a.score || 0), 0) / directory.length) : 0;
+      document.getElementById('avgScore').textContent = avg;
+      const verified = directory.filter(a => filterBadges(a.badges).some(b => b.id === 'said_verified')).length;
+      document.getElementById('verifiedCount').textContent = verified;
+    }
+
+    function viewAgent(wallet) {
+      document.getElementById('walletInput').value = wallet;
+      document.querySelectorAll('.tab')[3].click();
+      checkAgent();
+    }
+
+    // ==================== SERVICES ====================
+    async function loadServices() {
+      const grid = document.getElementById('servicesGrid');
+      try {
+        const res = await fetch(`${API_URL}/services`);
+        if (res.ok) {
+          const data = await res.json();
+          services = data.services || [];
+        }
+      } catch (e) { console.log('Services unavailable'); }
+      renderServices();
+    }
+
+    function renderServices() {
+      const grid = document.getElementById('servicesGrid');
+      const search = document.getElementById('servicesSearch')?.value.toLowerCase() || '';
+      const cat = document.getElementById('serviceCategory')?.value || '';
+
+      let filtered = services.filter(s => {
+        const matchSearch = !search || s.name?.toLowerCase().includes(search) || s.description?.toLowerCase().includes(search);
+        const matchCat = !cat || s.category === cat;
+        return matchSearch && matchCat;
+      });
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `<div class="empty-state" style="grid-column: 1/-1;"><p>${services.length === 0 ? 'No services available. The API may need a sync.' : 'No services match your filter.'}</p></div>`;
+        return;
+      }
+
+      grid.innerHTML = filtered.map(s => {
+        const url = s.resource || '';
+        const price = s.pricing?.price || s.pricing?.maxAmountRequired || '—';
+        return `
+          <div class="service-card" onclick="openService('${url}')">
+            <div class="service-header">
+              <div class="service-name">${s.name || 'Service'}</div>
+              <div class="service-price">${typeof price === 'number' ? '$' + price : price}</div>
+            </div>
+            <div class="service-description">${s.description || 'No description'}</div>
+            <div class="service-meta">
+              <span class="service-category">${s.category || 'utility'}</span>
+              <span class="service-source">${(s.source || '').replace('_', ' ')}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function openService(url) {
+      if (url) window.open(url, '_blank');
+    }
+
     function filterServices() { renderServices(); }
 
-    async function loadSkills() { try { const res = await fetch(`${API_URL}/skills`); if (res.ok) { const data = await res.json(); skills = data.skills || []; } } catch (e) { } if (skills.length === 0) skills = DEMO_SKILLS; renderSkillCategories(); renderSkills(); }
-    function renderSkillCategories() { const container = document.getElementById('skillsCategories'); const counts = {}; skills.forEach(s => { counts[s.category] = (counts[s.category] || 0) + 1; }); container.innerHTML = Object.entries(SKILL_CATEGORIES).map(([key, cat]) => `<div class="skill-category ${selectedCategory === key ? 'active' : ''}" onclick="selectCategory('${key}')"><div class="icon">${cat.icon}</div><div class="name">${cat.label}</div><div class="count">${counts[key] || 0} skills</div></div>`).join(''); }
-    function selectCategory(cat) { selectedCategory = selectedCategory === cat ? null : cat; renderSkillCategories(); renderSkills(); }
-    function renderSkills() { const list = document.getElementById('skillsList'); const search = document.getElementById('skillsSearch')?.value.toLowerCase() || ''; let filtered = skills.filter(s => { const matchesSearch = !search || s.name?.toLowerCase().includes(search); const matchesCategory = !selectedCategory || s.category === selectedCategory; return matchesSearch && matchesCategory; }); if (filtered.length === 0) { list.innerHTML = `<div class="empty-state"><p>No skills found</p></div>`; return; } list.innerHTML = filtered.map(s => `<div class="skill-item"><div><div class="skill-name">${s.name}</div><div class="skill-agent">by ${s.agentWallet}</div></div><div class="skill-price">${s.pricing?.price || 'Contact'}</div></div>`).join(''); }
+    // ==================== SKILLS ====================
+    async function loadSkills() {
+      try {
+        const res = await fetch(`${API_URL}/skills`);
+        if (res.ok) {
+          const data = await res.json();
+          skills = data.skills || [];
+        }
+      } catch (e) { console.log('Skills unavailable'); }
+      renderSkillCategories();
+      renderSkills();
+    }
+
+    function renderSkillCategories() {
+      const container = document.getElementById('skillsCategories');
+      const counts = {};
+      skills.forEach(s => { counts[s.category] = (counts[s.category] || 0) + 1; });
+
+      container.innerHTML = Object.entries(SKILL_CATEGORIES).map(([key, cat]) => `
+        <div class="skill-category ${selectedCategory === key ? 'active' : ''}" onclick="selectCategory('${key}')">
+          <div class="icon">${cat.icon}</div>
+          <div class="name">${cat.label}</div>
+          <div class="count">${counts[key] || 0}</div>
+        </div>
+      `).join('');
+    }
+
+    function selectCategory(cat) {
+      selectedCategory = selectedCategory === cat ? null : cat;
+      renderSkillCategories();
+      renderSkills();
+    }
+
+    function renderSkills() {
+      const list = document.getElementById('skillsList');
+      const search = document.getElementById('skillsSearch')?.value.toLowerCase() || '';
+
+      let filtered = skills.filter(s => {
+        const matchSearch = !search || s.name?.toLowerCase().includes(search);
+        const matchCat = !selectedCategory || s.category === selectedCategory;
+        return matchSearch && matchCat;
+      });
+
+      if (filtered.length === 0) {
+        list.innerHTML = `<div class="empty-state"><p>${skills.length === 0 ? 'No skills registered.' : 'No skills match.'}</p></div>`;
+        return;
+      }
+
+      list.innerHTML = filtered.map(s => {
+        const wallet = s.agentWallet || s.wallet || '';
+        const short = wallet.length > 10 ? `${wallet.slice(0, 6)}...${wallet.slice(-4)}` : wallet;
+        return `
+          <div class="skill-item" onclick="viewSkillAgent('${wallet}')">
+            <div><div class="skill-name">${s.name}</div><div class="skill-agent">by ${short}</div></div>
+            <div class="skill-price">${s.pricing?.price || 'Contact'}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function viewSkillAgent(wallet) {
+      if (wallet) {
+        document.getElementById('walletInput').value = wallet;
+        document.querySelectorAll('.tab')[3].click();
+        checkAgent();
+      }
+    }
+
     function filterSkills() { renderSkills(); }
 
-    function toggleCompare(wallet) { const idx = compareSelection.indexOf(wallet); if (idx > -1) { compareSelection.splice(idx, 1); } else if (compareSelection.length < 2) { compareSelection.push(wallet); } renderDirectory(); if (compareSelection.length === 2) { document.getElementById('compare1Input').value = compareSelection[0]; document.getElementById('compare2Input').value = compareSelection[1]; } }
-    async function compareAgents() { const wallet1 = document.getElementById('compare1Input').value.trim(); const wallet2 = document.getElementById('compare2Input').value.trim(); if (!wallet1 || !wallet2) { alert('Please enter two wallet addresses'); return; } const loading = document.getElementById('compareLoading'); const grid = document.getElementById('compareGrid'); const clear = document.getElementById('compareClear'); loading.classList.add('show'); grid.style.display = 'none'; try { const [data1, data2] = await Promise.all([fetch(`${API_URL}/score?wallet=${encodeURIComponent(wallet1)}`).then(r => r.json()), fetch(`${API_URL}/score?wallet=${encodeURIComponent(wallet2)}`).then(r => r.json())]); renderCompare(data1, data2); grid.style.display = 'grid'; clear.style.display = 'block'; } catch (e) { alert('Failed to fetch agent data'); } finally { loading.classList.remove('show'); } }
-    function renderCompare(data1, data2) { const name1 = data1.said?.name || data1.name || `Agent ${data1.wallet.slice(0, 8)}...`; const name2 = data2.said?.name || data2.name || `Agent ${data2.wallet.slice(0, 8)}...`; const score1 = data1.agent_fairscore || data1.fairscale_agent_score || 0; const score2 = data2.agent_fairscore || data2.fairscale_agent_score || 0; document.getElementById('compare1Name').textContent = name1; document.getElementById('compare1Wallet').textContent = `${data1.wallet.slice(0, 8)}...${data1.wallet.slice(-4)}`; document.getElementById('compare1Score').textContent = score1; document.getElementById('compare2Name').textContent = name2; document.getElementById('compare2Wallet').textContent = `${data2.wallet.slice(0, 8)}...${data2.wallet.slice(-4)}`; document.getElementById('compare2Score').textContent = score2; const features = ['longevity', 'experience', 'conviction', 'capital']; document.getElementById('compare1Features').innerHTML = features.map(f => { const v1 = data1.features?.[f] || 0; const v2 = data2.features?.[f] || 0; return `<div class="compare-feature"><span class="label">${f.charAt(0).toUpperCase() + f.slice(1)}</span><span class="value ${v1 >= v2 ? 'winner' : ''}">${v1}</span></div>`; }).join(''); document.getElementById('compare2Features').innerHTML = features.map(f => { const v1 = data1.features?.[f] || 0; const v2 = data2.features?.[f] || 0; return `<div class="compare-feature"><span class="label">${f.charAt(0).toUpperCase() + f.slice(1)}</span><span class="value ${v2 >= v1 ? 'winner' : ''}">${v2}</span></div>`; }).join(''); }
-    function clearCompare() { compareSelection = []; document.getElementById('compare1Input').value = ''; document.getElementById('compare2Input').value = ''; document.getElementById('compareGrid').style.display = 'none'; document.getElementById('compareClear').style.display = 'none'; renderDirectory(); }
+    // ==================== COMPARE ====================
+    function toggleCompare(wallet) {
+      const idx = compareSelection.indexOf(wallet);
+      if (idx > -1) compareSelection.splice(idx, 1);
+      else if (compareSelection.length < 2) compareSelection.push(wallet);
+      renderDirectory();
+      if (compareSelection.length === 2) {
+        document.getElementById('compare1Input').value = compareSelection[0];
+        document.getElementById('compare2Input').value = compareSelection[1];
+      }
+    }
 
-    document.getElementById('walletInput')?.addEventListener('keypress', (e) => { if (e.key === 'Enter') checkAgent(); });
+    async function compareAgents() {
+      const w1 = document.getElementById('compare1Input').value.trim();
+      const w2 = document.getElementById('compare2Input').value.trim();
+      if (!w1 || !w2) { alert('Enter two wallets'); return; }
+
+      const loading = document.getElementById('compareLoading');
+      const grid = document.getElementById('compareGrid');
+      const clear = document.getElementById('compareClear');
+
+      loading.classList.add('show');
+      grid.style.display = 'none';
+
+      try {
+        const [d1, d2] = await Promise.all([
+          fetch(`${API_URL}/score?wallet=${encodeURIComponent(w1)}`).then(r => r.json()),
+          fetch(`${API_URL}/score?wallet=${encodeURIComponent(w2)}`).then(r => r.json())
+        ]);
+        renderCompare(d1, d2);
+        grid.style.display = 'grid';
+        clear.style.display = 'block';
+      } catch (e) { alert('Failed'); } finally { loading.classList.remove('show'); }
+    }
+
+    function renderCompare(d1, d2) {
+      // Use fairscore_base
+      const s1 = d1.fairscore_base || 0;
+      const s2 = d2.fairscore_base || 0;
+
+      document.getElementById('compare1Name').textContent = d1.name || `Agent ${d1.wallet.slice(0, 8)}...`;
+      document.getElementById('compare1Wallet').textContent = `${d1.wallet.slice(0, 8)}...${d1.wallet.slice(-4)}`;
+      document.getElementById('compare1Score').textContent = s1;
+
+      document.getElementById('compare2Name').textContent = d2.name || `Agent ${d2.wallet.slice(0, 8)}...`;
+      document.getElementById('compare2Wallet').textContent = `${d2.wallet.slice(0, 8)}...${d2.wallet.slice(-4)}`;
+      document.getElementById('compare2Score').textContent = s2;
+
+      const feats = ['longevity', 'experience', 'conviction', 'capital'];
+      document.getElementById('compare1Features').innerHTML = feats.map(f => {
+        const v1 = d1.features?.[f] || 0, v2 = d2.features?.[f] || 0;
+        return `<div class="compare-feature"><span class="label">${f.charAt(0).toUpperCase() + f.slice(1)}</span><span class="value ${v1 >= v2 ? 'winner' : ''}">${v1}</span></div>`;
+      }).join('');
+      document.getElementById('compare2Features').innerHTML = feats.map(f => {
+        const v1 = d1.features?.[f] || 0, v2 = d2.features?.[f] || 0;
+        return `<div class="compare-feature"><span class="label">${f.charAt(0).toUpperCase() + f.slice(1)}</span><span class="value ${v2 >= v1 ? 'winner' : ''}">${v2}</span></div>`;
+      }).join('');
+    }
+
+    function clearCompare() {
+      compareSelection = [];
+      document.getElementById('compare1Input').value = '';
+      document.getElementById('compare2Input').value = '';
+      document.getElementById('compareGrid').style.display = 'none';
+      document.getElementById('compareClear').style.display = 'none';
+      renderDirectory();
+    }
+
+    // Keyboard
+    document.getElementById('walletInput')?.addEventListener('keypress', e => { if (e.key === 'Enter') checkAgent(); });
   </script>
 </body>
 </html>
