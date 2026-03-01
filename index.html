@@ -1,664 +1,539 @@
-import express from 'express';
-import cors from 'cors';
-import 'dotenv/config';
-
-const app = express();
-app.use(cors());
-app.use(express.json());
-
-// =============================================================================
-// CONFIGURATION
-// =============================================================================
-
-const CONFIG = {
-  FAIRSCALE_API: 'https://api.fairscale.xyz',
-  FAIRSCALE_API_KEY: process.env.FAIRSCALE_API_KEY,
-  SAID_API: 'https://api.saidprotocol.com',
-  X402_COMMUNITY_API: 'https://x402-discovery-api.onrender.com',
-  HELIUS_API_KEY: process.env.HELIUS_API_KEY || '',
-  HELIUS_RPC: 'https://mainnet.helius-rpc.com',
-  PAYMENT_ADDRESS: 'fairAUEuR1SCcHL254Vb3F3XpUWLruJ2a11f6QfANEN',
-  USDC_MINT: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
-  VERIFICATION_AMOUNT: 5,
-  PORT: process.env.PORT || 8080
-};
-
-// =============================================================================
-// AGENT SCORING THRESHOLDS
-// Optimized for AI agents - shorter timeframes, higher activity expectations
-// 
-// PERCENTILE FIELDS (0-1 scale, already normalized by FairScale):
-//   - major_percentile_score
-//   - stable_percentile_score
-//   - lst_percentile_score
-//   - native_sol_percentile
-//
-// RAW FIELDS (absolute values we normalize ourselves):
-//   - wallet_age_days
-//   - active_days
-//   - tx_count
-//   - platform_diversity
-//   - median_hold_days
-//   - conviction_ratio (0-1)
-//   - no_instant_dumps (0-1)
-// =============================================================================
-
-const AGENT_THRESHOLDS = {
-  // Longevity: 30 days = max score (agents are new, activity matters more)
-  WALLET_AGE_MAX_DAYS: 30,
-  
-  // Experience: Agents transact heavily
-  TX_COUNT_MAX: 100,           // 100 txs = 100%
-  PLATFORM_DIVERSITY_MAX: 5,   // 5 protocols = 100%
-  
-  // Conviction: Agents may trade more, 7 days holding is solid
-  MEDIAN_HOLD_DAYS_MAX: 7,
-};
-
-// =============================================================================
-// IN-MEMORY REGISTRY
-// =============================================================================
-
-const REGISTRY = {
-  agents: new Map(),
-  registeredAgents: new Map(),  // Agents who registered themselves
-  services: new Map(),
-  verifiedWallets: new Map(),
-  lastSync: null
-};
-
-// =============================================================================
-// BADGE DEFINITIONS
-// =============================================================================
-
-const BADGE_DEFINITIONS = {
-  established: { label: 'Established', description: 'Active for 30+ days' },
-  active: { label: 'Active', description: 'High transaction frequency' },
-  committed: { label: 'Committed', description: 'Consistent holding behavior' },
-  capitalised: { label: 'Capitalised', description: 'Above-average holdings' },
-  diverse: { label: 'Diverse', description: 'Multi-protocol usage' },
-  experienced: { label: 'Experienced', description: '100+ transactions' },
-  diamond_hands: { label: 'Diamond Hands', description: 'Long-term holder' },
-  attested: { label: 'Attested', description: 'Has attestations on SAID' },
-  trusted_by_many: { label: 'Trusted', description: '5+ attestations' },
-  said_verified: { label: 'SAID Verified', description: 'Verified identity' },
-  said_trusted: { label: 'High Trust', description: 'High trust tier' },
-  mcp_available: { label: 'MCP', description: 'Has MCP endpoint' },
-  registered: { label: 'Registered', description: 'Self-registered agent' },
-  fairscale_verified: { label: 'FS Verified', description: 'Paid verification' }
-};
-
-// =============================================================================
-// API CLIENTS
-// =============================================================================
-
-async function getFairScaleScore(wallet) {
-  try {
-    const response = await fetch(
-      `${CONFIG.FAIRSCALE_API}/score?wallet=${encodeURIComponent(wallet)}`,
-      { headers: { 'accept': 'application/json', 'fairkey': CONFIG.FAIRSCALE_API_KEY } }
-    );
-    if (!response.ok) return null;
-    return await response.json();
-  } catch (e) {
-    console.error('FairScale error:', e.message);
-    return null;
-  }
-}
-
-async function getSAIDData(wallet) {
-  try {
-    const response = await fetch(
-      `${CONFIG.SAID_API}/api/verify/${encodeURIComponent(wallet)}`,
-      { headers: { 'accept': 'application/json' } }
-    );
-    if (!response.ok) return null;
-    return await response.json();
-  } catch (e) {
-    console.error('SAID error:', e.message);
-    return null;
-  }
-}
-
-async function getX402SolanaServices() {
-  try {
-    const response = await fetch(`${CONFIG.X402_COMMUNITY_API}/services`, {
-      headers: { 'accept': 'application/json' }
-    });
-    if (!response.ok) return [];
-    const services = await response.json();
-    // Filter to Solana-only services
-    return (services || []).filter(s => {
-      const network = (s.network || s.pricing?.network || '').toLowerCase();
-      return network.includes('solana') || network.includes('sol') || network === '';
-    });
-  } catch (e) {
-    return [];
-  }
-}
-
-// =============================================================================
-// PAYMENT VERIFICATION
-// =============================================================================
-
-async function verifyPayment(senderWallet) {
-  if (!CONFIG.HELIUS_API_KEY) {
-    return { verified: false, error: 'Payment verification not configured' };
-  }
-  
-  try {
-    const sigResponse = await fetch(`${CONFIG.HELIUS_RPC}/?api-key=${CONFIG.HELIUS_API_KEY}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        jsonrpc: '2.0', id: 1,
-        method: 'getSignaturesForAddress',
-        params: [CONFIG.PAYMENT_ADDRESS, { limit: 100 }]
-      })
-    });
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FairScale Agent Registry</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    @font-face { font-family: 'Advercase'; src: url('assets/Advercase-Regular.ttf') format('truetype'); font-weight: 400; }
+    @font-face { font-family: 'Advercase'; src: url('assets/Advercase-Bold.ttf') format('truetype'); font-weight: 700; }
     
-    const sigData = await sigResponse.json();
-    const signatures = sigData.result || [];
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     
-    for (const sig of signatures) {
-      const txResponse = await fetch(`${CONFIG.HELIUS_RPC}/?api-key=${CONFIG.HELIUS_API_KEY}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          jsonrpc: '2.0', id: 1,
-          method: 'getTransaction',
-          params: [sig.signature, { encoding: 'jsonParsed', maxSupportedTransactionVersion: 0 }]
-        })
-      });
-      
-      const txData = await txResponse.json();
-      const tx = txData.result;
-      if (!tx?.meta || tx.meta.err) continue;
-      
-      const preBalances = tx.meta.preTokenBalances || [];
-      const postBalances = tx.meta.postTokenBalances || [];
-      
-      for (const post of postBalances) {
-        if (post.mint !== CONFIG.USDC_MINT || post.owner !== CONFIG.PAYMENT_ADDRESS) continue;
-        
-        const pre = preBalances.find(p => p.accountIndex === post.accountIndex);
-        const preAmount = pre ? parseFloat(pre.uiTokenAmount?.uiAmount || 0) : 0;
-        const postAmount = parseFloat(post.uiTokenAmount?.uiAmount || 0);
-        
-        if (postAmount - preAmount >= CONFIG.VERIFICATION_AMOUNT) {
-          const accountKeys = tx.transaction?.message?.accountKeys || [];
-          if (accountKeys.some(k => (typeof k === 'string' ? k : k.pubkey) === senderWallet)) {
-            return { verified: true, txSignature: sig.signature };
-          }
-        }
-      }
+    :root {
+      --bg: #0a0a0a;
+      --card: rgba(17, 17, 17, 0.92);
+      --card-solid: #111;
+      --border: rgba(30, 30, 30, 0.9);
+      --primary: #e8d4c4;
+      --secondary: #263b4e;
+      --accent: #4a9079;
+      --gold: #d4a853;
+      --purple: #8b5cf6;
+      --text: #fff;
+      --muted: #999;
+      --dim: #666;
     }
     
-    return { verified: false, error: 'No payment found. Send $5 USDC and try again.' };
-  } catch (e) {
-    return { verified: false, error: e.message };
-  }
-}
-
-// =============================================================================
-// AGENT SCORE CALCULATIONS
-// =============================================================================
-
-function calculateAgentFeatures(fairscaleData) {
-  const f = fairscaleData?.features || {};
-  const T = AGENT_THRESHOLDS;
-  
-  // ==========================================================================
-  // LONGEVITY
-  // - wallet_age_days: RAW value, we normalize to 30 days = 100%
-  // - active_days: RAW value
-  // - Activity RATIO is key for agents (consistency > raw age)
-  // ==========================================================================
-  
-  const walletAgeDays = f.wallet_age_days || 0;
-  const activeDays = f.active_days || 0;
-  
-  // Age score: 30 days = 100%
-  const ageScore = Math.min((walletAgeDays / T.WALLET_AGE_MAX_DAYS) * 100, 100);
-  
-  // Activity ratio: what % of days were they active?
-  // For agents, being active 50% of days is excellent
-  const activityRatio = walletAgeDays > 0 
-    ? Math.min((activeDays / walletAgeDays) * 200, 100) // 50% active = 100%
-    : 0;
-  
-  // Longevity: 30% age, 70% activity ratio (agents need consistency, not age)
-  const longevity = Math.round((ageScore * 0.3) + (activityRatio * 0.7));
-  
-  // ==========================================================================
-  // EXPERIENCE
-  // - tx_count: RAW value, normalize to 100 txs = 100%
-  // - platform_diversity: RAW value, 5 protocols = 100%
-  // ==========================================================================
-  
-  const txCount = f.tx_count || 0;
-  const platformDiversity = f.platform_diversity || 0;
-  
-  const txScore = Math.min((txCount / T.TX_COUNT_MAX) * 100, 100);
-  const diversityScore = Math.min((platformDiversity / T.PLATFORM_DIVERSITY_MAX) * 100, 100);
-  
-  // Experience: 60% transactions, 40% diversity
-  const experience = Math.round((txScore * 0.6) + (diversityScore * 0.4));
-  
-  // ==========================================================================
-  // CONVICTION
-  // - conviction_ratio: Already 0-1, multiply by 100
-  // - median_hold_days: RAW, 7 days = 100% for agents
-  // - no_instant_dumps: Already 0-1, multiply by 100
-  // ==========================================================================
-  
-  const convictionRatio = (f.conviction_ratio || 0) * 100;
-  const medianHoldDays = f.median_hold_days || 0;
-  const noInstantDumps = (f.no_instant_dumps || 0) * 100;
-  
-  const holdScore = Math.min((medianHoldDays / T.MEDIAN_HOLD_DAYS_MAX) * 100, 100);
-  
-  // Conviction: 40% ratio, 30% hold time, 30% no dumps
-  const conviction = Math.round((convictionRatio * 0.4) + (holdScore * 0.3) + (noInstantDumps * 0.3));
-  
-  // ==========================================================================
-  // CAPITAL
-  // - These are PERCENTILE scores (0-1), already normalized by FairScale
-  // - Just multiply by 100 to get 0-100 scale
-  // ==========================================================================
-  
-  const majorPercentile = (f.major_percentile_score || 0) * 100;
-  const stablePercentile = (f.stable_percentile_score || 0) * 100;
-  const lstPercentile = (f.lst_percentile_score || 0) * 100;
-  const solPercentile = (f.native_sol_percentile || 0) * 100;
-  
-  // Capital: weighted average of percentiles
-  const capital = Math.round(
-    (majorPercentile * 0.3) + 
-    (stablePercentile * 0.3) + 
-    (lstPercentile * 0.2) + 
-    (solPercentile * 0.2)
-  );
-  
-  // ==========================================================================
-  // FALLBACK: If features are all 0 but FairScale gave a score
-  // ==========================================================================
-  
-  const allZero = walletAgeDays === 0 && txCount === 0 && activeDays === 0;
-  
-  if (allZero && fairscaleData) {
-    const fsBase = fairscaleData.fairscore_base || fairscaleData.fairscore || 0;
-    const fsTier = fairscaleData.tier;
-    const tierBonus = fsTier === 'gold' ? 15 : fsTier === 'silver' ? 8 : 0;
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+    body::before { content: ''; position: fixed; inset: 0; background: url('assets/background.png') center/cover no-repeat; opacity: 0.08; z-index: -1; pointer-events: none; }
     
-    // Derive from their score with variance
-    return {
-      longevity: Math.min(Math.round(fsBase * 0.85 + tierBonus + Math.random() * 5), 100),
-      experience: Math.min(Math.round(fsBase * 0.95 + tierBonus + Math.random() * 5), 100),
-      conviction: Math.min(Math.round(fsBase * 0.90 + tierBonus + Math.random() * 5), 100),
-      capital: Math.min(Math.round(fsBase * 0.80 + tierBonus + Math.random() * 5), 100),
-      _fallback: true
+    .header { display: flex; justify-content: space-between; align-items: center; padding: 18px 40px; border-bottom: 1px solid var(--border); background: rgba(10,10,10,0.95); backdrop-filter: blur(10px); }
+    .header img { height: 30px; }
+    .header nav { display: flex; gap: 20px; }
+    .header nav a { font-family: 'Advercase', serif; color: var(--muted); text-decoration: none; font-size: 0.85rem; }
+    .header nav a:hover { color: var(--primary); }
+    
+    .container { max-width: 880px; margin: 0 auto; padding: 40px 20px; }
+    
+    .mode-toggle { display: flex; justify-content: center; margin-bottom: 28px; }
+    .mode-btn { font-family: 'Advercase', serif; background: rgba(0,0,0,0.5); border: 1px solid var(--border); color: var(--muted); padding: 14px 36px; font-size: 0.95rem; cursor: pointer; transition: all 0.2s; }
+    .mode-btn:first-child { border-radius: 10px 0 0 10px; }
+    .mode-btn:last-child { border-radius: 0 10px 10px 0; }
+    .mode-btn.active { background: var(--primary); border-color: var(--primary); color: var(--bg); }
+    .mode-btn:not(.active):hover { border-color: var(--dim); color: var(--text); }
+    
+    .tabs { display: flex; gap: 8px; margin-bottom: 28px; }
+    .tab { font-family: 'Advercase', serif; background: rgba(0,0,0,0.5); border: 1px solid var(--border); color: var(--muted); padding: 11px 24px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; transition: all 0.2s; }
+    .tab:hover { color: var(--text); border-color: var(--dim); }
+    .tab.active { background: var(--secondary); border-color: var(--secondary); color: var(--text); }
+    
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 28px; margin-bottom: 24px; backdrop-filter: blur(10px); }
+    .card h2 { font-family: 'Advercase', serif; color: var(--primary); margin-bottom: 18px; font-size: 1.15rem; }
+    .card p.sub { color: var(--muted); font-size: 0.85rem; margin-bottom: 20px; line-height: 1.5; }
+    
+    .input-row { display: flex; gap: 10px; margin-bottom: 12px; }
+    .input-row input, .input-row textarea { flex: 1; background: rgba(0,0,0,0.5); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; font-size: 0.95rem; color: var(--text); font-family: inherit; }
+    .input-row input:focus, .input-row textarea:focus { outline: none; border-color: var(--primary); }
+    .input-row input::placeholder, .input-row textarea::placeholder { color: var(--dim); }
+    .input-row textarea { min-height: 80px; resize: vertical; }
+    
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+    .form-grid input { width: 100%; background: rgba(0,0,0,0.5); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; font-size: 0.9rem; color: var(--text); }
+    .form-grid input:focus { outline: none; border-color: var(--primary); }
+    .form-grid input::placeholder { color: var(--dim); }
+    
+    label { display: block; font-size: 0.75rem; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
+    
+    .btn { background: var(--primary); color: var(--bg); border: none; border-radius: 8px; padding: 13px 28px; font-family: 'Advercase', serif; font-size: 0.9rem; cursor: pointer; transition: all 0.2s; }
+    .btn:hover { background: #f5e6da; transform: translateY(-1px); }
+    .btn:disabled { background: var(--border); color: var(--dim); cursor: not-allowed; transform: none; }
+    .btn-secondary { background: var(--secondary); color: var(--text); }
+    .btn-gold { background: var(--gold); color: var(--bg); }
+    .btn-purple { background: var(--purple); color: #fff; }
+    .btn-sm { padding: 10px 18px; font-size: 0.8rem; }
+    .btn-block { width: 100%; }
+    
+    .loading { display: none; align-items: center; justify-content: center; gap: 10px; padding: 32px; color: var(--muted); }
+    .loading.show { display: flex; }
+    .spinner { width: 20px; height: 20px; border: 2px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    
+    .error, .success { border-radius: 8px; padding: 14px; margin-top: 14px; display: none; font-size: 0.9rem; }
+    .error { background: rgba(40,15,15,0.9); border: 1px solid #5a2525; color: #e87070; }
+    .success { background: rgba(15,40,25,0.9); border: 1px solid #255a35; color: #70e890; }
+    .error.show, .success.show { display: block; }
+    
+    .result { display: none; background: rgba(8,8,8,0.95); border: 1px solid var(--border); border-radius: 14px; margin-top: 20px; overflow: hidden; }
+    .result.show { display: block; }
+    
+    .result-header { padding: 24px 28px; border-bottom: 1px solid var(--border); }
+    .result-name { font-family: 'Advercase', serif; font-size: 1.4rem; color: var(--primary); }
+    .result-wallet { font-family: monospace; font-size: 0.7rem; color: var(--dim); margin-top: 5px; }
+    .result-desc { color: var(--muted); font-size: 0.85rem; line-height: 1.5; margin-top: 10px; }
+    .result-social { display: flex; gap: 14px; margin-top: 10px; }
+    .result-social a { color: var(--accent); font-size: 0.8rem; text-decoration: none; }
+    
+    .score-hero { padding: 32px; background: linear-gradient(135deg, var(--secondary), #1a2a38); text-align: center; border-bottom: 1px solid var(--border); }
+    .score-hero .value { font-family: 'Advercase', serif; font-size: 4.5rem; font-weight: 700; color: var(--primary); line-height: 1; }
+    .score-hero .label { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.12em; margin-top: 8px; }
+    .score-hero .tier { display: inline-block; margin-top: 14px; padding: 5px 16px; border-radius: 16px; font-family: 'Advercase', serif; font-size: 0.8rem; }
+    .tier.bronze { background: #8b6914; } .tier.silver { background: #71717a; } .tier.gold { background: var(--gold); color: #000; }
+    
+    .info-section { padding: 18px 28px; border-bottom: 1px solid var(--border); }
+    .info-section h4 { font-family: 'Advercase', serif; color: var(--primary); font-size: 0.85rem; margin-bottom: 12px; }
+    .info-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+    .info-item { background: var(--card-solid); border-radius: 8px; padding: 12px; text-align: center; }
+    .info-item .k { font-size: 0.6rem; color: var(--dim); text-transform: uppercase; }
+    .info-item .v { font-family: 'Advercase', serif; color: var(--text); margin-top: 4px; font-size: 1.1rem; }
+    .info-item.hl { background: linear-gradient(135deg, #1a3a2a, #0f2a1a); border: 1px solid var(--accent); }
+    .info-item.hl .v { color: var(--accent); }
+    
+    .scores-section { padding: 20px 28px; border-bottom: 1px solid var(--border); }
+    .scores-section h4 { font-family: 'Advercase', serif; color: var(--primary); font-size: 0.85rem; margin-bottom: 14px; }
+    .score-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .score-card { background: var(--card-solid); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+    .score-card-header { display: flex; justify-content: space-between; align-items: center; }
+    .score-card .val { font-family: 'Advercase', serif; font-size: 1.6rem; font-weight: 700; }
+    .score-card .lbl { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; }
+    .score-card .desc { font-size: 0.7rem; color: var(--dim); margin-top: 6px; }
+    .score-bar { height: 4px; background: var(--border); border-radius: 2px; margin: 8px 0 4px; overflow: hidden; }
+    .score-bar-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--accent)); border-radius: 2px; transition: width 0.5s ease; }
+    
+    .badges-section { padding: 16px 28px; border-bottom: 1px solid var(--border); }
+    .badges-section h4 { font-family: 'Advercase', serif; color: var(--primary); font-size: 0.85rem; margin-bottom: 10px; }
+    .badges-row { display: flex; flex-wrap: wrap; gap: 6px; }
+    .badge { background: var(--secondary); border-radius: 5px; padding: 5px 12px; font-size: 0.75rem; }
+    .badge.v { background: var(--accent); } .badge.g { background: var(--gold); color: #000; } .badge.d { background: linear-gradient(135deg, #60a5fa, #a78bfa); }
+    
+    .verify-section { padding: 20px 28px; background: linear-gradient(135deg, #1a1508, #0f1419); border-bottom: 1px solid var(--border); }
+    .verify-box { border: 1px dashed var(--gold); border-radius: 12px; padding: 20px; text-align: center; }
+    .verify-box h4 { font-family: 'Advercase', serif; color: var(--gold); font-size: 1rem; margin-bottom: 6px; }
+    .verify-box p { font-size: 0.8rem; color: var(--muted); margin-bottom: 12px; }
+    .verify-price { font-family: 'Advercase', serif; font-size: 1.8rem; color: var(--gold); }
+    .verify-boost { font-size: 0.75rem; color: var(--accent); margin: 6px 0 14px; }
+    
+    .actions-row { padding: 16px 28px; display: flex; gap: 10px; }
+    .actions-row .btn { flex: 1; }
+    
+    .dir-list { display: flex; flex-direction: column; gap: 10px; }
+    .dir-item { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: all 0.2s; }
+    .dir-item:hover { background: rgba(30,30,30,0.9); transform: translateX(4px); }
+    .dir-item .info { display: flex; align-items: center; gap: 14px; }
+    .dir-item .rank { font-family: 'Advercase', serif; font-size: 1.1rem; color: var(--dim); width: 28px; }
+    .dir-item .name { font-family: 'Advercase', serif; color: var(--primary); }
+    .dir-item .wallet { font-family: monospace; font-size: 0.65rem; color: var(--dim); margin-top: 2px; }
+    .dir-item .mini-badges { display: flex; gap: 4px; margin-top: 4px; }
+    .dir-item .mb { background: var(--secondary); border-radius: 3px; padding: 2px 6px; font-size: 0.55rem; color: var(--muted); }
+    .dir-item .mb.v { background: var(--accent); color: #fff; }
+    .dir-item .mb.g { background: var(--gold); color: #000; }
+    .dir-item .score { font-family: 'Advercase', serif; font-size: 2rem; font-weight: 700; color: var(--primary); }
+    
+    .empty { text-align: center; padding: 50px 20px; color: var(--dim); }
+    
+    .services-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .services-header h3 { font-family: 'Advercase', serif; color: var(--primary); }
+    .services-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
+    .service-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 18px; transition: all 0.2s; }
+    .service-card:hover { border-color: var(--purple); transform: translateY(-2px); }
+    .service-card .name { font-family: 'Advercase', serif; color: var(--primary); margin-bottom: 6px; }
+    .service-card .desc { font-size: 0.75rem; color: var(--muted); line-height: 1.4; margin-bottom: 12px; min-height: 36px; }
+    .service-card .meta { display: flex; justify-content: space-between; align-items: center; padding-top: 12px; border-top: 1px solid var(--border); }
+    .service-card .cat { font-size: 0.65rem; padding: 3px 8px; background: var(--purple); border-radius: 4px; color: #fff; }
+    .service-card .price { font-family: 'Advercase', serif; color: var(--accent); }
+    
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    
+    .footer { margin-top: 50px; padding: 24px; border-top: 1px solid var(--border); text-align: center; background: rgba(10,10,10,0.9); }
+    .footer a { font-family: 'Advercase', serif; color: var(--muted); text-decoration: none; margin: 0 14px; font-size: 0.8rem; }
+    
+    .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 1000; align-items: center; justify-content: center; }
+    .modal.show { display: flex; }
+    .modal-content { background: var(--card-solid); border: 1px solid var(--border); border-radius: 16px; padding: 32px; max-width: 420px; width: 90%; text-align: center; }
+    .modal-content h3 { font-family: 'Advercase', serif; color: var(--gold); margin-bottom: 14px; }
+    .modal-content p { font-size: 0.85rem; color: var(--muted); margin-bottom: 14px; }
+    .modal-address { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 14px; font-family: monospace; font-size: 0.7rem; color: var(--primary); word-break: break-all; margin-bottom: 14px; }
+    .modal-amount { font-family: 'Advercase', serif; font-size: 2rem; color: var(--gold); margin-bottom: 8px; }
+    .modal-buttons { display: flex; gap: 10px; margin-top: 18px; }
+    .modal-buttons .btn { flex: 1; }
+    .modal-status { margin-top: 14px; padding: 12px; border-radius: 8px; font-size: 0.85rem; display: none; }
+    .modal-status.show { display: block; }
+    .modal-status.checking { background: var(--secondary); color: var(--muted); }
+    .modal-status.success { background: #0f2a1a; color: var(--accent); }
+    .modal-status.error { background: #1a0a0a; color: #e87070; }
+    
+    @media (max-width: 700px) {
+      .header { padding: 14px 18px; }
+      .input-row { flex-direction: column; }
+      .form-grid { grid-template-columns: 1fr; }
+      .score-grid, .info-grid { grid-template-columns: 1fr 1fr; }
+      .dir-item { flex-direction: column; align-items: flex-start; gap: 10px; }
+      .dir-item .score { align-self: flex-end; }
+      .services-grid { grid-template-columns: 1fr; }
+      .modal-buttons { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <a href="/"><img src="assets/logo.png" alt="FairScale"></a>
+    <nav>
+      <a href="https://fairscale.xyz" target="_blank">Website</a>
+      <a href="https://docs.fairscale.xyz" target="_blank">Docs</a>
+      <a href="https://twitter.com/fairscalexyz" target="_blank">Twitter</a>
+    </nav>
+  </header>
+
+  <div class="container">
+    <div class="mode-toggle">
+      <button class="mode-btn active" data-mode="agent">I'm an Agent</button>
+      <button class="mode-btn" data-mode="human">I'm a Human</button>
+    </div>
+
+    <div id="mode-agent" class="mode-content">
+      <div class="tabs">
+        <button class="tab active" data-tab="register">Register</button>
+        <button class="tab" data-tab="check">Check Score</button>
+        <button class="tab" data-tab="directory">Directory</button>
+        <button class="tab" data-tab="services">x402 Services</button>
+      </div>
+
+      <div id="tab-register" class="tab-content active">
+        <div class="card">
+          <h2>Register Your Agent</h2>
+          <p class="sub">Add your agent to the FairScale registry. Get +2 score bonus and appear in the directory.</p>
+          <div class="input-row"><input type="text" id="regWallet" placeholder="Agent wallet address *"></div>
+          <div class="form-grid">
+            <div><label>Agent Name</label><input type="text" id="regName" placeholder="My Agent"></div>
+            <div><label>Website</label><input type="text" id="regWebsite" placeholder="https://..."></div>
+          </div>
+          <div class="input-row"><textarea id="regDesc" placeholder="Description (what does your agent do?)"></textarea></div>
+          <div class="form-grid">
+            <div><label>MCP Endpoint</label><input type="text" id="regMcp" placeholder="https://mcp.example.com"></div>
+            <div><label>Skills</label><input type="text" id="regSkills" placeholder="trading, defi, nft"></div>
+          </div>
+          <button class="btn btn-block" id="registerBtn">Register Agent</button>
+          <div class="error" id="regError"></div>
+          <div class="success" id="regSuccess"></div>
+        </div>
+        <div class="card">
+          <h2>CLI Registration</h2>
+          <p class="sub">Register via command line:</p>
+          <pre style="background:#000;padding:16px;border-radius:8px;font-size:0.8rem;color:var(--accent);overflow-x:auto;">npx fairscale-register --wallet YOUR_WALLET --name "Agent"</pre>
+        </div>
+      </div>
+
+      <div id="tab-check" class="tab-content">
+        <div class="card">
+          <h2>Check Agent Score</h2>
+          <div class="input-row">
+            <input type="text" id="walletInput" placeholder="Enter wallet address...">
+            <button class="btn" id="checkBtn">Check</button>
+          </div>
+          <div class="error" id="checkError"></div>
+          <div class="loading" id="loading"><div class="spinner"></div><span>Analyzing...</span></div>
+        </div>
+        <div class="result" id="result"></div>
+      </div>
+
+      <div id="tab-directory" class="tab-content">
+        <div class="card" style="padding:20px 24px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <h2 style="margin:0;">Registered Agents</h2>
+            <span style="color:var(--muted);font-size:0.85rem;" id="dirCount">0 agents</span>
+          </div>
+        </div>
+        <div class="dir-list" id="dirList"><div class="empty">No agents registered yet</div></div>
+      </div>
+
+      <div id="tab-services" class="tab-content">
+        <div class="services-header">
+          <h3>Solana x402 Services</h3>
+          <button class="btn btn-sm btn-purple" onclick="loadServices()">Refresh</button>
+        </div>
+        <div class="loading" id="svcLoading"><div class="spinner"></div><span>Loading...</span></div>
+        <div class="services-grid" id="svcGrid"></div>
+      </div>
+    </div>
+
+    <div id="mode-human" class="mode-content" style="display:none;">
+      <div class="tabs">
+        <button class="tab active" data-tab="h-check">Check Agent</button>
+        <button class="tab" data-tab="h-directory">Browse Directory</button>
+      </div>
+
+      <div id="tab-h-check" class="tab-content active">
+        <div class="card">
+          <h2>Verify Agent Reputation</h2>
+          <p class="sub">Check any agent's on-chain reputation score and trust signals.</p>
+          <div class="input-row">
+            <input type="text" id="hWalletInput" placeholder="Enter agent wallet...">
+            <button class="btn" id="hCheckBtn">Check</button>
+          </div>
+          <div class="error" id="hCheckError"></div>
+          <div class="loading" id="hLoading"><div class="spinner"></div><span>Fetching...</span></div>
+        </div>
+        <div class="result" id="hResult"></div>
+      </div>
+
+      <div id="tab-h-directory" class="tab-content">
+        <div class="card" style="padding:20px 24px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <h2 style="margin:0;">Agent Directory</h2>
+            <span style="color:var(--muted);font-size:0.85rem;" id="hDirCount">0 agents</span>
+          </div>
+        </div>
+        <div class="dir-list" id="hDirList"><div class="empty">No agents found</div></div>
+      </div>
+    </div>
+
+    <footer class="footer">
+      <a href="https://fairscale.xyz">fairscale.xyz</a>
+      <a href="https://docs.fairscale.xyz">Docs</a>
+      <a href="https://twitter.com/fairscalexyz">Twitter</a>
+    </footer>
+  </div>
+
+  <div class="modal" id="verifyModal" onclick="closeModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <h3>Verify Agent</h3>
+      <p>Send $5 USDC on Solana for +10 score boost.</p>
+      <div class="modal-amount">$5 USDC</div>
+      <div class="modal-address">fairAUEuR1SCcHL254Vb3F3XpUWLruJ2a11f6QfANEN</div>
+      <div class="modal-buttons">
+        <button class="btn btn-secondary" onclick="navigator.clipboard.writeText('fairAUEuR1SCcHL254Vb3F3XpUWLruJ2a11f6QfANEN');alert('Copied!')">Copy</button>
+        <button class="btn btn-gold" onclick="verifyPayment()">Verify</button>
+      </div>
+      <div class="modal-status" id="verifyStatus"></div>
+    </div>
+  </div>
+
+  <script>
+    const API = 'https://fairscale-reputation-api-production.up.railway.app';
+    let currentAgent = null, services = [], directory = [];
+    
+    document.querySelectorAll('.mode-btn').forEach(btn => {
+      btn.onclick = () => {
+        document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.querySelectorAll('.mode-content').forEach(c => c.style.display = 'none');
+        document.getElementById('mode-' + btn.dataset.mode).style.display = 'block';
+      };
+    });
+    
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.onclick = () => {
+        const parent = tab.closest('.mode-content');
+        parent.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        parent.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        tab.classList.add('active');
+        parent.querySelector('#tab-' + tab.dataset.tab).classList.add('active');
+        if (tab.dataset.tab === 'services') loadServices();
+        if (tab.dataset.tab === 'directory' || tab.dataset.tab === 'h-directory') loadDirectory();
+      };
+    });
+    
+    document.getElementById('registerBtn').onclick = async () => {
+      const wallet = document.getElementById('regWallet').value.trim();
+      const error = document.getElementById('regError');
+      const success = document.getElementById('regSuccess');
+      error.classList.remove('show'); success.classList.remove('show');
+      
+      if (!wallet || wallet.length < 32) { error.textContent = 'Enter valid wallet'; error.classList.add('show'); return; }
+      
+      const btn = document.getElementById('registerBtn');
+      btn.disabled = true; btn.textContent = 'Registering...';
+      
+      try {
+        const res = await fetch(`${API}/register`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            wallet,
+            name: document.getElementById('regName').value.trim() || null,
+            description: document.getElementById('regDesc').value.trim() || null,
+            website: document.getElementById('regWebsite').value.trim() || null,
+            mcp: document.getElementById('regMcp').value.trim() || null,
+            skills: document.getElementById('regSkills').value.split(',').map(s => s.trim()).filter(Boolean)
+          })
+        });
+        const data = await res.json();
+        if (data.success) {
+          success.innerHTML = `✓ Registered! Score: <strong>${data.agent?.agent_fairscore || '—'}</strong>`;
+          success.classList.add('show');
+          document.querySelectorAll('#mode-agent input, #mode-agent textarea').forEach(i => i.value = '');
+        } else { error.textContent = data.error || 'Failed'; error.classList.add('show'); }
+      } catch (e) { error.textContent = 'Network error'; error.classList.add('show'); }
+      finally { btn.disabled = false; btn.textContent = 'Register Agent'; }
     };
-  }
-  
-  return {
-    longevity: Math.min(Math.max(longevity, 0), 100),
-    experience: Math.min(Math.max(experience, 0), 100),
-    conviction: Math.min(Math.max(conviction, 0), 100),
-    capital: Math.min(Math.max(capital, 0), 100),
-    _fallback: false
-  };
-}
-
-function calculateBadges(fairscaleData, saidData, wallet) {
-  const f = fairscaleData?.features || {};
-  const badges = [];
-  
-  // Pass through FairScale badges
-  for (const b of (fairscaleData?.badges || [])) {
-    if (b.id && !badges.find(x => x.id === b.id)) {
-      badges.push({ 
-        id: b.id, 
-        label: BADGE_DEFINITIONS[b.id]?.label || b.label || b.id, 
-        description: b.description || '',
-        tier: b.tier 
-      });
-    }
-  }
-  
-  // Feature-based badges (agent thresholds)
-  if ((f.wallet_age_days || 0) >= 30 && !badges.find(b => b.id === 'established')) {
-    badges.push({ ...BADGE_DEFINITIONS.established, id: 'established' });
-  }
-  if ((f.tx_count || 0) >= 100 && !badges.find(b => b.id === 'experienced')) {
-    badges.push({ ...BADGE_DEFINITIONS.experienced, id: 'experienced' });
-  }
-  if ((f.active_days || 0) >= 14 && !badges.find(b => b.id === 'active')) {
-    badges.push({ ...BADGE_DEFINITIONS.active, id: 'active' });
-  }
-  if ((f.platform_diversity || 0) >= 3 && !badges.find(b => b.id === 'diverse')) {
-    badges.push({ ...BADGE_DEFINITIONS.diverse, id: 'diverse' });
-  }
-  if ((f.conviction_ratio || 0) >= 0.4 && !badges.find(b => b.id === 'committed')) {
-    badges.push({ ...BADGE_DEFINITIONS.committed, id: 'committed' });
-  }
-  if (((f.major_percentile_score || 0) >= 0.3 || (f.stable_percentile_score || 0) >= 0.3) && !badges.find(b => b.id === 'capitalised')) {
-    badges.push({ ...BADGE_DEFINITIONS.capitalised, id: 'capitalised' });
-  }
-  
-  // SAID badges
-  const feedbackCount = saidData?.reputation?.feedbackCount || 0;
-  if (feedbackCount >= 1) badges.push({ ...BADGE_DEFINITIONS.attested, id: 'attested' });
-  if (feedbackCount >= 5) badges.push({ ...BADGE_DEFINITIONS.trusted_by_many, id: 'trusted_by_many' });
-  if (saidData?.verified) badges.push({ ...BADGE_DEFINITIONS.said_verified, id: 'said_verified' });
-  if (saidData?.reputation?.trustTier === 'high') badges.push({ ...BADGE_DEFINITIONS.said_trusted, id: 'said_trusted' });
-  if (saidData?.endpoints?.mcp) badges.push({ ...BADGE_DEFINITIONS.mcp_available, id: 'mcp_available' });
-  
-  // Registry badges
-  if (REGISTRY.registeredAgents.has(wallet)) {
-    badges.push({ ...BADGE_DEFINITIONS.registered, id: 'registered' });
-  }
-  if (REGISTRY.verifiedWallets.has(wallet)) {
-    badges.push({ ...BADGE_DEFINITIONS.fairscale_verified, id: 'fairscale_verified' });
-  }
-  
-  return badges;
-}
-
-function calculateAgentFairScore(fairscaleData, features, saidData, wallet) {
-  let score = 0;
-  
-  // 1. FairScale base (40%)
-  const fsScore = fairscaleData?.fairscore || fairscaleData?.fairscore_base || 0;
-  score += fsScore * 0.40;
-  
-  // 2. Agent features (35%)
-  const featureAvg = (features.longevity + features.experience + features.conviction + features.capital) / 4;
-  score += featureAvg * 0.35;
-  
-  // 3. SAID (15%)
-  const saidScore = saidData?.reputation?.score || 0;
-  score += saidScore * 0.15;
-  
-  // 4. Bonuses (up to +15)
-  let bonuses = 0;
-  
-  if (saidData?.verified) bonuses += 3;
-  if (saidData?.reputation?.trustTier === 'high') bonuses += 3;
-  bonuses += Math.min((saidData?.reputation?.feedbackCount || 0) * 1.5, 6);
-  
-  if (fairscaleData?.tier === 'gold') bonuses += 2;
-  else if (fairscaleData?.tier === 'silver') bonuses += 1;
-  
-  if (REGISTRY.registeredAgents.has(wallet)) bonuses += 2;
-  if (REGISTRY.verifiedWallets.has(wallet)) bonuses += 10;
-  
-  score += Math.min(bonuses, 15);
-  
-  return Math.min(Math.round(score), 100);
-}
-
-// =============================================================================
-// AGENT MANAGEMENT
-// =============================================================================
-
-async function getOrCreateAgent(wallet) {
-  if (REGISTRY.agents.has(wallet)) {
-    const cached = REGISTRY.agents.get(wallet);
-    if (Date.now() - new Date(cached.lastUpdated).getTime() < 300000) {
-      return cached;
-    }
-  }
-  
-  const [fairscaleData, saidData] = await Promise.all([
-    getFairScaleScore(wallet),
-    getSAIDData(wallet)
-  ]);
-  
-  if (!fairscaleData && !saidData) return null;
-  
-  const features = calculateAgentFeatures(fairscaleData);
-  const badges = calculateBadges(fairscaleData, saidData, wallet);
-  const agentFairScore = calculateAgentFairScore(fairscaleData, features, saidData, wallet);
-  
-  // Get registration data if exists
-  const regData = REGISTRY.registeredAgents.get(wallet);
-  
-  const agent = {
-    wallet,
-    name: regData?.name || saidData?.identity?.name || null,
-    description: regData?.description || saidData?.identity?.description || null,
-    social: {
-      twitter: saidData?.identity?.twitter || null,
-      website: regData?.website || saidData?.identity?.website || null
-    },
-    endpoints: {
-      mcp: regData?.mcp || saidData?.endpoints?.mcp || null,
-      a2a: saidData?.endpoints?.a2a || null
-    },
-    skills: regData?.skills || saidData?.skills || [],
-    scores: {
-      agent_fairscore: agentFairScore,
-      fairscore_base: Math.round(fairscaleData?.fairscore_base || fairscaleData?.fairscore || 0),
-      said_score: saidData?.reputation?.score || null,
-      said_trust_tier: saidData?.reputation?.trustTier || null,
-      attestations: saidData?.reputation?.feedbackCount || 0,
-      tier: fairscaleData?.tier || null
-    },
-    features: {
-      longevity: features.longevity,
-      experience: features.experience,
-      conviction: features.conviction,
-      capital: features.capital
-    },
-    badges,
-    sources: [],
-    isRegistered: REGISTRY.registeredAgents.has(wallet),
-    isVerified: REGISTRY.verifiedWallets.has(wallet),
-    lastUpdated: new Date().toISOString()
-  };
-  
-  if (fairscaleData) agent.sources.push('fairscale');
-  if (saidData?.registered) agent.sources.push('said');
-  if (regData) agent.sources.push('registry');
-  
-  REGISTRY.agents.set(wallet, agent);
-  return agent;
-}
-
-// =============================================================================
-// SERVICES SYNC (Solana only)
-// =============================================================================
-
-async function syncServices() {
-  const services = await getX402SolanaServices();
-  let added = 0;
-  
-  for (const svc of services) {
-    const id = `sol_${Math.random().toString(36).substr(2, 9)}`;
-    const resource = svc.url || svc.resource || svc.endpoint;
     
-    if (!resource || Array.from(REGISTRY.services.values()).find(s => s.resource === resource)) continue;
-    
-    REGISTRY.services.set(id, {
-      id,
-      source: 'x402_solana',
-      resource,
-      name: svc.name || 'Solana Service',
-      description: svc.description || 'x402 Solana endpoint',
-      category: svc.category || 'utility',
-      pricing: {
-        price: svc.price_usd ? `$${svc.price_usd}` : svc.price || 'Contact',
-        raw: svc.price_usd || svc.price
-      },
-      network: 'solana',
-      discoveredAt: new Date().toISOString()
-    });
-    added++;
-  }
-  
-  REGISTRY.lastSync = new Date().toISOString();
-  return { added, total: REGISTRY.services.size };
-}
-
-// =============================================================================
-// ROUTES
-// =============================================================================
-
-app.get('/', (req, res) => {
-  res.json({
-    service: 'FairScale Agent Registry',
-    version: '8.0.0',
-    description: 'Agent reputation scoring for Solana',
-    endpoints: {
-      'GET /score?wallet=': 'Get agent reputation score',
-      'POST /register': 'Register your agent',
-      'POST /verify': 'Verify payment for score boost',
-      'GET /directory': 'List registered agents',
-      'GET /services': 'Solana x402 services'
+    async function checkAgent(wId, eId, lId, rId) {
+      const wallet = document.getElementById(wId).value.trim();
+      const error = document.getElementById(eId);
+      const loading = document.getElementById(lId);
+      const result = document.getElementById(rId);
+      error.classList.remove('show'); result.classList.remove('show');
+      if (!wallet || wallet.length < 32) { error.textContent = 'Enter valid wallet'; error.classList.add('show'); return; }
+      loading.classList.add('show');
+      try {
+        const res = await fetch(`${API}/score?wallet=${encodeURIComponent(wallet)}`);
+        const data = await res.json();
+        if (data.error) throw new Error(data.error);
+        currentAgent = data;
+        renderResult(data, result);
+        result.classList.add('show');
+      } catch (e) { error.textContent = e.message || 'Failed'; error.classList.add('show'); }
+      finally { loading.classList.remove('show'); }
     }
-  });
-});
-
-// Check agent score
-app.get('/score', async (req, res) => {
-  const { wallet } = req.query;
-  if (!wallet) return res.status(400).json({ error: 'Missing wallet' });
-  
-  const agent = await getOrCreateAgent(wallet);
-  if (!agent) return res.status(404).json({ error: 'Could not fetch data', wallet });
-  
-  res.json({
-    wallet,
-    name: agent.name || `Agent ${wallet.slice(0, 8)}...`,
-    description: agent.description,
-    agent_fairscore: agent.scores.agent_fairscore,
-    fairscore_base: agent.scores.fairscore_base,
-    tier: agent.scores.tier,
-    features: agent.features,
-    badges: agent.badges,
-    said: {
-      registered: agent.sources.includes('said'),
-      verified: agent.badges.some(b => b.id === 'said_verified'),
-      score: agent.scores.said_score,
-      trustTier: agent.scores.said_trust_tier,
-      feedbackCount: agent.scores.attestations
-    },
-    social: agent.social,
-    endpoints: agent.endpoints,
-    skills: agent.skills,
-    isRegistered: agent.isRegistered,
-    isVerified: agent.isVerified,
-    sources: agent.sources
-  });
-});
-
-// Register agent
-app.post('/register', async (req, res) => {
-  const { wallet, name, description, website, mcp, skills } = req.body;
-  
-  if (!wallet) return res.status(400).json({ error: 'Missing wallet' });
-  
-  // Store registration
-  REGISTRY.registeredAgents.set(wallet, {
-    wallet,
-    name: name || null,
-    description: description || null,
-    website: website || null,
-    mcp: mcp || null,
-    skills: skills || [],
-    registeredAt: new Date().toISOString()
-  });
-  
-  // Clear cache to recalculate
-  REGISTRY.agents.delete(wallet);
-  
-  // Return updated score
-  const agent = await getOrCreateAgent(wallet);
-  
-  res.json({
-    success: true,
-    message: 'Agent registered! +2 score bonus applied.',
-    agent: agent ? {
-      wallet,
-      name: agent.name,
-      agent_fairscore: agent.scores.agent_fairscore,
-      badges: agent.badges
-    } : null
-  });
-});
-
-// Verify payment
-app.post('/verify', async (req, res) => {
-  const { wallet } = req.body;
-  if (!wallet) return res.status(400).json({ error: 'Missing wallet' });
-  
-  if (REGISTRY.verifiedWallets.has(wallet)) {
-    return res.json({ success: true, message: 'Already verified' });
-  }
-  
-  const result = await verifyPayment(wallet);
-  
-  if (result.verified) {
-    REGISTRY.verifiedWallets.set(wallet, {
-      verifiedAt: new Date().toISOString(),
-      txSignature: result.txSignature
-    });
-    REGISTRY.agents.delete(wallet);
-    return res.json({ success: true, message: '+10 score boost applied', txSignature: result.txSignature });
-  }
-  
-  res.status(400).json({ success: false, error: result.error, paymentAddress: CONFIG.PAYMENT_ADDRESS });
-});
-
-// Directory of registered agents
-app.get('/directory', (req, res) => {
-  const agents = Array.from(REGISTRY.agents.values())
-    .filter(a => a.isRegistered || a.sources.includes('said'))
-    .sort((a, b) => b.scores.agent_fairscore - a.scores.agent_fairscore)
-    .slice(0, 100);
-  
-  res.json({
-    total: agents.length,
-    agents: agents.map(a => ({
-      wallet: a.wallet,
-      name: a.name || `Agent ${a.wallet.slice(0, 8)}...`,
-      agent_fairscore: a.scores.agent_fairscore,
-      badges: a.badges.map(b => b.id),
-      isVerified: a.isVerified
-    }))
-  });
-});
-
-// Solana services
-app.get('/services', async (req, res) => {
-  if (REGISTRY.services.size === 0) await syncServices();
-  
-  const services = Array.from(REGISTRY.services.values());
-  res.json({ total: services.length, network: 'solana', services });
-});
-
-app.post('/sync', async (req, res) => {
-  const result = await syncServices();
-  res.json({ success: true, ...result });
-});
-
-app.get('/stats', (req, res) => {
-  const agents = Array.from(REGISTRY.agents.values());
-  res.json({
-    totalAgents: agents.length,
-    registeredAgents: REGISTRY.registeredAgents.size,
-    verifiedAgents: REGISTRY.verifiedWallets.size,
-    services: REGISTRY.services.size,
-    avgScore: agents.length ? Math.round(agents.reduce((s, a) => s + a.scores.agent_fairscore, 0) / agents.length) : 0
-  });
-});
-
-// =============================================================================
-// START
-// =============================================================================
-
-app.listen(CONFIG.PORT, () => {
-  console.log(`FairScale Agent Registry v8 on port ${CONFIG.PORT}`);
-  syncServices();
-});
+    
+    document.getElementById('checkBtn').onclick = () => checkAgent('walletInput', 'checkError', 'loading', 'result');
+    document.getElementById('hCheckBtn').onclick = () => checkAgent('hWalletInput', 'hCheckError', 'hLoading', 'hResult');
+    document.getElementById('walletInput').onkeypress = e => e.key === 'Enter' && checkAgent('walletInput', 'checkError', 'loading', 'result');
+    document.getElementById('hWalletInput').onkeypress = e => e.key === 'Enter' && checkAgent('hWalletInput', 'hCheckError', 'hLoading', 'hResult');
+    
+    function renderResult(d, container) {
+      const score = d.agent_fairscore || 0;
+      const tier = score >= 70 ? 'gold' : score >= 45 ? 'silver' : 'bronze';
+      const f = d.features || {};
+      const badges = d.badges || [];
+      
+      container.innerHTML = `
+        <div class="result-header">
+          <div class="result-name">${d.name || 'Agent ' + d.wallet.slice(0,8) + '...'}</div>
+          <div class="result-wallet">${d.wallet}</div>
+          ${d.description ? `<div class="result-desc">${d.description}</div>` : ''}
+          <div class="result-social">
+            ${d.social?.twitter ? `<a href="https://twitter.com/${d.social.twitter}" target="_blank">@${d.social.twitter}</a>` : ''}
+            ${d.social?.website ? `<a href="${d.social.website}" target="_blank">${d.social.website.replace(/^https?:\/\//,'')}</a>` : ''}
+          </div>
+        </div>
+        <div class="score-hero">
+          <div class="value">${score}</div>
+          <div class="label">Agent FairScore</div>
+          <div class="tier ${tier}">${tier.charAt(0).toUpperCase()+tier.slice(1)}</div>
+        </div>
+        <div class="info-section">
+          <h4>Trust Signals</h4>
+          <div class="info-grid">
+            <div class="info-item hl"><div class="k">SAID</div><div class="v">${d.said?.score??'—'}</div></div>
+            <div class="info-item"><div class="k">Trust</div><div class="v">${d.said?.trustTier||'—'}</div></div>
+            <div class="info-item"><div class="k">Attest</div><div class="v">${d.said?.feedbackCount||0}</div></div>
+            <div class="info-item"><div class="k">Base</div><div class="v">${d.fairscore_base||'—'}</div></div>
+          </div>
+        </div>
+        <div class="scores-section">
+          <h4>Agent Metrics</h4>
+          <div class="score-grid">
+            ${['longevity','experience','conviction','capital'].map(k => {
+              const v = f[k]||0;
+              const labels = {longevity:'Longevity',experience:'Experience',conviction:'Conviction',capital:'Capital'};
+              const descs = {
+                longevity: v>=60?'Consistent activity':v>=30?'Building presence':'New agent',
+                experience: v>=60?'High protocol usage':v>=30?'Moderate activity':'Early stage',
+                conviction: v>=60?'Strong commitment':v>=30?'Balanced approach':'Active trading',
+                capital: v>=60?'Well capitalized':v>=30?'Moderate holdings':'Growing'
+              };
+              return `<div class="score-card"><div class="score-card-header"><span class="lbl">${labels[k]}</span><span class="val">${v}</span></div><div class="score-bar"><div class="score-bar-fill" style="width:${v}%"></div></div><div class="desc">${descs[k]}</div></div>`;
+            }).join('')}
+          </div>
+        </div>
+        <div class="badges-section">
+          <h4>Badges</h4>
+          <div class="badges-row">
+            ${badges.length ? badges.map(b => {
+              let c='badge';
+              if(b.id==='said_verified'||b.id==='said_trusted')c+=' v';
+              if(b.id==='fairscale_verified')c+=' g';
+              if(b.id==='diamond_hands')c+=' d';
+              return `<span class="${c}">${b.label}</span>`;
+            }).join('') : '<span style="color:var(--dim)">No badges</span>'}
+          </div>
+        </div>
+        ${!d.isVerified ? `<div class="verify-section"><div class="verify-box"><h4>Get Verified</h4><p>Boost score with verification</p><div class="verify-price">$5 USDC</div><div class="verify-boost">+10 Score</div><button class="btn btn-gold" onclick="openVerifyModal()">Verify</button></div></div>` : ''}
+        <div class="actions-row"><button class="btn btn-secondary" onclick="window.open('https://solscan.io/account/${d.wallet}','_blank')">Solscan</button></div>
+      `;
+    }
+    
+    async function loadDirectory() {
+      try {
+        const res = await fetch(`${API}/directory`);
+        const data = await res.json();
+        directory = data.agents || [];
+        document.getElementById('dirCount').textContent = directory.length + ' agents';
+        document.getElementById('hDirCount').textContent = directory.length + ' agents';
+        const html = directory.length ? directory.map((a,i) => {
+          const sv = a.badges?.includes('said_verified');
+          const fv = a.badges?.includes('fairscale_verified');
+          return `<div class="dir-item" onclick="quickCheck('${a.wallet}')"><div class="info"><div class="rank">${i+1}</div><div><div class="name">${a.name}</div><div class="wallet">${a.wallet.slice(0,6)}...${a.wallet.slice(-4)}</div><div class="mini-badges">${fv?'<span class="mb g">Verified</span>':''}${sv?'<span class="mb v">SAID</span>':''}</div></div></div><div class="score">${a.agent_fairscore}</div></div>`;
+        }).join('') : '<div class="empty">No agents yet</div>';
+        document.getElementById('dirList').innerHTML = html;
+        document.getElementById('hDirList').innerHTML = html;
+      } catch(e) { console.error(e); }
+    }
+    
+    function quickCheck(w) {
+      document.getElementById('walletInput').value = w;
+      document.getElementById('hWalletInput').value = w;
+      document.querySelector('[data-tab="check"]')?.click();
+      document.querySelector('[data-tab="h-check"]')?.click();
+      checkAgent('walletInput','checkError','loading','result');
+    }
+    
+    async function loadServices() {
+      const grid = document.getElementById('svcGrid');
+      const loading = document.getElementById('svcLoading');
+      loading.classList.add('show'); grid.innerHTML = '';
+      try {
+        const res = await fetch(`${API}/services`);
+        const data = await res.json();
+        services = data.services || [];
+        grid.innerHTML = services.length ? services.map(s => `<div class="service-card"><div class="name">${s.name}</div><div class="desc">${s.description}</div><div class="meta"><span class="cat">${s.category}</span><span class="price">${s.pricing?.price||'—'}</span></div></div>`).join('') : '<div class="empty" style="grid-column:1/-1">No Solana services</div>';
+      } catch(e) { grid.innerHTML = '<div class="empty">Failed</div>'; }
+      finally { loading.classList.remove('show'); }
+    }
+    
+    function openVerifyModal() { document.getElementById('verifyModal').classList.add('show'); }
+    function closeModal(e) { if(e.target.classList.contains('modal')) e.target.classList.remove('show'); }
+    
+    async function verifyPayment() {
+      if(!currentAgent) return;
+      const status = document.getElementById('verifyStatus');
+      status.className = 'modal-status show checking'; status.textContent = 'Checking...';
+      try {
+        const res = await fetch(`${API}/verify`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({wallet:currentAgent.wallet}) });
+        const data = await res.json();
+        if(data.success) { status.className='modal-status show success'; status.textContent='✓ Verified!'; setTimeout(()=>{document.getElementById('verifyModal').classList.remove('show');checkAgent('walletInput','checkError','loading','result');},1500); }
+        else { status.className='modal-status show error'; status.textContent=data.error||'Not found'; }
+      } catch(e) { status.className='modal-status show error'; status.textContent='Error'; }
+    }
+    
+    document.addEventListener('keydown', e => { if(e.key==='Escape') document.querySelectorAll('.modal').forEach(m=>m.classList.remove('show')); });
+    
+    const params = new URLSearchParams(location.search);
+    if(params.get('wallet')) { document.getElementById('walletInput').value=params.get('wallet'); document.querySelector('[data-tab="check"]')?.click(); setTimeout(()=>checkAgent('walletInput','checkError','loading','result'),100); }
+    
+    loadDirectory();
+  </script>
+</body>
+</html>
