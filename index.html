@@ -13,9 +13,10 @@
     
     :root {
       --bg: #0a0a0a;
-      --card: #111111;
-      --card-hover: #161616;
-      --border: #1a1a1a;
+      --card: rgba(17, 17, 17, 0.85);
+      --card-solid: #111111;
+      --card-hover: rgba(22, 22, 22, 0.9);
+      --border: rgba(26, 26, 26, 0.8);
       --border-light: #2a2a2a;
       --primary: #e8d4c4;
       --secondary: #263b4e;
@@ -27,9 +28,28 @@
       --dim: #555555;
     }
     
-    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+    body { 
+      font-family: 'Inter', sans-serif; 
+      background: var(--bg); 
+      color: var(--text); 
+      min-height: 100vh;
+      position: relative;
+    }
     
-    .header { display: flex; justify-content: space-between; align-items: center; padding: 20px 40px; border-bottom: 1px solid var(--border); }
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('assets/background.png') center center / cover no-repeat;
+      opacity: 0.12;
+      z-index: -1;
+      pointer-events: none;
+    }
+    
+    .header { display: flex; justify-content: space-between; align-items: center; padding: 20px 40px; border-bottom: 1px solid var(--border); background: rgba(10, 10, 10, 0.8); backdrop-filter: blur(10px); }
     .header img { height: 32px; }
     .header nav { display: flex; gap: 24px; }
     .header nav a { font-family: 'Advercase', serif; color: var(--muted); text-decoration: none; font-size: 0.9rem; }
@@ -38,14 +58,14 @@
     .container { max-width: 960px; margin: 0 auto; padding: 40px 20px; }
     
     .tabs { display: flex; gap: 8px; margin-bottom: 32px; flex-wrap: wrap; }
-    .tab { font-family: 'Advercase', serif; background: none; border: 1px solid var(--border); color: var(--muted); padding: 10px 24px; border-radius: 8px; cursor: pointer; font-size: 0.9rem; transition: all 0.2s; }
+    .tab { font-family: 'Advercase', serif; background: rgba(0,0,0,0.5); border: 1px solid var(--border); color: var(--muted); padding: 10px 24px; border-radius: 8px; cursor: pointer; font-size: 0.9rem; transition: all 0.2s; backdrop-filter: blur(5px); }
     .tab:hover { color: var(--text); border-color: var(--dim); }
     .tab.active { background: var(--primary); border-color: var(--primary); color: var(--bg); }
     
-    .check-box { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 32px; margin-bottom: 32px; }
+    .check-box { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 32px; margin-bottom: 32px; backdrop-filter: blur(10px); }
     .check-box h2 { font-family: 'Advercase', serif; color: var(--primary); margin-bottom: 20px; font-size: 1.1rem; }
     .input-row { display: flex; gap: 12px; }
-    .input-row input { flex: 1; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 16px; font-size: 1rem; color: var(--text); font-family: monospace; }
+    .input-row input { flex: 1; background: rgba(0,0,0,0.6); border: 1px solid var(--border); border-radius: 10px; padding: 16px; font-size: 1rem; color: var(--text); font-family: monospace; }
     .input-row input:focus { outline: none; border-color: var(--primary); }
     .input-row input::placeholder { color: var(--dim); }
     
@@ -61,10 +81,10 @@
     .loading.show { display: flex; }
     .spinner { width: 20px; height: 20px; border: 2px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
-    .error { background: #1a0a0a; border: 1px solid #4a2020; border-radius: 10px; padding: 16px; color: #c87070; margin-top: 16px; display: none; }
+    .error { background: rgba(26, 10, 10, 0.9); border: 1px solid #4a2020; border-radius: 10px; padding: 16px; color: #c87070; margin-top: 16px; display: none; }
     .error.show { display: block; }
     
-    .result { display: none; background: var(--bg); border: 1px solid var(--border); border-radius: 16px; margin-top: 24px; overflow: hidden; }
+    .result { display: none; background: rgba(10, 10, 10, 0.9); border: 1px solid var(--border); border-radius: 16px; margin-top: 24px; overflow: hidden; backdrop-filter: blur(10px); }
     .result.show { display: block; }
     
     .result-header { padding: 24px 28px; border-bottom: 1px solid var(--border); }
@@ -85,7 +105,7 @@
     .scores-section { padding: 20px 28px; border-bottom: 1px solid var(--border); }
     .scores-section h4 { font-family: 'Advercase', serif; color: var(--primary); font-size: 0.85rem; margin-bottom: 14px; }
     .score-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-    .score-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+    .score-card { background: var(--card-solid); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
     .score-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
     .score-card .val { font-family: 'Advercase', serif; font-size: 1.5rem; font-weight: 700; color: var(--text); }
     .score-card .lbl { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; }
@@ -97,17 +117,19 @@
     .badges-section h4 { font-family: 'Advercase', serif; color: var(--primary); font-size: 0.85rem; margin-bottom: 10px; }
     .badges-row { display: flex; flex-wrap: wrap; gap: 6px; }
     .badge { background: var(--secondary); border-radius: 5px; padding: 5px 12px; font-size: 0.75rem; color: var(--text); }
-    .badge.verified { background: var(--primary); color: var(--bg); }
-    .badge.trusted { background: var(--accent); color: var(--bg); }
+    .badge.verified { background: var(--accent); color: #fff; }
+    .badge.trusted { background: #2d8f6f; color: #fff; }
     .badge.fs-verified { background: var(--gold); color: var(--bg); }
     .badge.x402 { background: var(--purple); color: white; }
     
     .info-section { padding: 16px 28px; border-bottom: 1px solid var(--border); }
     .info-section h4 { font-family: 'Advercase', serif; color: var(--primary); font-size: 0.85rem; margin-bottom: 10px; }
-    .info-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-    .info-item { background: var(--card); border-radius: 8px; padding: 12px; }
-    .info-item .k { font-size: 0.65rem; color: var(--dim); text-transform: uppercase; }
-    .info-item .v { font-family: 'Advercase', serif; color: var(--text); margin-top: 2px; font-size: 0.95rem; }
+    .info-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+    .info-item { background: var(--card-solid); border-radius: 8px; padding: 12px; text-align: center; }
+    .info-item .k { font-size: 0.6rem; color: var(--dim); text-transform: uppercase; letter-spacing: 0.05em; }
+    .info-item .v { font-family: 'Advercase', serif; color: var(--text); margin-top: 4px; font-size: 1.1rem; }
+    .info-item.highlight { background: linear-gradient(135deg, #1a3a2a 0%, #0f2a1a 100%); border: 1px solid var(--accent); }
+    .info-item.highlight .v { color: var(--accent); }
     
     .verify-section { padding: 20px 28px; background: linear-gradient(135deg, #1a1508 0%, #0f1419 100%); border-bottom: 1px solid var(--border); }
     .verify-box { border: 1px dashed var(--gold); border-radius: 12px; padding: 20px; text-align: center; }
@@ -119,12 +141,12 @@
     .actions-row { padding: 16px 28px; display: flex; gap: 10px; flex-wrap: wrap; }
     .actions-row .btn { flex: 1; min-width: 120px; }
     
-    .stats { display: flex; gap: 32px; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+    .stats { display: flex; gap: 32px; margin-bottom: 20px; padding: 16px 20px; background: var(--card); border-radius: 12px; border: 1px solid var(--border); }
     .stat .val { font-family: 'Advercase', serif; font-size: 1.4rem; color: var(--primary); }
     .stat .lbl { font-size: 0.65rem; color: var(--muted); text-transform: uppercase; }
     
     .dir-list { display: flex; flex-direction: column; gap: 10px; }
-    .dir-item { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: all 0.2s; }
+    .dir-item { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: all 0.2s; backdrop-filter: blur(5px); }
     .dir-item:hover { background: var(--card-hover); border-color: var(--border-light); }
     .dir-item .info { display: flex; align-items: center; gap: 14px; }
     .dir-item .rank { font-family: 'Advercase', serif; font-size: 1.1rem; color: var(--dim); width: 28px; }
@@ -132,7 +154,7 @@
     .dir-item .wallet { font-family: monospace; font-size: 0.7rem; color: var(--dim); margin-top: 2px; }
     .dir-item .mini-badges { display: flex; gap: 4px; margin-top: 5px; }
     .dir-item .mini-badge { background: var(--secondary); border-radius: 3px; padding: 2px 6px; font-size: 0.55rem; color: var(--muted); }
-    .dir-item .mini-badge.v { background: var(--primary); color: var(--bg); }
+    .dir-item .mini-badge.v { background: var(--accent); color: #fff; }
     .dir-item .mini-badge.g { background: var(--gold); color: var(--bg); }
     .dir-item .mini-badge.x { background: var(--purple); color: white; }
     .dir-item .score { font-family: 'Advercase', serif; font-size: 1.8rem; font-weight: 700; color: var(--primary); }
@@ -143,7 +165,7 @@
     .services-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
     .services-header h3 { font-family: 'Advercase', serif; color: var(--primary); }
     .services-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
-    .service-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 18px; transition: all 0.2s; }
+    .service-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 18px; transition: all 0.2s; backdrop-filter: blur(5px); }
     .service-card:hover { border-color: var(--purple); }
     .service-card .name { font-family: 'Advercase', serif; color: var(--primary); font-size: 0.95rem; margin-bottom: 6px; }
     .service-card .desc { font-size: 0.75rem; color: var(--muted); line-height: 1.4; margin-bottom: 12px; min-height: 36px; }
@@ -155,12 +177,12 @@
     .tab-content { display: none; }
     .tab-content.active { display: block; }
     
-    .footer { margin-top: 50px; padding: 24px; border-top: 1px solid var(--border); text-align: center; }
+    .footer { margin-top: 50px; padding: 24px; border-top: 1px solid var(--border); text-align: center; background: rgba(10, 10, 10, 0.8); }
     .footer a { font-family: 'Advercase', serif; color: var(--muted); text-decoration: none; margin: 0 14px; font-size: 0.8rem; }
     
-    .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); z-index: 1000; align-items: center; justify-content: center; }
+    .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.9); z-index: 1000; align-items: center; justify-content: center; }
     .modal.show { display: flex; }
-    .modal-content { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 32px; max-width: 420px; width: 90%; text-align: center; }
+    .modal-content { background: var(--card-solid); border: 1px solid var(--border); border-radius: 16px; padding: 32px; max-width: 420px; width: 90%; text-align: center; }
     .modal-content h3 { font-family: 'Advercase', serif; color: var(--gold); margin-bottom: 16px; }
     .modal-content p { font-size: 0.85rem; color: var(--muted); margin-bottom: 16px; line-height: 1.5; }
     .modal-address { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 14px; font-family: monospace; font-size: 0.7rem; color: var(--primary); word-break: break-all; margin-bottom: 16px; }
@@ -173,11 +195,11 @@
     .modal-status.success { background: #0f2a1a; color: var(--accent); border: 1px solid var(--accent); }
     .modal-status.error { background: #1a0a0a; color: #c87070; }
     
-    @media (max-width: 600px) {
+    @media (max-width: 700px) {
       .header { padding: 16px 20px; }
       .input-row { flex-direction: column; }
       .score-grid { grid-template-columns: 1fr; }
-      .info-grid { grid-template-columns: 1fr; }
+      .info-grid { grid-template-columns: repeat(2, 1fr); }
       .dir-item { flex-direction: column; align-items: flex-start; gap: 10px; }
       .dir-item .score { align-self: flex-end; }
       .services-grid { grid-template-columns: 1fr; }
@@ -228,6 +250,28 @@
           <div class="tier bronze" id="rTierBadge">Bronze</div>
         </div>
 
+        <div class="info-section">
+          <h4>Trust Signals</h4>
+          <div class="info-grid">
+            <div class="info-item highlight">
+              <div class="k">SAID Score</div>
+              <div class="v" id="rSaidScore">—</div>
+            </div>
+            <div class="info-item">
+              <div class="k">Trust Tier</div>
+              <div class="v" id="rTrustTier">—</div>
+            </div>
+            <div class="info-item">
+              <div class="k">Attestations</div>
+              <div class="v" id="rAttest">0</div>
+            </div>
+            <div class="info-item">
+              <div class="k">Base Score</div>
+              <div class="v" id="rBaseScore">—</div>
+            </div>
+          </div>
+        </div>
+
         <div class="scores-section">
           <h4>Reputation Breakdown</h4>
           <div class="score-grid">
@@ -269,24 +313,6 @@
         <div class="badges-section">
           <h4>Badges & Credentials</h4>
           <div class="badges-row" id="rBadges"></div>
-        </div>
-
-        <div class="info-section">
-          <h4>Trust Signals</h4>
-          <div class="info-grid">
-            <div class="info-item">
-              <div class="k">Attestations</div>
-              <div class="v" id="rAttest">0</div>
-            </div>
-            <div class="info-item">
-              <div class="k">SAID Score</div>
-              <div class="v" id="rSaidScore">—</div>
-            </div>
-            <div class="info-item">
-              <div class="k">Trust Tier</div>
-              <div class="v" id="rTrustTier">—</div>
-            </div>
-          </div>
         </div>
 
         <div class="verify-section" id="verifySection">
@@ -363,28 +389,28 @@
     
     const HIDE_BADGES = ['staker'];
     
-    try { directory = JSON.parse(localStorage.getItem('fairscale_dir_v4') || '[]'); } catch(e) { directory = []; }
+    try { directory = JSON.parse(localStorage.getItem('fairscale_dir_v5') || '[]'); } catch(e) { directory = []; }
     
-    // Qualitative descriptions based on score
+    // Qualitative descriptions
     function getLongevityDesc(score) {
-      if (score >= 70) return 'Veteran wallet with extensive on-chain history';
-      if (score >= 40) return 'Established presence with consistent activity';
-      return 'Newer wallet building track record';
+      if (score >= 70) return 'Veteran presence with extensive history';
+      if (score >= 40) return 'Established with consistent activity';
+      return 'Building track record';
     }
     function getExperienceDesc(score) {
-      if (score >= 70) return 'Power user with diverse protocol engagement';
-      if (score >= 40) return 'Moderate activity across multiple platforms';
-      return 'Limited on-chain activity so far';
+      if (score >= 70) return 'Power user with diverse engagement';
+      if (score >= 40) return 'Moderate cross-protocol activity';
+      return 'Early stage activity';
     }
     function getConvictionDesc(score) {
-      if (score >= 70) return 'Strong diamond hands mentality';
+      if (score >= 70) return 'Strong diamond hands behavior';
       if (score >= 40) return 'Balanced holding strategy';
-      return 'Short-term trading patterns';
+      return 'Active trading patterns';
     }
     function getCapitalDesc(score) {
-      if (score >= 70) return 'Significant capital deployment history';
-      if (score >= 40) return 'Moderate historical holdings';
-      return 'Minimal capital history';
+      if (score >= 70) return 'Significant capital deployment';
+      if (score >= 40) return 'Moderate holdings history';
+      return 'Growing capital base';
     }
     
     // Tab switching
@@ -460,7 +486,7 @@
       socialEl.innerHTML = socialHtml;
       socialEl.style.display = socialHtml ? 'flex' : 'none';
       
-      // AGENT FAIRSCORE - the composite score
+      // AGENT FAIRSCORE
       const score = data.agent_fairscore || 0;
       document.getElementById('rScore').textContent = score;
       
@@ -468,6 +494,13 @@
       const tier = score >= 80 ? 'gold' : score >= 50 ? 'silver' : 'bronze';
       tierBadge.textContent = tier.charAt(0).toUpperCase() + tier.slice(1);
       tierBadge.className = 'tier ' + tier;
+      
+      // Trust signals - SAID score prominently displayed
+      const saidScore = data.said?.score;
+      document.getElementById('rSaidScore').textContent = saidScore !== null && saidScore !== undefined ? saidScore : '—';
+      document.getElementById('rTrustTier').textContent = data.said?.trustTier || '—';
+      document.getElementById('rAttest').textContent = data.said?.feedbackCount || 0;
+      document.getElementById('rBaseScore').textContent = data.fairscore_base || '—';
       
       // Feature scores
       const features = data.features || {};
@@ -507,11 +540,6 @@
           }).join('')
         : '<span style="color: var(--dim); font-size: 0.8rem;">No badges yet</span>';
       
-      // Trust signals
-      document.getElementById('rAttest').textContent = data.said?.feedbackCount || 0;
-      document.getElementById('rSaidScore').textContent = data.said?.score || '—';
-      document.getElementById('rTrustTier').textContent = data.said?.trustTier || '—';
-      
       // Hide verify section if already verified
       const isVerified = data.isVerified || badges.some(b => b.id === 'fairscale_verified');
       document.getElementById('verifySection').style.display = isVerified ? 'none' : 'block';
@@ -529,6 +557,7 @@
         badges: badges,
         features: currentAgent.features,
         social: currentAgent.social,
+        saidScore: currentAgent.said?.score,
         addedAt: Date.now()
       };
       
@@ -540,7 +569,7 @@
       }
       
       directory.sort((a, b) => (b.score || 0) - (a.score || 0));
-      localStorage.setItem('fairscale_dir_v4', JSON.stringify(directory));
+      localStorage.setItem('fairscale_dir_v5', JSON.stringify(directory));
       
       document.getElementById('walletInput').value = '';
       document.getElementById('result').classList.remove('show');
