@@ -11,26 +11,22 @@
       src: url('assets/Advercase-Regular.ttf') format('truetype');
       font-weight: 400;
     }
-
     @font-face {
       font-family: 'Advercase';
       src: url('assets/Advercase-Bold.ttf') format('truetype');
       font-weight: 700;
     }
 
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
     :root {
       --bg: #0a0a0a;
       --bg-card: #111111;
       --bg-card-hover: #161616;
       --border: #1a1a1a;
-      --border-hover: #252525;
+      --border-hover: #2a2a2a;
       --primary: #e8d4c4;
+      --primary-dim: #c4b0a0;
       --secondary: #263b4e;
       --text: #ffffff;
       --text-muted: #888888;
@@ -45,46 +41,265 @@
       line-height: 1.5;
     }
 
+    /* Header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 40px;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      background: var(--bg);
+      z-index: 100;
+    }
+
+    .header-logo {
+      height: 32px;
+    }
+
+    .header-nav {
+      display: flex;
+      gap: 32px;
+      align-items: center;
+    }
+
+    .header-nav a {
+      font-family: 'Advercase', serif;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: color 0.2s;
+    }
+
+    .header-nav a:hover {
+      color: var(--primary);
+    }
+
+    .header-nav a.active {
+      color: var(--primary);
+    }
+
+    /* Main Container */
     .container {
-      max-width: 900px;
+      max-width: 1100px;
       margin: 0 auto;
       padding: 40px 20px;
     }
 
-    /* Header */
-    .header {
-      text-align: center;
-      margin-bottom: 60px;
-    }
-
-    .logo {
-      height: 48px;
-      margin-bottom: 16px;
-    }
-
-    .tagline {
+    /* Page Title */
+    .page-title {
       font-family: 'Advercase', serif;
+      font-size: 1.5rem;
       color: var(--primary);
-      font-size: 1.1rem;
-      letter-spacing: 0.05em;
+      margin-bottom: 32px;
     }
 
-    /* Register Section */
-    .register-section {
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 32px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 16px;
+    }
+
+    .tab {
+      font-family: 'Advercase', serif;
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+    }
+
+    .tab:hover {
+      border-color: var(--border-hover);
+      color: var(--text);
+    }
+
+    .tab.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: var(--bg);
+    }
+
+    /* Search & Filter Bar */
+    .toolbar {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+
+    .search-input {
+      flex: 1;
+      min-width: 200px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-size: 0.95rem;
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    .search-input::placeholder {
+      color: var(--text-dim);
+    }
+
+    .filter-dropdown {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-size: 0.9rem;
+      color: var(--text);
+      font-family: 'Advercase', serif;
+      cursor: pointer;
+      min-width: 150px;
+    }
+
+    .filter-dropdown:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    /* Directory List */
+    .directory-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .directory-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .directory-item:hover {
+      border-color: var(--border-hover);
+      background: var(--bg-card-hover);
+    }
+
+    .directory-item .info {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .directory-item .rank {
+      font-family: 'Advercase', serif;
+      font-size: 1.25rem;
+      color: var(--text-dim);
+      width: 36px;
+    }
+
+    .directory-item .name {
+      font-family: 'Advercase', serif;
+      font-size: 1.1rem;
+      color: var(--primary);
+    }
+
+    .directory-item .wallet {
+      font-family: monospace;
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      margin-top: 2px;
+    }
+
+    .directory-item .badges-mini {
+      display: flex;
+      gap: 6px;
+      margin-top: 8px;
+      flex-wrap: wrap;
+    }
+
+    .badge-mini {
+      background: var(--secondary);
+      border-radius: 4px;
+      padding: 3px 8px;
+      font-size: 0.65rem;
+      color: var(--text-muted);
+    }
+
+    .badge-mini.verified {
+      background: var(--primary);
+      color: var(--bg);
+    }
+
+    .directory-item .score {
+      font-family: 'Advercase', serif;
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .directory-item .compare-btn {
+      background: var(--secondary);
+      border: none;
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-size: 0.75rem;
+      color: var(--text);
+      cursor: pointer;
+      margin-left: 16px;
+      font-family: 'Advercase', serif;
+      transition: background 0.2s;
+    }
+
+    .directory-item .compare-btn:hover {
+      background: #324d63;
+    }
+
+    .directory-item .compare-btn.selected {
+      background: var(--primary);
+      color: var(--bg);
+    }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 80px 20px;
+      color: var(--text-dim);
+    }
+
+    .empty-state .icon {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 20px;
+      opacity: 0.3;
+    }
+
+    /* Check Section */
+    .check-section {
       background: var(--bg-card);
       border: 1px solid var(--border);
       border-radius: 16px;
       padding: 32px;
-      margin-bottom: 48px;
+      margin-bottom: 32px;
     }
 
     .section-title {
       font-family: 'Advercase', serif;
       font-size: 1.1rem;
-      font-weight: 400;
       color: var(--primary);
       margin-bottom: 20px;
-      letter-spacing: 0.02em;
     }
 
     .input-group {
@@ -101,7 +316,6 @@
       font-size: 1rem;
       color: var(--text);
       font-family: 'Inter', monospace;
-      transition: border-color 0.2s;
     }
 
     .input-group input:focus {
@@ -122,9 +336,8 @@
       font-size: 0.95rem;
       font-weight: 600;
       cursor: pointer;
-      transition: all 0.2s;
       font-family: 'Advercase', serif;
-      letter-spacing: 0.02em;
+      transition: all 0.2s;
     }
 
     .btn:hover {
@@ -172,7 +385,6 @@
     .result-name {
       font-family: 'Advercase', serif;
       font-size: 1.5rem;
-      font-weight: 400;
       color: var(--primary);
     }
 
@@ -225,40 +437,7 @@
       color: var(--bg);
     }
 
-    /* Trust Scores */
-    .trust-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 16px;
-      margin-bottom: 24px;
-    }
-
-    .trust-item {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 20px;
-    }
-
-    .trust-item .label {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      margin-bottom: 6px;
-    }
-
-    .trust-item .value {
-      font-family: 'Advercase', serif;
-      font-size: 2rem;
-      font-weight: 700;
-    }
-
-    .trust-item .value.high { color: var(--primary); }
-    .trust-item .value.medium { color: #c4a882; }
-    .trust-item .value.low { color: #a86c5a; }
-
-    /* Features */
+    /* Features Grid */
     .features-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -267,7 +446,7 @@
 
     .feature-item {
       text-align: center;
-      padding: 16px 12px;
+      padding: 20px 12px;
       background: var(--bg-card);
       border: 1px solid var(--border);
       border-radius: 10px;
@@ -275,7 +454,7 @@
 
     .feature-item .value {
       font-family: 'Advercase', serif;
-      font-size: 1.75rem;
+      font-size: 2rem;
       font-weight: 700;
       color: var(--text);
     }
@@ -285,117 +464,86 @@
       color: var(--text-muted);
       text-transform: uppercase;
       letter-spacing: 0.05em;
-      margin-top: 6px;
+      margin-top: 8px;
     }
 
-    /* Directory Section */
-    .directory-section {
-      margin-top: 60px;
+    /* Compare Section */
+    .compare-section {
+      display: none;
     }
 
-    .directory-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 24px;
+    .compare-section.show {
+      display: block;
     }
 
-    .agent-count {
-      color: var(--text-muted);
-      font-size: 0.9rem;
+    .compare-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
     }
 
-    .directory-list {
+    .compare-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+    }
+
+    .compare-card .name {
+      font-family: 'Advercase', serif;
+      font-size: 1.25rem;
+      color: var(--primary);
+      margin-bottom: 4px;
+    }
+
+    .compare-card .wallet {
+      font-family: monospace;
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      margin-bottom: 16px;
+    }
+
+    .compare-card .score-big {
+      font-family: 'Advercase', serif;
+      font-size: 3rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 20px;
+    }
+
+    .compare-card .features-list {
       display: flex;
       flex-direction: column;
       gap: 12px;
     }
 
-    .directory-item {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 20px 24px;
+    .compare-feature {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      cursor: pointer;
-      transition: all 0.2s;
     }
 
-    .directory-item:hover {
-      border-color: var(--border-hover);
-      background: var(--bg-card-hover);
-    }
-
-    .directory-item .info {
-      display: flex;
-      align-items: center;
-      gap: 20px;
-    }
-
-    .directory-item .rank {
-      font-family: 'Advercase', serif;
-      font-size: 1.25rem;
-      color: var(--text-dim);
-      width: 32px;
-    }
-
-    .directory-item .name {
-      font-family: 'Advercase', serif;
-      font-weight: 400;
-      font-size: 1.1rem;
-      color: var(--primary);
-    }
-
-    .directory-item .wallet {
-      font-family: monospace;
-      font-size: 0.8rem;
-      color: var(--text-dim);
-      margin-top: 2px;
-    }
-
-    .directory-item .score {
-      font-family: 'Advercase', serif;
-      font-size: 1.75rem;
-      font-weight: 700;
-      color: var(--primary);
-    }
-
-    .directory-item .badges-mini {
-      display: flex;
-      gap: 6px;
-      margin-top: 8px;
-    }
-
-    .badge-mini {
-      background: var(--secondary);
-      border-radius: 4px;
-      padding: 3px 8px;
-      font-size: 0.65rem;
+    .compare-feature .label {
+      font-size: 0.85rem;
       color: var(--text-muted);
     }
 
-    .badge-mini.verified {
-      background: var(--primary);
-      color: var(--bg);
+    .compare-feature .value {
+      font-family: 'Advercase', serif;
+      font-size: 1.25rem;
+      font-weight: 700;
     }
 
-    /* Empty State */
-    .empty-state {
+    .compare-feature .value.winner {
+      color: var(--primary);
+    }
+
+    .compare-clear {
       text-align: center;
-      padding: 60px 20px;
-      color: var(--text-dim);
+      margin-top: 24px;
     }
 
-    .empty-state .icon {
-      width: 64px;
-      height: 64px;
-      margin: 0 auto 20px;
-      opacity: 0.3;
-    }
-
-    /* Error State */
+    /* Error & Loading */
     .error {
       background: #1a0a0a;
       border: 1px solid #4a2020;
@@ -410,7 +558,6 @@
       display: block;
     }
 
-    /* Loading */
     .loading {
       display: none;
       align-items: center;
@@ -437,37 +584,57 @@
       to { transform: rotate(360deg); }
     }
 
-    /* Footer */
-    .footer {
-      margin-top: 80px;
-      padding-top: 40px;
-      border-top: 1px solid var(--border);
+    /* Stats Bar */
+    .stats-bar {
+      display: flex;
+      gap: 32px;
+      margin-bottom: 24px;
+      padding: 16px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .stat-item {
       text-align: center;
-      color: var(--text-dim);
-      font-size: 0.85rem;
     }
 
-    .footer a {
+    .stat-item .value {
+      font-family: 'Advercase', serif;
+      font-size: 1.5rem;
+      font-weight: 700;
       color: var(--primary);
-      text-decoration: none;
     }
 
-    .footer a:hover {
-      text-decoration: underline;
+    .stat-item .label {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
     }
 
     /* Responsive */
-    @media (max-width: 600px) {
-      .input-group {
-        flex-direction: column;
+    @media (max-width: 768px) {
+      .header {
+        padding: 16px 20px;
       }
 
-      .trust-grid {
-        grid-template-columns: 1fr;
+      .header-nav {
+        gap: 16px;
       }
 
       .features-grid {
         grid-template-columns: repeat(2, 1fr);
+      }
+
+      .compare-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .input-group {
+        flex-direction: column;
+      }
+
+      .toolbar {
+        flex-direction: column;
       }
 
       .directory-item {
@@ -479,156 +646,214 @@
       .directory-item .score {
         align-self: flex-end;
       }
-
-      .result-header {
-        flex-direction: column;
-        gap: 20px;
-      }
-
-      .agent-score {
-        text-align: left;
-      }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <!-- Header -->
-    <header class="header">
-      <img src="assets/logo.png" alt="FairScale" class="logo">
-      <p class="tagline">Agent Reputation Directory</p>
-    </header>
+  <!-- Header -->
+  <header class="header">
+    <a href="/">
+      <img src="assets/logo.png" alt="FairScale" class="header-logo">
+    </a>
+    <nav class="header-nav">
+      <a href="https://fairscale.xyz" target="_blank">🌐</a>
+      <a href="https://docs.fairscale.xyz" target="_blank">Docs</a>
+      <a href="https://twitter.com/fairscalexyz" target="_blank">Twitter</a>
+    </nav>
+  </header>
 
-    <!-- Register Section -->
-    <section class="register-section">
-      <h2 class="section-title">Check Agent Reputation</h2>
-      <div class="input-group">
+  <div class="container">
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab active" onclick="showTab('directory')">Directory</button>
+      <button class="tab" onclick="showTab('check')">Check Agent</button>
+      <button class="tab" onclick="showTab('compare')">Compare</button>
+    </div>
+
+    <!-- Directory Tab -->
+    <div id="tab-directory" class="tab-content">
+      <div class="stats-bar">
+        <div class="stat-item">
+          <div class="value" id="totalAgents">0</div>
+          <div class="label">Agents</div>
+        </div>
+        <div class="stat-item">
+          <div class="value" id="avgScore">0</div>
+          <div class="label">Avg Score</div>
+        </div>
+        <div class="stat-item">
+          <div class="value" id="verifiedCount">0</div>
+          <div class="label">Verified</div>
+        </div>
+      </div>
+
+      <div class="toolbar">
         <input 
           type="text" 
-          id="walletInput" 
-          placeholder="Paste Solana wallet address..."
-          autocomplete="off"
+          class="search-input" 
+          id="searchInput" 
+          placeholder="Search by name or wallet..."
+          oninput="filterDirectory()"
         >
-        <button class="btn" id="registerBtn" onclick="registerAgent()">
-          Check
-        </button>
-      </div>
-
-      <div class="error" id="errorMsg"></div>
-      
-      <div class="loading" id="loading">
-        <div class="spinner"></div>
-        <span>Fetching reputation...</span>
-      </div>
-
-      <!-- Result Card -->
-      <div class="result-card" id="resultCard">
-        <div class="result-header">
-          <div>
-            <div class="result-name" id="resultName">Agent Name</div>
-            <div class="result-wallet" id="resultWallet">wallet...</div>
-          </div>
-          <div class="agent-score">
-            <div class="score" id="resultScore">0</div>
-            <div class="label">Agent Score</div>
-          </div>
-        </div>
-
-        <div class="badges" id="resultBadges"></div>
-
-        <div class="trust-grid">
-          <div class="trust-item">
-            <div class="label">Lending Trust</div>
-            <div class="value" id="trustLending">0</div>
-          </div>
-          <div class="trust-item">
-            <div class="label">OTC Trust</div>
-            <div class="value" id="trustOtc">0</div>
-          </div>
-        </div>
-
-        <div class="features-grid">
-          <div class="feature-item">
-            <div class="value" id="featLongevity">0</div>
-            <div class="label">Longevity</div>
-          </div>
-          <div class="feature-item">
-            <div class="value" id="featExperience">0</div>
-            <div class="label">Experience</div>
-          </div>
-          <div class="feature-item">
-            <div class="value" id="featConviction">0</div>
-            <div class="label">Conviction</div>
-          </div>
-          <div class="feature-item">
-            <div class="value" id="featCapital">0</div>
-            <div class="label">Capital</div>
-          </div>
-        </div>
-
-        <button class="btn" style="width: 100%; margin-top: 28px;" onclick="addToDirectory()">
-          Add to Directory
-        </button>
-      </div>
-    </section>
-
-    <!-- Directory Section -->
-    <section class="directory-section">
-      <div class="directory-header">
-        <h2 class="section-title">Directory</h2>
-        <span class="agent-count" id="agentCount">0 agents</span>
+        <select class="filter-dropdown" id="badgeFilter" onchange="filterDirectory()">
+          <option value="">All Badges</option>
+          <option value="established">Established</option>
+          <option value="committed">Committed</option>
+          <option value="capitalised">Capitalised</option>
+          <option value="diverse">Diverse</option>
+          <option value="experienced">Experienced</option>
+          <option value="holder">Holder</option>
+          <option value="net_positive">Net Positive</option>
+          <option value="staker">Staker</option>
+          <option value="social">Social</option>
+          <option value="said_verified">SAID Verified</option>
+          <option value="said_trusted">SAID Trusted</option>
+        </select>
       </div>
 
       <div class="directory-list" id="directoryList">
         <div class="empty-state">
           <img src="assets/icon.png" alt="" class="icon">
-          <p>No agents registered yet.<br>Be the first to add one.</p>
+          <p>No agents in directory yet.<br>Check an agent and add them.</p>
         </div>
       </div>
-    </section>
+    </div>
 
-    <!-- Footer -->
-    <footer class="footer">
-      <p>
-        <a href="https://fairscale.xyz">fairscale.xyz</a> · 
-        <a href="https://docs.fairscale.xyz">Docs</a> · 
-        <a href="https://twitter.com/FairScaleHQ">Twitter</a>
-      </p>
-    </footer>
+    <!-- Check Tab -->
+    <div id="tab-check" class="tab-content" style="display: none;">
+      <div class="check-section">
+        <h2 class="section-title">Check Agent Reputation</h2>
+        <div class="input-group">
+          <input 
+            type="text" 
+            id="walletInput" 
+            placeholder="Paste Solana wallet address..."
+            autocomplete="off"
+          >
+          <button class="btn" id="checkBtn" onclick="checkAgent()">Check</button>
+        </div>
+
+        <div class="error" id="errorMsg"></div>
+        <div class="loading" id="loading">
+          <div class="spinner"></div>
+          <span>Fetching reputation...</span>
+        </div>
+
+        <div class="result-card" id="resultCard">
+          <div class="result-header">
+            <div>
+              <div class="result-name" id="resultName">Agent Name</div>
+              <div class="result-wallet" id="resultWallet">wallet...</div>
+            </div>
+            <div class="agent-score">
+              <div class="score" id="resultScore">0</div>
+              <div class="label">Agent Score</div>
+            </div>
+          </div>
+
+          <div class="badges" id="resultBadges"></div>
+
+          <div class="features-grid">
+            <div class="feature-item">
+              <div class="value" id="featLongevity">0</div>
+              <div class="label">Longevity</div>
+            </div>
+            <div class="feature-item">
+              <div class="value" id="featExperience">0</div>
+              <div class="label">Experience</div>
+            </div>
+            <div class="feature-item">
+              <div class="value" id="featConviction">0</div>
+              <div class="label">Conviction</div>
+            </div>
+            <div class="feature-item">
+              <div class="value" id="featCapital">0</div>
+              <div class="label">Capital</div>
+            </div>
+          </div>
+
+          <button class="btn" style="width: 100%; margin-top: 28px;" onclick="addToDirectory()">
+            Add to Directory
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Compare Tab -->
+    <div id="tab-compare" class="tab-content" style="display: none;">
+      <div class="compare-section show" id="compareSection">
+        <p style="color: var(--text-muted); margin-bottom: 24px;">
+          Select 2 agents from the directory to compare, or enter wallet addresses below.
+        </p>
+
+        <div class="input-group" style="margin-bottom: 16px;">
+          <input type="text" id="compare1Input" placeholder="First wallet address...">
+          <input type="text" id="compare2Input" placeholder="Second wallet address...">
+          <button class="btn" onclick="compareAgents()">Compare</button>
+        </div>
+
+        <div class="loading" id="compareLoading">
+          <div class="spinner"></div>
+          <span>Loading comparison...</span>
+        </div>
+
+        <div class="compare-grid" id="compareGrid" style="display: none;">
+          <div class="compare-card" id="compare1Card">
+            <div class="name" id="compare1Name">Agent 1</div>
+            <div class="wallet" id="compare1Wallet">wallet...</div>
+            <div class="score-big" id="compare1Score">0</div>
+            <div class="features-list" id="compare1Features"></div>
+          </div>
+          <div class="compare-card" id="compare2Card">
+            <div class="name" id="compare2Name">Agent 2</div>
+            <div class="wallet" id="compare2Wallet">wallet...</div>
+            <div class="score-big" id="compare2Score">0</div>
+            <div class="features-list" id="compare2Features"></div>
+          </div>
+        </div>
+
+        <div class="compare-clear" id="compareClear" style="display: none;">
+          <button class="btn btn-secondary" onclick="clearCompare()">Clear Comparison</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script>
     const API_URL = 'https://fairscale-reputation-api-production.up.railway.app';
     
-    // Local storage for directory
     let directory = JSON.parse(localStorage.getItem('fairscale_directory') || '[]');
-    
-    // Render directory on load
-    renderDirectory();
+    let compareSelection = [];
 
-    async function registerAgent() {
+    // Initialize
+    renderDirectory();
+    updateStats();
+
+    // Tab switching
+    function showTab(tab) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
+      
+      event.target.classList.add('active');
+      document.getElementById(`tab-${tab}`).style.display = 'block';
+    }
+
+    // Check agent
+    async function checkAgent() {
       const wallet = document.getElementById('walletInput').value.trim();
-      const btn = document.getElementById('registerBtn');
+      const btn = document.getElementById('checkBtn');
       const loading = document.getElementById('loading');
       const error = document.getElementById('errorMsg');
       const result = document.getElementById('resultCard');
 
-      // Reset states
       error.classList.remove('show');
       result.classList.remove('show');
 
-      if (!wallet) {
-        showError('Please enter a wallet address');
+      if (!wallet || wallet.length < 32 || wallet.length > 44) {
+        showError('Please enter a valid wallet address');
         return;
       }
 
-      // Validate wallet format (basic check)
-      if (wallet.length < 32 || wallet.length > 44) {
-        showError('Invalid wallet address format');
-        return;
-      }
-
-      // Show loading
       btn.disabled = true;
       loading.classList.add('show');
 
@@ -641,12 +866,8 @@
           return;
         }
 
-        // Store current data for adding to directory
         window.currentAgentData = data;
-
-        // Render result
         renderResult(data);
-
       } catch (e) {
         showError('Failed to fetch reputation. Please try again.');
         console.error(e);
@@ -657,47 +878,21 @@
     }
 
     function renderResult(data) {
-      const result = document.getElementById('resultCard');
-
-      // Name (from SAID or wallet)
       const name = data.said?.name || `Agent ${data.wallet.slice(0, 8)}...`;
       document.getElementById('resultName').textContent = name;
       document.getElementById('resultWallet').textContent = data.wallet;
-
-      // Score
       document.getElementById('resultScore').textContent = data.fairscale_agent_score || 0;
 
-      // Badges
-      const badgesContainer = document.getElementById('resultBadges');
-      badgesContainer.innerHTML = (data.badges || []).map(b => 
+      document.getElementById('resultBadges').innerHTML = (data.badges || []).map(b => 
         `<span class="badge ${b.id}">${b.label}</span>`
       ).join('');
 
-      // Trust scores
-      const lending = data.trust?.lending || 0;
-      const otc = data.trust?.otc || 0;
-      
-      const lendingEl = document.getElementById('trustLending');
-      lendingEl.textContent = lending;
-      lendingEl.className = 'value ' + getScoreClass(lending);
-
-      const otcEl = document.getElementById('trustOtc');
-      otcEl.textContent = otc;
-      otcEl.className = 'value ' + getScoreClass(otc);
-
-      // Features
       document.getElementById('featLongevity').textContent = data.features?.longevity || 0;
       document.getElementById('featExperience').textContent = data.features?.experience || 0;
       document.getElementById('featConviction').textContent = data.features?.conviction || 0;
       document.getElementById('featCapital').textContent = data.features?.capital || 0;
 
-      result.classList.add('show');
-    }
-
-    function getScoreClass(score) {
-      if (score >= 70) return 'high';
-      if (score >= 40) return 'medium';
-      return 'low';
+      document.getElementById('resultCard').classList.add('show');
     }
 
     function showError(msg) {
@@ -706,31 +901,27 @@
       error.classList.add('show');
     }
 
+    // Directory management
     function addToDirectory() {
       const data = window.currentAgentData;
       if (!data) return;
 
-      // Check if already exists
       const exists = directory.find(a => a.wallet === data.wallet);
       if (exists) {
-        // Update existing
         Object.assign(exists, {
           name: data.said?.name || `Agent ${data.wallet.slice(0, 8)}...`,
           score: data.fairscale_agent_score,
           badges: data.badges,
-          trust: data.trust,
           features: data.features,
           said: data.said,
           updatedAt: Date.now()
         });
       } else {
-        // Add new
         directory.push({
           wallet: data.wallet,
           name: data.said?.name || `Agent ${data.wallet.slice(0, 8)}...`,
           score: data.fairscale_agent_score,
           badges: data.badges,
-          trust: data.trust,
           features: data.features,
           said: data.said,
           addedAt: Date.now(),
@@ -738,42 +929,38 @@
         });
       }
 
-      // Sort by score
       directory.sort((a, b) => b.score - a.score);
-
-      // Save
       localStorage.setItem('fairscale_directory', JSON.stringify(directory));
-
-      // Render
+      
       renderDirectory();
+      updateStats();
 
-      // Clear input
       document.getElementById('walletInput').value = '';
       document.getElementById('resultCard').classList.remove('show');
 
-      // Scroll to directory
-      document.querySelector('.directory-section').scrollIntoView({ behavior: 'smooth' });
+      // Switch to directory tab
+      showTab('directory');
+      document.querySelector('.tab').click();
     }
 
     function renderDirectory() {
       const list = document.getElementById('directoryList');
-      const count = document.getElementById('agentCount');
+      const filtered = getFilteredDirectory();
 
-      count.textContent = `${directory.length} agent${directory.length !== 1 ? 's' : ''}`;
-
-      if (directory.length === 0) {
+      if (filtered.length === 0) {
         list.innerHTML = `
           <div class="empty-state">
             <img src="assets/icon.png" alt="" class="icon">
-            <p>No agents registered yet.<br>Be the first to add one.</p>
+            <p>No agents found.<br>${directory.length === 0 ? 'Check an agent and add them.' : 'Try a different search.'}</p>
           </div>
         `;
         return;
       }
 
-      list.innerHTML = directory.map((agent, i) => {
+      list.innerHTML = filtered.map((agent, i) => {
         const verifiedBadge = agent.badges?.find(b => b.id === 'said_verified');
         const shortWallet = `${agent.wallet.slice(0, 6)}...${agent.wallet.slice(-4)}`;
+        const isSelected = compareSelection.includes(agent.wallet);
         
         return `
           <div class="directory-item" onclick="viewAgent('${agent.wallet}')">
@@ -784,27 +971,161 @@
                 <div class="wallet">${shortWallet}</div>
                 <div class="badges-mini">
                   ${verifiedBadge ? '<span class="badge-mini verified">Verified</span>' : ''}
-                  ${agent.badges?.slice(0, 3).filter(b => b.id !== 'said_verified').map(b => 
+                  ${agent.badges?.slice(0, 4).filter(b => b.id !== 'said_verified').map(b => 
                     `<span class="badge-mini">${b.label}</span>`
                   ).join('') || ''}
                 </div>
               </div>
             </div>
-            <div class="score">${agent.score}</div>
+            <div style="display: flex; align-items: center;">
+              <div class="score">${agent.score}</div>
+              <button class="compare-btn ${isSelected ? 'selected' : ''}" onclick="event.stopPropagation(); toggleCompare('${agent.wallet}')">
+                ${isSelected ? '✓' : '+'}
+              </button>
+            </div>
           </div>
         `;
       }).join('');
     }
 
-    function viewAgent(wallet) {
-      document.getElementById('walletInput').value = wallet;
-      registerAgent();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+    function getFilteredDirectory() {
+      const search = document.getElementById('searchInput').value.toLowerCase();
+      const badge = document.getElementById('badgeFilter').value;
+
+      return directory.filter(agent => {
+        const matchesSearch = !search || 
+          agent.name.toLowerCase().includes(search) || 
+          agent.wallet.toLowerCase().includes(search);
+
+        const matchesBadge = !badge || 
+          agent.badges?.some(b => b.id === badge);
+
+        return matchesSearch && matchesBadge;
+      });
     }
 
-    // Enter key to submit
-    document.getElementById('walletInput').addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') registerAgent();
+    function filterDirectory() {
+      renderDirectory();
+    }
+
+    function updateStats() {
+      document.getElementById('totalAgents').textContent = directory.length;
+      
+      const avg = directory.length > 0 
+        ? Math.round(directory.reduce((sum, a) => sum + a.score, 0) / directory.length)
+        : 0;
+      document.getElementById('avgScore').textContent = avg;
+
+      const verified = directory.filter(a => a.badges?.some(b => b.id === 'said_verified')).length;
+      document.getElementById('verifiedCount').textContent = verified;
+    }
+
+    function viewAgent(wallet) {
+      document.getElementById('walletInput').value = wallet;
+      showTab('check');
+      document.querySelectorAll('.tab')[1].click();
+      checkAgent();
+    }
+
+    // Compare functionality
+    function toggleCompare(wallet) {
+      const idx = compareSelection.indexOf(wallet);
+      if (idx > -1) {
+        compareSelection.splice(idx, 1);
+      } else if (compareSelection.length < 2) {
+        compareSelection.push(wallet);
+      }
+
+      renderDirectory();
+
+      if (compareSelection.length === 2) {
+        document.getElementById('compare1Input').value = compareSelection[0];
+        document.getElementById('compare2Input').value = compareSelection[1];
+      }
+    }
+
+    async function compareAgents() {
+      const wallet1 = document.getElementById('compare1Input').value.trim();
+      const wallet2 = document.getElementById('compare2Input').value.trim();
+
+      if (!wallet1 || !wallet2) {
+        alert('Please enter two wallet addresses');
+        return;
+      }
+
+      const loading = document.getElementById('compareLoading');
+      const grid = document.getElementById('compareGrid');
+      const clear = document.getElementById('compareClear');
+
+      loading.classList.add('show');
+      grid.style.display = 'none';
+
+      try {
+        const [data1, data2] = await Promise.all([
+          fetch(`${API_URL}/score?wallet=${encodeURIComponent(wallet1)}`).then(r => r.json()),
+          fetch(`${API_URL}/score?wallet=${encodeURIComponent(wallet2)}`).then(r => r.json())
+        ]);
+
+        renderCompare(data1, data2);
+        grid.style.display = 'grid';
+        clear.style.display = 'block';
+      } catch (e) {
+        alert('Failed to fetch agent data');
+        console.error(e);
+      } finally {
+        loading.classList.remove('show');
+      }
+    }
+
+    function renderCompare(data1, data2) {
+      const name1 = data1.said?.name || `Agent ${data1.wallet.slice(0, 8)}...`;
+      const name2 = data2.said?.name || `Agent ${data2.wallet.slice(0, 8)}...`;
+
+      document.getElementById('compare1Name').textContent = name1;
+      document.getElementById('compare1Wallet').textContent = `${data1.wallet.slice(0, 8)}...${data1.wallet.slice(-4)}`;
+      document.getElementById('compare1Score').textContent = data1.fairscale_agent_score || 0;
+
+      document.getElementById('compare2Name').textContent = name2;
+      document.getElementById('compare2Wallet').textContent = `${data2.wallet.slice(0, 8)}...${data2.wallet.slice(-4)}`;
+      document.getElementById('compare2Score').textContent = data2.fairscale_agent_score || 0;
+
+      const features = ['longevity', 'experience', 'conviction', 'capital'];
+      
+      document.getElementById('compare1Features').innerHTML = features.map(f => {
+        const v1 = data1.features?.[f] || 0;
+        const v2 = data2.features?.[f] || 0;
+        return `
+          <div class="compare-feature">
+            <span class="label">${f.charAt(0).toUpperCase() + f.slice(1)}</span>
+            <span class="value ${v1 >= v2 ? 'winner' : ''}">${v1}</span>
+          </div>
+        `;
+      }).join('');
+
+      document.getElementById('compare2Features').innerHTML = features.map(f => {
+        const v1 = data1.features?.[f] || 0;
+        const v2 = data2.features?.[f] || 0;
+        return `
+          <div class="compare-feature">
+            <span class="label">${f.charAt(0).toUpperCase() + f.slice(1)}</span>
+            <span class="value ${v2 >= v1 ? 'winner' : ''}">${v2}</span>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function clearCompare() {
+      compareSelection = [];
+      document.getElementById('compare1Input').value = '';
+      document.getElementById('compare2Input').value = '';
+      document.getElementById('compareGrid').style.display = 'none';
+      document.getElementById('compareClear').style.display = 'none';
+      renderDirectory();
+    }
+
+    // Keyboard shortcuts
+    document.getElementById('walletInput')?.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') checkAgent();
     });
   </script>
 </body>
