@@ -16,10 +16,12 @@
       --card: #111111;
       --card-hover: #161616;
       --border: #1a1a1a;
+      --border-light: #2a2a2a;
       --primary: #e8d4c4;
       --secondary: #263b4e;
       --accent: #4a9079;
       --gold: #d4a853;
+      --purple: #8b5cf6;
       --text: #ffffff;
       --muted: #888888;
       --dim: #555555;
@@ -34,12 +36,11 @@
     .header nav a { font-family: 'Advercase', serif; color: var(--muted); text-decoration: none; font-size: 0.9rem; }
     .header nav a:hover { color: var(--primary); }
     
-    /* Container */
-    .container { max-width: 900px; margin: 0 auto; padding: 40px 20px; }
+    .container { max-width: 960px; margin: 0 auto; padding: 40px 20px; }
     
     /* Tabs */
     .tabs { display: flex; gap: 8px; margin-bottom: 32px; flex-wrap: wrap; }
-    .tab { font-family: 'Advercase', serif; background: none; border: 1px solid var(--border); color: var(--muted); padding: 10px 24px; border-radius: 8px; cursor: pointer; font-size: 0.9rem; }
+    .tab { font-family: 'Advercase', serif; background: none; border: 1px solid var(--border); color: var(--muted); padding: 10px 24px; border-radius: 8px; cursor: pointer; font-size: 0.9rem; transition: all 0.2s; }
     .tab:hover { color: var(--text); border-color: var(--dim); }
     .tab.active { background: var(--primary); border-color: var(--primary); color: var(--bg); }
     
@@ -50,12 +51,17 @@
     .input-row input { flex: 1; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 16px; font-size: 1rem; color: var(--text); font-family: monospace; }
     .input-row input:focus { outline: none; border-color: var(--primary); }
     .input-row input::placeholder { color: var(--dim); }
-    .btn { background: var(--primary); color: var(--bg); border: none; border-radius: 10px; padding: 16px 32px; font-family: 'Advercase', serif; font-size: 0.95rem; cursor: pointer; }
-    .btn:hover { background: #f5e6da; }
-    .btn:disabled { background: var(--border); color: var(--dim); cursor: not-allowed; }
+    
+    .btn { background: var(--primary); color: var(--bg); border: none; border-radius: 10px; padding: 14px 28px; font-family: 'Advercase', serif; font-size: 0.9rem; cursor: pointer; transition: all 0.2s; }
+    .btn:hover { background: #f5e6da; transform: translateY(-1px); }
+    .btn:disabled { background: var(--border); color: var(--dim); cursor: not-allowed; transform: none; }
     .btn-secondary { background: var(--secondary); color: var(--text); }
+    .btn-secondary:hover { background: #324d63; }
     .btn-gold { background: var(--gold); color: var(--bg); }
     .btn-gold:hover { background: #e5b964; }
+    .btn-purple { background: var(--purple); color: white; }
+    .btn-purple:hover { background: #9d6ff7; }
+    .btn-sm { padding: 8px 16px; font-size: 0.8rem; }
     
     /* Loading & Error */
     .loading { display: none; align-items: center; justify-content: center; gap: 12px; padding: 40px; color: var(--muted); }
@@ -69,100 +75,132 @@
     .result { display: none; background: var(--bg); border: 1px solid var(--border); border-radius: 16px; margin-top: 24px; overflow: hidden; }
     .result.show { display: block; }
     
-    .result-header { padding: 28px; border-bottom: 1px solid var(--border); }
+    .result-header { padding: 24px 28px; border-bottom: 1px solid var(--border); }
     .result-top { display: flex; justify-content: space-between; align-items: flex-start; }
-    .result-name { font-family: 'Advercase', serif; font-size: 1.5rem; color: var(--primary); }
-    .result-wallet { font-family: monospace; font-size: 0.8rem; color: var(--dim); margin-top: 4px; }
-    .result-desc { color: var(--muted); font-size: 0.9rem; line-height: 1.5; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
+    .result-info { flex: 1; }
+    .result-name { font-family: 'Advercase', serif; font-size: 1.4rem; color: var(--primary); }
+    .result-wallet { font-family: monospace; font-size: 0.75rem; color: var(--dim); margin-top: 4px; }
+    .result-desc { color: var(--muted); font-size: 0.85rem; line-height: 1.5; margin-top: 12px; }
+    .result-social { display: flex; gap: 12px; margin-top: 12px; }
+    .result-social a { color: var(--accent); font-size: 0.8rem; text-decoration: none; }
+    .result-social a:hover { text-decoration: underline; }
     
-    /* Main Score */
-    .score-hero { padding: 32px; background: linear-gradient(135deg, var(--secondary) 0%, #1a2a38 100%); text-align: center; border-bottom: 1px solid var(--border); }
+    /* Hero Score */
+    .score-hero { padding: 28px; background: linear-gradient(135deg, var(--secondary) 0%, #1a2a38 100%); text-align: center; border-bottom: 1px solid var(--border); }
     .score-hero .value { font-family: 'Advercase', serif; font-size: 4rem; font-weight: 700; color: var(--primary); line-height: 1; }
-    .score-hero .label { font-size: 0.8rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 8px; }
-    .score-hero .tier { display: inline-block; margin-top: 12px; padding: 6px 16px; border-radius: 20px; font-family: 'Advercase', serif; font-size: 0.85rem; }
+    .score-hero .label { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 8px; }
+    .score-hero .tier { display: inline-block; margin-top: 12px; padding: 5px 14px; border-radius: 20px; font-family: 'Advercase', serif; font-size: 0.8rem; }
     .score-hero .tier.bronze { background: #8b6914; color: #fff; }
     .score-hero .tier.silver { background: #71717a; color: #fff; }
     .score-hero .tier.gold { background: var(--gold); color: #000; }
     
-    /* Score Breakdown */
-    .scores-section { padding: 24px 28px; border-bottom: 1px solid var(--border); }
-    .scores-section h4 { font-family: 'Advercase', serif; color: var(--primary); font-size: 0.9rem; margin-bottom: 16px; }
-    .score-row { display: flex; gap: 16px; }
-    .score-card { flex: 1; background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 16px; text-align: center; }
+    /* Score Cards */
+    .scores-section { padding: 20px 28px; border-bottom: 1px solid var(--border); }
+    .scores-section h4 { font-family: 'Advercase', serif; color: var(--primary); font-size: 0.85rem; margin-bottom: 14px; }
+    .score-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .score-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+    .score-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
     .score-card .val { font-family: 'Advercase', serif; font-size: 1.5rem; font-weight: 700; color: var(--text); }
-    .score-card .lbl { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; margin-top: 4px; }
-    .score-card .desc { font-size: 0.7rem; color: var(--dim); margin-top: 8px; line-height: 1.4; }
+    .score-card .lbl { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; }
+    .score-card .desc { font-size: 0.7rem; color: var(--dim); line-height: 1.4; }
+    .score-bar { height: 4px; background: var(--border); border-radius: 2px; margin: 8px 0; overflow: hidden; }
+    .score-bar-fill { height: 100%; background: var(--primary); border-radius: 2px; transition: width 0.5s ease; }
     
     /* Badges */
-    .badges-section { padding: 20px 28px; border-bottom: 1px solid var(--border); }
-    .badges-section h4 { font-family: 'Advercase', serif; color: var(--primary); font-size: 0.9rem; margin-bottom: 12px; }
-    .badges-row { display: flex; flex-wrap: wrap; gap: 8px; }
-    .badge { background: var(--secondary); border-radius: 6px; padding: 6px 14px; font-size: 0.8rem; color: var(--text); }
+    .badges-section { padding: 16px 28px; border-bottom: 1px solid var(--border); }
+    .badges-section h4 { font-family: 'Advercase', serif; color: var(--primary); font-size: 0.85rem; margin-bottom: 10px; }
+    .badges-row { display: flex; flex-wrap: wrap; gap: 6px; }
+    .badge { background: var(--secondary); border-radius: 5px; padding: 5px 12px; font-size: 0.75rem; color: var(--text); }
     .badge.verified { background: var(--primary); color: var(--bg); }
     .badge.trusted { background: var(--accent); color: var(--bg); }
-    .badge.registered { background: var(--gold); color: var(--bg); }
+    .badge.fs-verified { background: var(--gold); color: var(--bg); }
+    .badge.x402 { background: var(--purple); color: white; }
     
     /* Info Grid */
-    .info-section { padding: 20px 28px; border-bottom: 1px solid var(--border); }
-    .info-section h4 { font-family: 'Advercase', serif; color: var(--primary); font-size: 0.9rem; margin-bottom: 12px; }
-    .info-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-    .info-item { background: var(--card); border-radius: 8px; padding: 12px 16px; }
-    .info-item .k { font-size: 0.7rem; color: var(--dim); text-transform: uppercase; }
-    .info-item .v { font-family: 'Advercase', serif; color: var(--text); margin-top: 4px; }
+    .info-section { padding: 16px 28px; border-bottom: 1px solid var(--border); }
+    .info-section h4 { font-family: 'Advercase', serif; color: var(--primary); font-size: 0.85rem; margin-bottom: 10px; }
+    .info-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .info-item { background: var(--card); border-radius: 8px; padding: 12px; }
+    .info-item .k { font-size: 0.65rem; color: var(--dim); text-transform: uppercase; }
+    .info-item .v { font-family: 'Advercase', serif; color: var(--text); margin-top: 2px; font-size: 0.95rem; }
     
     /* Verification CTA */
-    .verify-section { padding: 24px 28px; background: linear-gradient(135deg, #1a1a1a 0%, #0f1419 100%); border-bottom: 1px solid var(--border); }
+    .verify-section { padding: 20px 28px; background: linear-gradient(135deg, #1a1508 0%, #0f1419 100%); border-bottom: 1px solid var(--border); }
     .verify-box { border: 1px dashed var(--gold); border-radius: 12px; padding: 20px; text-align: center; }
-    .verify-box h4 { font-family: 'Advercase', serif; color: var(--gold); margin-bottom: 8px; }
-    .verify-box p { font-size: 0.85rem; color: var(--muted); margin-bottom: 16px; line-height: 1.5; }
-    .verify-tiers { display: flex; gap: 12px; justify-content: center; margin-bottom: 16px; }
-    .verify-tier { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; text-align: center; flex: 1; max-width: 140px; }
-    .verify-tier .price { font-family: 'Advercase', serif; font-size: 1.1rem; color: var(--gold); }
-    .verify-tier .name { font-size: 0.75rem; color: var(--muted); margin-top: 4px; }
-    .verify-tier .boost { font-size: 0.7rem; color: var(--accent); margin-top: 4px; }
+    .verify-box h4 { font-family: 'Advercase', serif; color: var(--gold); margin-bottom: 6px; font-size: 1rem; }
+    .verify-box p { font-size: 0.8rem; color: var(--muted); margin-bottom: 14px; line-height: 1.4; }
+    .verify-price { font-family: 'Advercase', serif; font-size: 1.8rem; color: var(--gold); margin-bottom: 4px; }
+    .verify-boost { font-size: 0.75rem; color: var(--accent); margin-bottom: 14px; }
     
-    /* Add Button */
-    .add-row { padding: 20px 28px; display: flex; gap: 12px; }
-    .add-row .btn { flex: 1; }
+    /* Actions */
+    .actions-row { padding: 16px 28px; display: flex; gap: 10px; flex-wrap: wrap; }
+    .actions-row .btn { flex: 1; min-width: 120px; }
     
-    /* Directory List */
-    .dir-list { display: flex; flex-direction: column; gap: 12px; }
-    .dir-item { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
-    .dir-item:hover { background: var(--card-hover); border-color: var(--dim); }
-    .dir-item .info { display: flex; align-items: center; gap: 16px; }
-    .dir-item .rank { font-family: 'Advercase', serif; font-size: 1.2rem; color: var(--dim); width: 30px; }
-    .dir-item .name { font-family: 'Advercase', serif; color: var(--primary); font-size: 1rem; }
-    .dir-item .wallet { font-family: monospace; font-size: 0.75rem; color: var(--dim); margin-top: 2px; }
-    .dir-item .mini-badges { display: flex; gap: 6px; margin-top: 6px; }
-    .dir-item .mini-badge { background: var(--secondary); border-radius: 4px; padding: 2px 8px; font-size: 0.6rem; color: var(--muted); }
+    /* Directory */
+    .stats { display: flex; gap: 32px; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+    .stat .val { font-family: 'Advercase', serif; font-size: 1.4rem; color: var(--primary); }
+    .stat .lbl { font-size: 0.65rem; color: var(--muted); text-transform: uppercase; }
+    
+    .dir-list { display: flex; flex-direction: column; gap: 10px; }
+    .dir-item { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: all 0.2s; }
+    .dir-item:hover { background: var(--card-hover); border-color: var(--border-light); }
+    .dir-item .info { display: flex; align-items: center; gap: 14px; }
+    .dir-item .rank { font-family: 'Advercase', serif; font-size: 1.1rem; color: var(--dim); width: 28px; }
+    .dir-item .name { font-family: 'Advercase', serif; color: var(--primary); font-size: 0.95rem; }
+    .dir-item .wallet { font-family: monospace; font-size: 0.7rem; color: var(--dim); margin-top: 2px; }
+    .dir-item .mini-badges { display: flex; gap: 4px; margin-top: 5px; }
+    .dir-item .mini-badge { background: var(--secondary); border-radius: 3px; padding: 2px 6px; font-size: 0.55rem; color: var(--muted); }
     .dir-item .mini-badge.v { background: var(--primary); color: var(--bg); }
-    .dir-item .mini-badge.r { background: var(--gold); color: var(--bg); }
-    .dir-item .score { font-family: 'Advercase', serif; font-size: 2rem; font-weight: 700; color: var(--primary); }
+    .dir-item .mini-badge.g { background: var(--gold); color: var(--bg); }
+    .dir-item .mini-badge.x { background: var(--purple); color: white; }
+    .dir-item .score { font-family: 'Advercase', serif; font-size: 1.8rem; font-weight: 700; color: var(--primary); }
     
-    .empty { text-align: center; padding: 60px 20px; color: var(--dim); }
-    .empty img { width: 48px; opacity: 0.3; margin-bottom: 16px; }
+    .empty { text-align: center; padding: 50px 20px; color: var(--dim); }
+    .empty img { width: 40px; opacity: 0.3; margin-bottom: 12px; }
     
-    /* Stats */
-    .stats { display: flex; gap: 32px; margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
-    .stat .val { font-family: 'Advercase', serif; font-size: 1.5rem; color: var(--primary); }
-    .stat .lbl { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; }
+    /* Services Tab */
+    .services-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .services-header h3 { font-family: 'Advercase', serif; color: var(--primary); }
+    .services-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+    .service-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 18px; transition: all 0.2s; }
+    .service-card:hover { border-color: var(--purple); transform: translateY(-2px); }
+    .service-card .name { font-family: 'Advercase', serif; color: var(--primary); font-size: 0.95rem; margin-bottom: 6px; }
+    .service-card .desc { font-size: 0.75rem; color: var(--muted); line-height: 1.4; margin-bottom: 12px; min-height: 36px; }
+    .service-card .meta { display: flex; justify-content: space-between; align-items: center; padding-top: 12px; border-top: 1px solid var(--border); }
+    .service-card .category { font-size: 0.65rem; padding: 3px 8px; background: var(--secondary); border-radius: 4px; color: var(--muted); text-transform: uppercase; }
+    .service-card .price { font-family: 'Advercase', serif; color: var(--accent); font-size: 0.9rem; }
+    .service-card .source { font-size: 0.6rem; color: var(--dim); margin-top: 8px; }
+    .service-card .btn { margin-top: 12px; width: 100%; }
     
     /* Tab Content */
     .tab-content { display: none; }
     .tab-content.active { display: block; }
     
     /* Footer */
-    .footer { margin-top: 60px; padding: 30px; border-top: 1px solid var(--border); text-align: center; }
-    .footer a { font-family: 'Advercase', serif; color: var(--muted); text-decoration: none; margin: 0 16px; font-size: 0.85rem; }
+    .footer { margin-top: 50px; padding: 24px; border-top: 1px solid var(--border); text-align: center; }
+    .footer a { font-family: 'Advercase', serif; color: var(--muted); text-decoration: none; margin: 0 14px; font-size: 0.8rem; }
     .footer a:hover { color: var(--primary); }
     
+    /* Modal */
+    .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center; }
+    .modal.show { display: flex; }
+    .modal-content { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 32px; max-width: 400px; width: 90%; text-align: center; }
+    .modal-content h3 { font-family: 'Advercase', serif; color: var(--gold); margin-bottom: 16px; }
+    .modal-content p { font-size: 0.85rem; color: var(--muted); margin-bottom: 20px; line-height: 1.5; }
+    .modal-address { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px; font-family: monospace; font-size: 0.7rem; color: var(--primary); word-break: break-all; margin-bottom: 16px; }
+    .modal-amount { font-family: 'Advercase', serif; font-size: 2rem; color: var(--gold); margin-bottom: 8px; }
+    .modal-buttons { display: flex; gap: 10px; margin-top: 20px; }
+    .modal-buttons .btn { flex: 1; }
+    
     @media (max-width: 600px) {
+      .header { padding: 16px 20px; }
       .input-row { flex-direction: column; }
-      .score-row { flex-direction: column; }
+      .score-grid { grid-template-columns: 1fr; }
       .info-grid { grid-template-columns: 1fr; }
-      .dir-item { flex-direction: column; align-items: flex-start; gap: 12px; }
+      .dir-item { flex-direction: column; align-items: flex-start; gap: 10px; }
       .dir-item .score { align-self: flex-end; }
-      .verify-tiers { flex-direction: column; align-items: center; }
+      .services-grid { grid-template-columns: 1fr; }
+      .modal-buttons { flex-direction: column; }
     }
   </style>
 </head>
@@ -180,6 +218,7 @@
     <div class="tabs">
       <button class="tab active" data-tab="check">Check Agent</button>
       <button class="tab" data-tab="directory">Directory</button>
+      <button class="tab" data-tab="services">x402 Services</button>
     </div>
 
     <!-- CHECK TAB -->
@@ -195,60 +234,66 @@
       </div>
 
       <div class="result" id="result">
-        <!-- Header -->
         <div class="result-header">
           <div class="result-top">
-            <div>
+            <div class="result-info">
               <div class="result-name" id="rName">Agent Name</div>
               <div class="result-wallet" id="rWallet">wallet...</div>
+              <div class="result-desc" id="rDesc"></div>
+              <div class="result-social" id="rSocial"></div>
             </div>
           </div>
-          <div class="result-desc" id="rDesc" style="display:none;"></div>
         </div>
 
-        <!-- Hero Score -->
         <div class="score-hero">
           <div class="value" id="rScore">0</div>
           <div class="label">Agent FairScore</div>
           <div class="tier bronze" id="rTierBadge">Bronze</div>
         </div>
 
-        <!-- Score Breakdown with Descriptions -->
         <div class="scores-section">
           <h4>Reputation Breakdown</h4>
-          <div class="score-row">
-            <div class="score-card">
-              <div class="val" id="fLong">0</div>
-              <div class="lbl">Longevity</div>
-              <div class="desc">How long the wallet has been active on Solana</div>
+          <div class="score-grid">
+            <div class="score-card" data-type="longevity">
+              <div class="score-card-header">
+                <span class="lbl">Longevity</span>
+                <span class="val" id="fLong">0</span>
+              </div>
+              <div class="score-bar"><div class="score-bar-fill" id="fLongBar" style="width: 0%"></div></div>
+              <div class="desc">Wallet age and consistent activity over time</div>
             </div>
-            <div class="score-card">
-              <div class="val" id="fExp">0</div>
-              <div class="lbl">Experience</div>
-              <div class="desc">Transaction volume and protocol diversity</div>
+            <div class="score-card" data-type="experience">
+              <div class="score-card-header">
+                <span class="lbl">Experience</span>
+                <span class="val" id="fExp">0</span>
+              </div>
+              <div class="score-bar"><div class="score-bar-fill" id="fExpBar" style="width: 0%"></div></div>
+              <div class="desc">Transaction count and protocol diversity</div>
             </div>
-          </div>
-          <div class="score-row" style="margin-top: 12px;">
-            <div class="score-card">
-              <div class="val" id="fConv">0</div>
-              <div class="lbl">Conviction</div>
-              <div class="desc">Holding patterns and commitment to positions</div>
+            <div class="score-card" data-type="conviction">
+              <div class="score-card-header">
+                <span class="lbl">Conviction</span>
+                <span class="val" id="fConv">0</span>
+              </div>
+              <div class="score-bar"><div class="score-bar-fill" id="fConvBar" style="width: 0%"></div></div>
+              <div class="desc">Holding patterns and position commitment</div>
             </div>
-            <div class="score-card">
-              <div class="val" id="fCap">0</div>
-              <div class="lbl">Capital</div>
-              <div class="desc">Historical holdings of SOL and stablecoins</div>
+            <div class="score-card" data-type="capital">
+              <div class="score-card-header">
+                <span class="lbl">Capital</span>
+                <span class="val" id="fCap">0</span>
+              </div>
+              <div class="score-bar"><div class="score-bar-fill" id="fCapBar" style="width: 0%"></div></div>
+              <div class="desc">Historical SOL and stablecoin holdings</div>
             </div>
           </div>
         </div>
 
-        <!-- Badges -->
         <div class="badges-section">
           <h4>Badges & Credentials</h4>
           <div class="badges-row" id="rBadges"></div>
         </div>
 
-        <!-- Additional Info -->
         <div class="info-section">
           <h4>Trust Signals</h4>
           <div class="info-grid">
@@ -264,38 +309,22 @@
               <div class="k">Trust Tier</div>
               <div class="v" id="rTrustTier">—</div>
             </div>
-            <div class="info-item">
-              <div class="k">Skills</div>
-              <div class="v" id="rSkills">—</div>
-            </div>
           </div>
         </div>
 
-        <!-- Verification CTA -->
         <div class="verify-section" id="verifySection">
           <div class="verify-box">
-            <h4>⭐ Boost Your Reputation</h4>
-            <p>Get verified to increase your Agent FairScore and stand out in the directory.</p>
-            <div class="verify-tiers">
-              <div class="verify-tier">
-                <div class="price">$25</div>
-                <div class="name">Registered</div>
-                <div class="boost">+10 Score</div>
-              </div>
-              <div class="verify-tier">
-                <div class="price">$100</div>
-                <div class="name">Verified</div>
-                <div class="boost">+25 Score</div>
-              </div>
-            </div>
-            <button class="btn btn-gold" onclick="startVerification()">Get Verified</button>
+            <h4>⭐ Get Verified</h4>
+            <p>Boost your Agent FairScore and stand out in the directory with a verified badge.</p>
+            <div class="verify-price">$5 USDC</div>
+            <div class="verify-boost">+15 Score Boost • Verified Badge</div>
+            <button class="btn btn-gold" onclick="openVerifyModal()">Get Verified</button>
           </div>
         </div>
 
-        <!-- Actions -->
-        <div class="add-row">
+        <div class="actions-row">
           <button class="btn" id="addBtn">Add to Directory</button>
-          <button class="btn btn-secondary" onclick="copyProfile()">Copy Link</button>
+          <button class="btn btn-secondary" onclick="viewOnSolscan()">View on Solscan</button>
         </div>
       </div>
     </div>
@@ -312,6 +341,19 @@
       </div>
     </div>
 
+    <!-- SERVICES TAB -->
+    <div id="tab-services" class="tab-content">
+      <div class="services-header">
+        <h3>x402 Pay-Per-Request Services</h3>
+        <button class="btn btn-sm btn-purple" onclick="refreshServices()">Refresh</button>
+      </div>
+      <p style="color: var(--muted); font-size: 0.85rem; margin-bottom: 20px;">
+        Discover APIs and services that accept micropayments via the x402 protocol.
+      </p>
+      <div class="loading" id="servicesLoading"><div class="spinner"></div><span>Loading services...</span></div>
+      <div class="services-grid" id="servicesGrid"></div>
+    </div>
+
     <footer class="footer">
       <a href="https://fairscale.xyz" target="_blank">fairscale.xyz</a>
       <a href="https://docs.fairscale.xyz" target="_blank">Docs</a>
@@ -319,42 +361,35 @@
     </footer>
   </div>
 
+  <!-- Verification Modal -->
+  <div class="modal" id="verifyModal" onclick="closeModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <h3>⭐ Verify Your Agent</h3>
+      <p>Send $5 USDC on Solana to the address below. After payment, your Agent FairScore will be boosted by +15 and you'll receive a Verified badge.</p>
+      <div class="modal-amount">$5 USDC</div>
+      <div class="modal-address" id="paymentAddress">fairAUEuR1SCcHL254Vb3F3XpUWLruJ2a11f6QfANEN</div>
+      <p style="font-size: 0.75rem;">Include your wallet address in the memo, or DM @fairscalexyz on Twitter with your tx signature.</p>
+      <div class="modal-buttons">
+        <button class="btn btn-secondary" onclick="copyPaymentAddress()">Copy Address</button>
+        <button class="btn btn-gold" onclick="openSolscanPay()">Pay Now</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     const API = 'https://fairscale-reputation-api-production.up.railway.app';
+    const PAYMENT_ADDRESS = 'fairAUEuR1SCcHL254Vb3F3XpUWLruJ2a11f6QfANEN';
     
     // State
     let directory = [];
+    let services = [];
     let currentAgent = null;
     
     // Badges to hide
     const HIDE_BADGES = ['staker'];
     
-    // Score descriptions for qualitative insight
-    const SCORE_INSIGHTS = {
-      longevity: {
-        low: 'New wallet with limited history',
-        mid: 'Established presence on Solana',
-        high: 'Veteran wallet with extensive history'
-      },
-      experience: {
-        low: 'Limited on-chain activity',
-        mid: 'Moderate protocol engagement',
-        high: 'Power user with diverse experience'
-      },
-      conviction: {
-        low: 'Short-term trading patterns',
-        mid: 'Balanced holding strategy',
-        high: 'Strong diamond hands mentality'
-      },
-      capital: {
-        low: 'Minimal historical holdings',
-        mid: 'Moderate capital deployment',
-        high: 'Significant capital history'
-      }
-    };
-    
-    // Load directory
-    try { directory = JSON.parse(localStorage.getItem('fairscale_dir') || '[]'); } catch(e) { directory = []; }
+    // Load directory from localStorage
+    try { directory = JSON.parse(localStorage.getItem('fairscale_dir_v2') || '[]'); } catch(e) { directory = []; }
     
     // Tab switching
     document.querySelectorAll('.tab').forEach(tab => {
@@ -363,6 +398,11 @@
         document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
         tab.classList.add('active');
         document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+        
+        // Load services when tab is clicked
+        if (tab.dataset.tab === 'services' && services.length === 0) {
+          loadServices();
+        }
       });
     });
     
@@ -371,6 +411,7 @@
     document.getElementById('walletInput').addEventListener('keypress', e => { if (e.key === 'Enter') checkAgent(); });
     document.getElementById('addBtn').addEventListener('click', addToDirectory);
     
+    // ==================== CHECK AGENT ====================
     async function checkAgent() {
       const wallet = document.getElementById('walletInput').value.trim();
       const error = document.getElementById('error');
@@ -405,19 +446,13 @@
         result.classList.add('show');
         
       } catch (e) {
-        error.textContent = 'Failed to fetch. Check the wallet address.';
+        error.textContent = 'Failed to fetch. Check the wallet address or try again.';
         error.classList.add('show');
         console.error(e);
       } finally {
         btn.disabled = false;
         loading.classList.remove('show');
       }
-    }
-    
-    function getScoreLevel(score) {
-      if (score >= 70) return 'high';
-      if (score >= 40) return 'mid';
-      return 'low';
     }
     
     function renderResult(data) {
@@ -428,26 +463,31 @@
       // Description
       const desc = data.info?.description;
       const descEl = document.getElementById('rDesc');
-      if (desc) {
-        descEl.textContent = desc;
-        descEl.style.display = 'block';
-      } else {
-        descEl.style.display = 'none';
-      }
+      descEl.textContent = desc || '';
+      descEl.style.display = desc ? 'block' : 'none';
       
-      // Main score - Agent FairScore
+      // Social links
+      const socialEl = document.getElementById('rSocial');
+      const twitter = data.social?.twitter;
+      const website = data.social?.website;
+      let socialHtml = '';
+      if (twitter) socialHtml += `<a href="https://twitter.com/${twitter}" target="_blank">@${twitter}</a>`;
+      if (website) socialHtml += `<a href="${website}" target="_blank">${website.replace(/^https?:\/\//, '')}</a>`;
+      socialEl.innerHTML = socialHtml;
+      socialEl.style.display = socialHtml ? 'flex' : 'none';
+      
+      // Main score
       const score = data.agent_fairscore || 0;
       document.getElementById('rScore').textContent = score;
       
       // Tier badge
       const tierBadge = document.getElementById('rTierBadge');
-      const tier = data.info?.tier || (score >= 80 ? 'gold' : score >= 60 ? 'silver' : 'bronze');
+      const tier = score >= 80 ? 'gold' : score >= 50 ? 'silver' : 'bronze';
       tierBadge.textContent = tier.charAt(0).toUpperCase() + tier.slice(1);
       tierBadge.className = 'tier ' + tier;
       
-      // Feature scores with qualitative descriptions
+      // Feature scores - use the features from API
       const features = data.features || {};
-      
       const longVal = features.longevity || 0;
       const expVal = features.experience || 0;
       const convVal = features.conviction || 0;
@@ -458,43 +498,41 @@
       document.getElementById('fConv').textContent = convVal;
       document.getElementById('fCap').textContent = capVal;
       
-      // Update descriptions based on actual scores
-      document.querySelectorAll('.score-card').forEach((card, i) => {
-        const descEl = card.querySelector('.desc');
-        const valEl = card.querySelector('.val');
-        const val = parseInt(valEl.textContent) || 0;
-        const level = getScoreLevel(val);
-        
-        const types = ['longevity', 'experience', 'conviction', 'capital'];
-        const type = types[i];
-        if (type && SCORE_INSIGHTS[type]) {
-          descEl.textContent = SCORE_INSIGHTS[type][level];
-        }
-      });
+      // Animate bars
+      setTimeout(() => {
+        document.getElementById('fLongBar').style.width = longVal + '%';
+        document.getElementById('fExpBar').style.width = expVal + '%';
+        document.getElementById('fConvBar').style.width = convVal + '%';
+        document.getElementById('fCapBar').style.width = capVal + '%';
+      }, 100);
       
-      // Badges - filter out hidden ones
+      // Badges
       const badges = (data.badges || []).filter(b => !HIDE_BADGES.includes(b.id));
+      const hasX402 = badges.some(b => b.id === 'x402_enabled');
+      const hasMcp = badges.some(b => b.id === 'mcp_available');
+      
       document.getElementById('rBadges').innerHTML = badges.length > 0 
         ? badges.map(b => {
             let cls = 'badge';
             if (b.id === 'said_verified') cls += ' verified';
             if (b.id === 'said_trusted') cls += ' trusted';
-            if (b.id === 'fairscale_registered' || b.id === 'fairscale_verified') cls += ' registered';
+            if (b.id === 'fairscale_verified') cls += ' fs-verified';
+            if (b.id === 'x402_enabled') cls += ' x402';
             return `<span class="${cls}">${b.label}</span>`;
           }).join('')
-        : '<span style="color: var(--dim);">No badges earned yet</span>';
+        : '<span style="color: var(--dim); font-size: 0.8rem;">No badges yet</span>';
       
       // Trust signals
-      document.getElementById('rAttest').textContent = data.said?.feedbackCount || data.info?.attestations?.count || 0;
+      document.getElementById('rAttest').textContent = data.said?.feedbackCount || 0;
       document.getElementById('rSaidScore').textContent = data.said?.score || '—';
-      document.getElementById('rTrustTier').textContent = data.said?.trustTier || data.info?.attestations?.trustTier || '—';
-      document.getElementById('rSkills').textContent = data.info?.skills?.length > 0 ? data.info.skills.slice(0, 3).join(', ') : '—';
+      document.getElementById('rTrustTier').textContent = data.said?.trustTier || '—';
       
-      // Show/hide verify section based on existing verification
-      const isVerified = badges.some(b => b.id === 'fairscale_verified' || b.id === 'fairscale_registered');
+      // Show/hide verify section
+      const isVerified = badges.some(b => b.id === 'fairscale_verified');
       document.getElementById('verifySection').style.display = isVerified ? 'none' : 'block';
     }
     
+    // ==================== DIRECTORY ====================
     function addToDirectory() {
       if (!currentAgent) return;
       
@@ -507,14 +545,12 @@
         badges: badges,
         features: currentAgent.features,
         description: currentAgent.info?.description || '',
-        attestations: currentAgent.said?.feedbackCount || 0,
+        social: currentAgent.social,
         saidScore: currentAgent.said?.score || null,
-        trustTier: currentAgent.said?.trustTier || null,
-        tier: currentAgent.info?.tier || 'bronze',
+        attestations: currentAgent.said?.feedbackCount || 0,
         addedAt: Date.now()
       };
       
-      // Update or add
       const idx = directory.findIndex(a => a.wallet === agent.wallet);
       if (idx >= 0) {
         directory[idx] = { ...directory[idx], ...agent, updatedAt: Date.now() };
@@ -522,20 +558,15 @@
         directory.push(agent);
       }
       
-      // Sort by score
       directory.sort((a, b) => (b.score || 0) - (a.score || 0));
+      localStorage.setItem('fairscale_dir_v2', JSON.stringify(directory));
       
-      // Save
-      localStorage.setItem('fairscale_dir', JSON.stringify(directory));
-      
-      // Clear & switch
       document.getElementById('walletInput').value = '';
       document.getElementById('result').classList.remove('show');
       currentAgent = null;
       
       renderDirectory();
       updateStats();
-      
       document.querySelector('[data-tab="directory"]').click();
     }
     
@@ -548,10 +579,11 @@
       }
       
       list.innerHTML = directory.map((agent, i) => {
-        const verified = agent.badges?.some(b => b.id === 'said_verified');
-        const registered = agent.badges?.some(b => b.id === 'fairscale_registered' || b.id === 'fairscale_verified');
+        const saidVerified = agent.badges?.some(b => b.id === 'said_verified');
+        const fsVerified = agent.badges?.some(b => b.id === 'fairscale_verified');
+        const x402 = agent.badges?.some(b => b.id === 'x402_enabled');
         const shortWallet = `${agent.wallet.slice(0,6)}...${agent.wallet.slice(-4)}`;
-        const otherBadges = (agent.badges || []).filter(b => !['said_verified', 'fairscale_registered', 'fairscale_verified'].includes(b.id)).slice(0, 2);
+        const otherBadges = (agent.badges || []).filter(b => !['said_verified', 'fairscale_verified', 'x402_enabled'].includes(b.id)).slice(0, 2);
         
         return `
           <div class="dir-item" onclick="viewAgent('${agent.wallet}')">
@@ -561,8 +593,9 @@
                 <div class="name">${agent.name}</div>
                 <div class="wallet">${shortWallet}</div>
                 <div class="mini-badges">
-                  ${registered ? '<span class="mini-badge r">Verified</span>' : ''}
-                  ${verified ? '<span class="mini-badge v">SAID</span>' : ''}
+                  ${fsVerified ? '<span class="mini-badge g">Verified</span>' : ''}
+                  ${saidVerified ? '<span class="mini-badge v">SAID</span>' : ''}
+                  ${x402 ? '<span class="mini-badge x">x402</span>' : ''}
                   ${otherBadges.map(b => `<span class="mini-badge">${b.label}</span>`).join('')}
                 </div>
               </div>
@@ -587,19 +620,97 @@
       document.getElementById('statVerified').textContent = verified;
     }
     
-    function startVerification() {
-      // For now, link to a form or payment page
-      alert('Verification coming soon! Contact @fairscalexyz on Twitter to get verified.');
+    // ==================== SERVICES ====================
+    async function loadServices() {
+      const grid = document.getElementById('servicesGrid');
+      const loading = document.getElementById('servicesLoading');
+      
+      loading.classList.add('show');
+      grid.innerHTML = '';
+      
+      try {
+        // First trigger a sync
+        await fetch(`${API}/sync`, { method: 'POST' }).catch(() => {});
+        
+        const res = await fetch(`${API}/services?limit=50`);
+        const data = await res.json();
+        services = data.services || [];
+        
+        renderServices();
+      } catch (e) {
+        grid.innerHTML = '<div class="empty"><p>Failed to load services. Try refreshing.</p></div>';
+        console.error(e);
+      } finally {
+        loading.classList.remove('show');
+      }
     }
     
-    function copyProfile() {
-      if (!currentAgent) return;
-      const url = `${window.location.origin}${window.location.pathname}?wallet=${currentAgent.wallet}`;
-      navigator.clipboard.writeText(url);
-      alert('Profile link copied!');
+    function refreshServices() {
+      services = [];
+      loadServices();
     }
     
-    // Check URL for wallet param on load
+    function renderServices() {
+      const grid = document.getElementById('servicesGrid');
+      
+      if (services.length === 0) {
+        grid.innerHTML = '<div class="empty" style="grid-column: 1/-1;"><p>No x402 services found. Services are synced from the x402 Bazaar and Community registries.</p></div>';
+        return;
+      }
+      
+      grid.innerHTML = services.map(s => {
+        const name = s.name || s.resource?.split('/').pop() || 'Unnamed Service';
+        const desc = s.description || 'Pay-per-request API endpoint';
+        const price = s.pricing?.price || s.pricing?.maxAmountRequired || '—';
+        const priceDisplay = typeof price === 'number' ? `$${price.toFixed(4)}` : price;
+        const category = s.category || 'utility';
+        const source = s.source?.replace('x402_', '').replace('_', ' ') || '';
+        const url = s.resource || '#';
+        
+        return `
+          <div class="service-card">
+            <div class="name">${name}</div>
+            <div class="desc">${desc}</div>
+            <div class="meta">
+              <span class="category">${category}</span>
+              <span class="price">${priceDisplay}</span>
+            </div>
+            <div class="source">via ${source}</div>
+            ${url !== '#' ? `<button class="btn btn-sm btn-purple" onclick="window.open('${url}', '_blank')">Open Endpoint</button>` : ''}
+          </div>
+        `;
+      }).join('');
+    }
+    
+    // ==================== VERIFICATION ====================
+    function openVerifyModal() {
+      document.getElementById('verifyModal').classList.add('show');
+    }
+    
+    function closeModal(e) {
+      if (e.target.classList.contains('modal')) {
+        document.getElementById('verifyModal').classList.remove('show');
+      }
+    }
+    
+    function copyPaymentAddress() {
+      navigator.clipboard.writeText(PAYMENT_ADDRESS);
+      alert('Payment address copied!');
+    }
+    
+    function openSolscanPay() {
+      // Open Solscan with the payment address
+      window.open(`https://solscan.io/account/${PAYMENT_ADDRESS}`, '_blank');
+    }
+    
+    // ==================== UTILITIES ====================
+    function viewOnSolscan() {
+      if (currentAgent) {
+        window.open(`https://solscan.io/account/${currentAgent.wallet}`, '_blank');
+      }
+    }
+    
+    // Check URL params on load
     function checkUrlParams() {
       const params = new URLSearchParams(window.location.search);
       const wallet = params.get('wallet');
@@ -608,6 +719,13 @@
         checkAgent();
       }
     }
+    
+    // Escape key closes modal
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        document.getElementById('verifyModal').classList.remove('show');
+      }
+    });
     
     // Init
     renderDirectory();
