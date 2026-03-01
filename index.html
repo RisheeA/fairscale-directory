@@ -1,766 +1,664 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FairScale Agent Directory</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-  <style>
-    @font-face { font-family: 'Advercase'; src: url('assets/Advercase-Regular.ttf') format('truetype'); font-weight: 400; }
-    @font-face { font-family: 'Advercase'; src: url('assets/Advercase-Bold.ttf') format('truetype'); font-weight: 700; }
-    
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    
-    :root {
-      --bg: #0a0a0a;
-      --card: rgba(17, 17, 17, 0.85);
-      --card-solid: #111111;
-      --card-hover: rgba(22, 22, 22, 0.9);
-      --border: rgba(26, 26, 26, 0.8);
-      --border-light: #2a2a2a;
-      --primary: #e8d4c4;
-      --secondary: #263b4e;
-      --accent: #4a9079;
-      --gold: #d4a853;
-      --purple: #8b5cf6;
-      --text: #ffffff;
-      --muted: #888888;
-      --dim: #555555;
-    }
-    
-    body { 
-      font-family: 'Inter', sans-serif; 
-      background: var(--bg); 
-      color: var(--text); 
-      min-height: 100vh;
-      position: relative;
-    }
-    
-    body::before {
-      content: '';
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: url('assets/background.png') center center / cover no-repeat;
-      opacity: 0.12;
-      z-index: -1;
-      pointer-events: none;
-    }
-    
-    .header { display: flex; justify-content: space-between; align-items: center; padding: 20px 40px; border-bottom: 1px solid var(--border); background: rgba(10, 10, 10, 0.8); backdrop-filter: blur(10px); }
-    .header img { height: 32px; }
-    .header nav { display: flex; gap: 24px; }
-    .header nav a { font-family: 'Advercase', serif; color: var(--muted); text-decoration: none; font-size: 0.9rem; }
-    .header nav a:hover { color: var(--primary); }
-    
-    .container { max-width: 960px; margin: 0 auto; padding: 40px 20px; }
-    
-    .tabs { display: flex; gap: 8px; margin-bottom: 32px; flex-wrap: wrap; }
-    .tab { font-family: 'Advercase', serif; background: rgba(0,0,0,0.5); border: 1px solid var(--border); color: var(--muted); padding: 10px 24px; border-radius: 8px; cursor: pointer; font-size: 0.9rem; transition: all 0.2s; backdrop-filter: blur(5px); }
-    .tab:hover { color: var(--text); border-color: var(--dim); }
-    .tab.active { background: var(--primary); border-color: var(--primary); color: var(--bg); }
-    
-    .check-box { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 32px; margin-bottom: 32px; backdrop-filter: blur(10px); }
-    .check-box h2 { font-family: 'Advercase', serif; color: var(--primary); margin-bottom: 20px; font-size: 1.1rem; }
-    .input-row { display: flex; gap: 12px; }
-    .input-row input { flex: 1; background: rgba(0,0,0,0.6); border: 1px solid var(--border); border-radius: 10px; padding: 16px; font-size: 1rem; color: var(--text); font-family: monospace; }
-    .input-row input:focus { outline: none; border-color: var(--primary); }
-    .input-row input::placeholder { color: var(--dim); }
-    
-    .btn { background: var(--primary); color: var(--bg); border: none; border-radius: 10px; padding: 14px 28px; font-family: 'Advercase', serif; font-size: 0.9rem; cursor: pointer; transition: all 0.2s; }
-    .btn:hover { background: #f5e6da; }
-    .btn:disabled { background: var(--border); color: var(--dim); cursor: not-allowed; }
-    .btn-secondary { background: var(--secondary); color: var(--text); }
-    .btn-gold { background: var(--gold); color: var(--bg); }
-    .btn-purple { background: var(--purple); color: white; }
-    .btn-sm { padding: 8px 16px; font-size: 0.8rem; }
-    
-    .loading { display: none; align-items: center; justify-content: center; gap: 12px; padding: 40px; color: var(--muted); }
-    .loading.show { display: flex; }
-    .spinner { width: 20px; height: 20px; border: 2px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .error { background: rgba(26, 10, 10, 0.9); border: 1px solid #4a2020; border-radius: 10px; padding: 16px; color: #c87070; margin-top: 16px; display: none; }
-    .error.show { display: block; }
-    
-    .result { display: none; background: rgba(10, 10, 10, 0.9); border: 1px solid var(--border); border-radius: 16px; margin-top: 24px; overflow: hidden; backdrop-filter: blur(10px); }
-    .result.show { display: block; }
-    
-    .result-header { padding: 24px 28px; border-bottom: 1px solid var(--border); }
-    .result-name { font-family: 'Advercase', serif; font-size: 1.4rem; color: var(--primary); }
-    .result-wallet { font-family: monospace; font-size: 0.75rem; color: var(--dim); margin-top: 4px; }
-    .result-desc { color: var(--muted); font-size: 0.85rem; line-height: 1.5; margin-top: 12px; }
-    .result-social { display: flex; gap: 12px; margin-top: 10px; }
-    .result-social a { color: var(--accent); font-size: 0.8rem; text-decoration: none; }
-    
-    .score-hero { padding: 28px; background: linear-gradient(135deg, var(--secondary) 0%, #1a2a38 100%); text-align: center; border-bottom: 1px solid var(--border); }
-    .score-hero .value { font-family: 'Advercase', serif; font-size: 4rem; font-weight: 700; color: var(--primary); line-height: 1; }
-    .score-hero .label { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 8px; }
-    .score-hero .tier { display: inline-block; margin-top: 12px; padding: 5px 14px; border-radius: 20px; font-family: 'Advercase', serif; font-size: 0.8rem; }
-    .score-hero .tier.bronze { background: #8b6914; color: #fff; }
-    .score-hero .tier.silver { background: #71717a; color: #fff; }
-    .score-hero .tier.gold { background: var(--gold); color: #000; }
-    
-    .scores-section { padding: 20px 28px; border-bottom: 1px solid var(--border); }
-    .scores-section h4 { font-family: 'Advercase', serif; color: var(--primary); font-size: 0.85rem; margin-bottom: 14px; }
-    .score-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-    .score-card { background: var(--card-solid); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
-    .score-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-    .score-card .val { font-family: 'Advercase', serif; font-size: 1.5rem; font-weight: 700; color: var(--text); }
-    .score-card .lbl { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; }
-    .score-card .desc { font-size: 0.7rem; color: var(--dim); line-height: 1.4; margin-top: 4px; }
-    .score-bar { height: 4px; background: var(--border); border-radius: 2px; margin: 8px 0; overflow: hidden; }
-    .score-bar-fill { height: 100%; background: var(--primary); border-radius: 2px; transition: width 0.5s ease; }
-    
-    .badges-section { padding: 16px 28px; border-bottom: 1px solid var(--border); }
-    .badges-section h4 { font-family: 'Advercase', serif; color: var(--primary); font-size: 0.85rem; margin-bottom: 10px; }
-    .badges-row { display: flex; flex-wrap: wrap; gap: 6px; }
-    .badge { background: var(--secondary); border-radius: 5px; padding: 5px 12px; font-size: 0.75rem; color: var(--text); }
-    .badge.verified { background: var(--accent); color: #fff; }
-    .badge.trusted { background: #2d8f6f; color: #fff; }
-    .badge.fs-verified { background: var(--gold); color: var(--bg); }
-    .badge.x402 { background: var(--purple); color: white; }
-    
-    .info-section { padding: 16px 28px; border-bottom: 1px solid var(--border); }
-    .info-section h4 { font-family: 'Advercase', serif; color: var(--primary); font-size: 0.85rem; margin-bottom: 10px; }
-    .info-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-    .info-item { background: var(--card-solid); border-radius: 8px; padding: 12px; text-align: center; }
-    .info-item .k { font-size: 0.6rem; color: var(--dim); text-transform: uppercase; letter-spacing: 0.05em; }
-    .info-item .v { font-family: 'Advercase', serif; color: var(--text); margin-top: 4px; font-size: 1.1rem; }
-    .info-item.highlight { background: linear-gradient(135deg, #1a3a2a 0%, #0f2a1a 100%); border: 1px solid var(--accent); }
-    .info-item.highlight .v { color: var(--accent); }
-    
-    .verify-section { padding: 20px 28px; background: linear-gradient(135deg, #1a1508 0%, #0f1419 100%); border-bottom: 1px solid var(--border); }
-    .verify-box { border: 1px dashed var(--gold); border-radius: 12px; padding: 20px; text-align: center; }
-    .verify-box h4 { font-family: 'Advercase', serif; color: var(--gold); margin-bottom: 6px; font-size: 1rem; }
-    .verify-box p { font-size: 0.8rem; color: var(--muted); margin-bottom: 14px; line-height: 1.4; }
-    .verify-price { font-family: 'Advercase', serif; font-size: 1.8rem; color: var(--gold); margin-bottom: 4px; }
-    .verify-boost { font-size: 0.75rem; color: var(--accent); margin-bottom: 14px; }
-    
-    .actions-row { padding: 16px 28px; display: flex; gap: 10px; flex-wrap: wrap; }
-    .actions-row .btn { flex: 1; min-width: 120px; }
-    
-    .stats { display: flex; gap: 32px; margin-bottom: 20px; padding: 16px 20px; background: var(--card); border-radius: 12px; border: 1px solid var(--border); }
-    .stat .val { font-family: 'Advercase', serif; font-size: 1.4rem; color: var(--primary); }
-    .stat .lbl { font-size: 0.65rem; color: var(--muted); text-transform: uppercase; }
-    
-    .dir-list { display: flex; flex-direction: column; gap: 10px; }
-    .dir-item { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: all 0.2s; backdrop-filter: blur(5px); }
-    .dir-item:hover { background: var(--card-hover); border-color: var(--border-light); }
-    .dir-item .info { display: flex; align-items: center; gap: 14px; }
-    .dir-item .rank { font-family: 'Advercase', serif; font-size: 1.1rem; color: var(--dim); width: 28px; }
-    .dir-item .name { font-family: 'Advercase', serif; color: var(--primary); font-size: 0.95rem; }
-    .dir-item .wallet { font-family: monospace; font-size: 0.7rem; color: var(--dim); margin-top: 2px; }
-    .dir-item .mini-badges { display: flex; gap: 4px; margin-top: 5px; }
-    .dir-item .mini-badge { background: var(--secondary); border-radius: 3px; padding: 2px 6px; font-size: 0.55rem; color: var(--muted); }
-    .dir-item .mini-badge.v { background: var(--accent); color: #fff; }
-    .dir-item .mini-badge.g { background: var(--gold); color: var(--bg); }
-    .dir-item .mini-badge.x { background: var(--purple); color: white; }
-    .dir-item .score { font-family: 'Advercase', serif; font-size: 1.8rem; font-weight: 700; color: var(--primary); }
-    
-    .empty { text-align: center; padding: 50px 20px; color: var(--dim); }
-    .empty img { width: 40px; opacity: 0.3; margin-bottom: 12px; }
-    
-    .services-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-    .services-header h3 { font-family: 'Advercase', serif; color: var(--primary); }
-    .services-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
-    .service-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 18px; transition: all 0.2s; backdrop-filter: blur(5px); }
-    .service-card:hover { border-color: var(--purple); }
-    .service-card .name { font-family: 'Advercase', serif; color: var(--primary); font-size: 0.95rem; margin-bottom: 6px; }
-    .service-card .desc { font-size: 0.75rem; color: var(--muted); line-height: 1.4; margin-bottom: 12px; min-height: 36px; }
-    .service-card .meta { display: flex; justify-content: space-between; align-items: center; padding-top: 12px; border-top: 1px solid var(--border); }
-    .service-card .category { font-size: 0.65rem; padding: 3px 8px; background: var(--secondary); border-radius: 4px; color: var(--muted); text-transform: uppercase; }
-    .service-card .price { font-family: 'Advercase', serif; color: var(--accent); font-size: 0.9rem; }
-    .service-card .btn { margin-top: 12px; width: 100%; }
-    
-    .tab-content { display: none; }
-    .tab-content.active { display: block; }
-    
-    .footer { margin-top: 50px; padding: 24px; border-top: 1px solid var(--border); text-align: center; background: rgba(10, 10, 10, 0.8); }
-    .footer a { font-family: 'Advercase', serif; color: var(--muted); text-decoration: none; margin: 0 14px; font-size: 0.8rem; }
-    
-    .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.9); z-index: 1000; align-items: center; justify-content: center; }
-    .modal.show { display: flex; }
-    .modal-content { background: var(--card-solid); border: 1px solid var(--border); border-radius: 16px; padding: 32px; max-width: 420px; width: 90%; text-align: center; }
-    .modal-content h3 { font-family: 'Advercase', serif; color: var(--gold); margin-bottom: 16px; }
-    .modal-content p { font-size: 0.85rem; color: var(--muted); margin-bottom: 16px; line-height: 1.5; }
-    .modal-address { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 14px; font-family: monospace; font-size: 0.7rem; color: var(--primary); word-break: break-all; margin-bottom: 16px; }
-    .modal-amount { font-family: 'Advercase', serif; font-size: 2rem; color: var(--gold); margin-bottom: 8px; }
-    .modal-buttons { display: flex; gap: 10px; margin-top: 20px; }
-    .modal-buttons .btn { flex: 1; }
-    .modal-status { margin-top: 16px; padding: 12px; border-radius: 8px; font-size: 0.85rem; display: none; }
-    .modal-status.show { display: block; }
-    .modal-status.checking { background: var(--secondary); color: var(--muted); }
-    .modal-status.success { background: #0f2a1a; color: var(--accent); border: 1px solid var(--accent); }
-    .modal-status.error { background: #1a0a0a; color: #c87070; }
-    
-    @media (max-width: 700px) {
-      .header { padding: 16px 20px; }
-      .input-row { flex-direction: column; }
-      .score-grid { grid-template-columns: 1fr; }
-      .info-grid { grid-template-columns: repeat(2, 1fr); }
-      .dir-item { flex-direction: column; align-items: flex-start; gap: 10px; }
-      .dir-item .score { align-self: flex-end; }
-      .services-grid { grid-template-columns: 1fr; }
-      .modal-buttons { flex-direction: column; }
-    }
-  </style>
-</head>
-<body>
-  <header class="header">
-    <a href="/"><img src="assets/logo.png" alt="FairScale"></a>
-    <nav>
-      <a href="https://fairscale.xyz" target="_blank">Website</a>
-      <a href="https://docs.fairscale.xyz" target="_blank">Docs</a>
-      <a href="https://twitter.com/fairscalexyz" target="_blank">Twitter</a>
-    </nav>
-  </header>
+import express from 'express';
+import cors from 'cors';
+import 'dotenv/config';
 
-  <div class="container">
-    <div class="tabs">
-      <button class="tab active" data-tab="check">Check Agent</button>
-      <button class="tab" data-tab="directory">Directory</button>
-      <button class="tab" data-tab="services">x402 Services</button>
-    </div>
+const app = express();
+app.use(cors());
+app.use(express.json());
 
-    <!-- CHECK TAB -->
-    <div id="tab-check" class="tab-content active">
-      <div class="check-box">
-        <h2>Check Agent Reputation</h2>
-        <div class="input-row">
-          <input type="text" id="walletInput" placeholder="Enter Solana wallet address...">
-          <button class="btn" id="checkBtn">Check</button>
-        </div>
-        <div class="error" id="error"></div>
-        <div class="loading" id="loading"><div class="spinner"></div><span>Analyzing reputation...</span></div>
-      </div>
+// =============================================================================
+// CONFIGURATION
+// =============================================================================
 
-      <div class="result" id="result">
-        <div class="result-header">
-          <div class="result-name" id="rName">Agent Name</div>
-          <div class="result-wallet" id="rWallet">wallet...</div>
-          <div class="result-desc" id="rDesc"></div>
-          <div class="result-social" id="rSocial"></div>
-        </div>
+const CONFIG = {
+  FAIRSCALE_API: 'https://api.fairscale.xyz',
+  FAIRSCALE_API_KEY: process.env.FAIRSCALE_API_KEY,
+  SAID_API: 'https://api.saidprotocol.com',
+  X402_COMMUNITY_API: 'https://x402-discovery-api.onrender.com',
+  HELIUS_API_KEY: process.env.HELIUS_API_KEY || '',
+  HELIUS_RPC: 'https://mainnet.helius-rpc.com',
+  PAYMENT_ADDRESS: 'fairAUEuR1SCcHL254Vb3F3XpUWLruJ2a11f6QfANEN',
+  USDC_MINT: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
+  VERIFICATION_AMOUNT: 5,
+  PORT: process.env.PORT || 8080
+};
 
-        <div class="score-hero">
-          <div class="value" id="rScore">0</div>
-          <div class="label">Agent FairScore</div>
-          <div class="tier bronze" id="rTierBadge">Bronze</div>
-        </div>
+// =============================================================================
+// AGENT SCORING THRESHOLDS
+// Optimized for AI agents - shorter timeframes, higher activity expectations
+// 
+// PERCENTILE FIELDS (0-1 scale, already normalized by FairScale):
+//   - major_percentile_score
+//   - stable_percentile_score
+//   - lst_percentile_score
+//   - native_sol_percentile
+//
+// RAW FIELDS (absolute values we normalize ourselves):
+//   - wallet_age_days
+//   - active_days
+//   - tx_count
+//   - platform_diversity
+//   - median_hold_days
+//   - conviction_ratio (0-1)
+//   - no_instant_dumps (0-1)
+// =============================================================================
 
-        <div class="info-section">
-          <h4>Trust Signals</h4>
-          <div class="info-grid">
-            <div class="info-item highlight">
-              <div class="k">SAID Score</div>
-              <div class="v" id="rSaidScore">—</div>
-            </div>
-            <div class="info-item">
-              <div class="k">Trust Tier</div>
-              <div class="v" id="rTrustTier">—</div>
-            </div>
-            <div class="info-item">
-              <div class="k">Attestations</div>
-              <div class="v" id="rAttest">0</div>
-            </div>
-            <div class="info-item">
-              <div class="k">Base Score</div>
-              <div class="v" id="rBaseScore">—</div>
-            </div>
-          </div>
-        </div>
+const AGENT_THRESHOLDS = {
+  // Longevity: 30 days = max score (agents are new, activity matters more)
+  WALLET_AGE_MAX_DAYS: 30,
+  
+  // Experience: Agents transact heavily
+  TX_COUNT_MAX: 100,           // 100 txs = 100%
+  PLATFORM_DIVERSITY_MAX: 5,   // 5 protocols = 100%
+  
+  // Conviction: Agents may trade more, 7 days holding is solid
+  MEDIAN_HOLD_DAYS_MAX: 7,
+};
 
-        <div class="scores-section">
-          <h4>Reputation Breakdown</h4>
-          <div class="score-grid">
-            <div class="score-card">
-              <div class="score-card-header">
-                <span class="lbl">Longevity</span>
-                <span class="val" id="fLong">0</span>
-              </div>
-              <div class="score-bar"><div class="score-bar-fill" id="fLongBar"></div></div>
-              <div class="desc" id="fLongDesc">Wallet age and activity consistency</div>
-            </div>
-            <div class="score-card">
-              <div class="score-card-header">
-                <span class="lbl">Experience</span>
-                <span class="val" id="fExp">0</span>
-              </div>
-              <div class="score-bar"><div class="score-bar-fill" id="fExpBar"></div></div>
-              <div class="desc" id="fExpDesc">Transaction volume and protocol diversity</div>
-            </div>
-            <div class="score-card">
-              <div class="score-card-header">
-                <span class="lbl">Conviction</span>
-                <span class="val" id="fConv">0</span>
-              </div>
-              <div class="score-bar"><div class="score-bar-fill" id="fConvBar"></div></div>
-              <div class="desc" id="fConvDesc">Holding patterns and commitment</div>
-            </div>
-            <div class="score-card">
-              <div class="score-card-header">
-                <span class="lbl">Capital</span>
-                <span class="val" id="fCap">0</span>
-              </div>
-              <div class="score-bar"><div class="score-bar-fill" id="fCapBar"></div></div>
-              <div class="desc" id="fCapDesc">Historical token holdings</div>
-            </div>
-          </div>
-        </div>
+// =============================================================================
+// IN-MEMORY REGISTRY
+// =============================================================================
 
-        <div class="badges-section">
-          <h4>Badges & Credentials</h4>
-          <div class="badges-row" id="rBadges"></div>
-        </div>
+const REGISTRY = {
+  agents: new Map(),
+  registeredAgents: new Map(),  // Agents who registered themselves
+  services: new Map(),
+  verifiedWallets: new Map(),
+  lastSync: null
+};
 
-        <div class="verify-section" id="verifySection">
-          <div class="verify-box">
-            <h4>⭐ Get Verified</h4>
-            <p>Pay $5 USDC to boost your Agent FairScore and earn a Verified badge.</p>
-            <div class="verify-price">$5 USDC</div>
-            <div class="verify-boost">+15 Score Boost • Verified Badge</div>
-            <button class="btn btn-gold" onclick="openVerifyModal()">Get Verified</button>
-          </div>
-        </div>
+// =============================================================================
+// BADGE DEFINITIONS
+// =============================================================================
 
-        <div class="actions-row">
-          <button class="btn" id="addBtn">Add to Directory</button>
-          <button class="btn btn-secondary" onclick="viewOnSolscan()">View on Solscan</button>
-        </div>
-      </div>
-    </div>
+const BADGE_DEFINITIONS = {
+  established: { label: 'Established', description: 'Active for 30+ days' },
+  active: { label: 'Active', description: 'High transaction frequency' },
+  committed: { label: 'Committed', description: 'Consistent holding behavior' },
+  capitalised: { label: 'Capitalised', description: 'Above-average holdings' },
+  diverse: { label: 'Diverse', description: 'Multi-protocol usage' },
+  experienced: { label: 'Experienced', description: '100+ transactions' },
+  diamond_hands: { label: 'Diamond Hands', description: 'Long-term holder' },
+  attested: { label: 'Attested', description: 'Has attestations on SAID' },
+  trusted_by_many: { label: 'Trusted', description: '5+ attestations' },
+  said_verified: { label: 'SAID Verified', description: 'Verified identity' },
+  said_trusted: { label: 'High Trust', description: 'High trust tier' },
+  mcp_available: { label: 'MCP', description: 'Has MCP endpoint' },
+  registered: { label: 'Registered', description: 'Self-registered agent' },
+  fairscale_verified: { label: 'FS Verified', description: 'Paid verification' }
+};
 
-    <!-- DIRECTORY TAB -->
-    <div id="tab-directory" class="tab-content">
-      <div class="stats">
-        <div class="stat"><div class="val" id="statTotal">0</div><div class="lbl">Agents</div></div>
-        <div class="stat"><div class="val" id="statAvg">0</div><div class="lbl">Avg Score</div></div>
-        <div class="stat"><div class="val" id="statVerified">0</div><div class="lbl">Verified</div></div>
-      </div>
-      <div class="dir-list" id="dirList">
-        <div class="empty"><img src="assets/icon.png" alt=""><p>No agents yet. Check an agent to add them.</p></div>
-      </div>
-    </div>
+// =============================================================================
+// API CLIENTS
+// =============================================================================
 
-    <!-- SERVICES TAB -->
-    <div id="tab-services" class="tab-content">
-      <div class="services-header">
-        <h3>x402 Pay-Per-Request Services</h3>
-        <button class="btn btn-sm btn-purple" onclick="refreshServices()">Refresh</button>
-      </div>
-      <p style="color: var(--muted); font-size: 0.85rem; margin-bottom: 20px;">
-        APIs and services that accept micropayments via x402 protocol.
-      </p>
-      <div class="loading" id="servicesLoading"><div class="spinner"></div><span>Loading services...</span></div>
-      <div class="services-grid" id="servicesGrid"></div>
-    </div>
+async function getFairScaleScore(wallet) {
+  try {
+    const response = await fetch(
+      `${CONFIG.FAIRSCALE_API}/score?wallet=${encodeURIComponent(wallet)}`,
+      { headers: { 'accept': 'application/json', 'fairkey': CONFIG.FAIRSCALE_API_KEY } }
+    );
+    if (!response.ok) return null;
+    return await response.json();
+  } catch (e) {
+    console.error('FairScale error:', e.message);
+    return null;
+  }
+}
 
-    <footer class="footer">
-      <a href="https://fairscale.xyz" target="_blank">fairscale.xyz</a>
-      <a href="https://docs.fairscale.xyz" target="_blank">Docs</a>
-      <a href="https://twitter.com/fairscalexyz" target="_blank">Twitter</a>
-    </footer>
-  </div>
+async function getSAIDData(wallet) {
+  try {
+    const response = await fetch(
+      `${CONFIG.SAID_API}/api/verify/${encodeURIComponent(wallet)}`,
+      { headers: { 'accept': 'application/json' } }
+    );
+    if (!response.ok) return null;
+    return await response.json();
+  } catch (e) {
+    console.error('SAID error:', e.message);
+    return null;
+  }
+}
 
-  <!-- Verification Modal -->
-  <div class="modal" id="verifyModal" onclick="closeModal(event)">
-    <div class="modal-content" onclick="event.stopPropagation()">
-      <h3>⭐ Verify Your Agent</h3>
-      <p>Send $5 USDC on Solana to the address below. After payment, click "Verify Payment" to check and apply your boost.</p>
-      <div class="modal-amount">$5 USDC</div>
-      <div class="modal-address" id="paymentAddress">fairAUEuR1SCcHL254Vb3F3XpUWLruJ2a11f6QfANEN</div>
-      <div class="modal-buttons">
-        <button class="btn btn-secondary" onclick="copyPaymentAddress()">Copy Address</button>
-        <button class="btn btn-gold" onclick="verifyPayment()">Verify Payment</button>
-      </div>
-      <div class="modal-status" id="verifyStatus"></div>
-    </div>
-  </div>
+async function getX402SolanaServices() {
+  try {
+    const response = await fetch(`${CONFIG.X402_COMMUNITY_API}/services`, {
+      headers: { 'accept': 'application/json' }
+    });
+    if (!response.ok) return [];
+    const services = await response.json();
+    // Filter to Solana-only services
+    return (services || []).filter(s => {
+      const network = (s.network || s.pricing?.network || '').toLowerCase();
+      return network.includes('solana') || network.includes('sol') || network === '';
+    });
+  } catch (e) {
+    return [];
+  }
+}
 
-  <script>
-    const API = 'https://fairscale-reputation-api-production.up.railway.app';
-    const PAYMENT_ADDRESS = 'fairAUEuR1SCcHL254Vb3F3XpUWLruJ2a11f6QfANEN';
+// =============================================================================
+// PAYMENT VERIFICATION
+// =============================================================================
+
+async function verifyPayment(senderWallet) {
+  if (!CONFIG.HELIUS_API_KEY) {
+    return { verified: false, error: 'Payment verification not configured' };
+  }
+  
+  try {
+    const sigResponse = await fetch(`${CONFIG.HELIUS_RPC}/?api-key=${CONFIG.HELIUS_API_KEY}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        jsonrpc: '2.0', id: 1,
+        method: 'getSignaturesForAddress',
+        params: [CONFIG.PAYMENT_ADDRESS, { limit: 100 }]
+      })
+    });
     
-    let directory = [];
-    let services = [];
-    let currentAgent = null;
+    const sigData = await sigResponse.json();
+    const signatures = sigData.result || [];
     
-    const HIDE_BADGES = ['staker'];
-    
-    try { directory = JSON.parse(localStorage.getItem('fairscale_dir_v5') || '[]'); } catch(e) { directory = []; }
-    
-    // Qualitative descriptions
-    function getLongevityDesc(score) {
-      if (score >= 70) return 'Veteran presence with extensive history';
-      if (score >= 40) return 'Established with consistent activity';
-      return 'Building track record';
-    }
-    function getExperienceDesc(score) {
-      if (score >= 70) return 'Power user with diverse engagement';
-      if (score >= 40) return 'Moderate cross-protocol activity';
-      return 'Early stage activity';
-    }
-    function getConvictionDesc(score) {
-      if (score >= 70) return 'Strong diamond hands behavior';
-      if (score >= 40) return 'Balanced holding strategy';
-      return 'Active trading patterns';
-    }
-    function getCapitalDesc(score) {
-      if (score >= 70) return 'Significant capital deployment';
-      if (score >= 40) return 'Moderate holdings history';
-      return 'Growing capital base';
-    }
-    
-    // Tab switching
-    document.querySelectorAll('.tab').forEach(tab => {
-      tab.addEventListener('click', () => {
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-        tab.classList.add('active');
-        document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
-        if (tab.dataset.tab === 'services' && services.length === 0) loadServices();
+    for (const sig of signatures) {
+      const txResponse = await fetch(`${CONFIG.HELIUS_RPC}/?api-key=${CONFIG.HELIUS_API_KEY}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          jsonrpc: '2.0', id: 1,
+          method: 'getTransaction',
+          params: [sig.signature, { encoding: 'jsonParsed', maxSupportedTransactionVersion: 0 }]
+        })
       });
-    });
-    
-    document.getElementById('checkBtn').addEventListener('click', checkAgent);
-    document.getElementById('walletInput').addEventListener('keypress', e => { if (e.key === 'Enter') checkAgent(); });
-    document.getElementById('addBtn').addEventListener('click', addToDirectory);
-    
-    async function checkAgent() {
-      const wallet = document.getElementById('walletInput').value.trim();
-      const error = document.getElementById('error');
-      const loading = document.getElementById('loading');
-      const result = document.getElementById('result');
-      const btn = document.getElementById('checkBtn');
       
-      error.classList.remove('show');
-      result.classList.remove('show');
+      const txData = await txResponse.json();
+      const tx = txData.result;
+      if (!tx?.meta || tx.meta.err) continue;
       
-      if (!wallet || wallet.length < 32) {
-        error.textContent = 'Please enter a valid Solana wallet address';
-        error.classList.add('show');
-        return;
-      }
+      const preBalances = tx.meta.preTokenBalances || [];
+      const postBalances = tx.meta.postTokenBalances || [];
       
-      btn.disabled = true;
-      loading.classList.add('show');
-      
-      try {
-        const res = await fetch(`${API}/score?wallet=${encodeURIComponent(wallet)}`);
-        const data = await res.json();
+      for (const post of postBalances) {
+        if (post.mint !== CONFIG.USDC_MINT || post.owner !== CONFIG.PAYMENT_ADDRESS) continue;
         
-        if (data.error) {
-          error.textContent = data.error;
-          error.classList.add('show');
-          return;
+        const pre = preBalances.find(p => p.accountIndex === post.accountIndex);
+        const preAmount = pre ? parseFloat(pre.uiTokenAmount?.uiAmount || 0) : 0;
+        const postAmount = parseFloat(post.uiTokenAmount?.uiAmount || 0);
+        
+        if (postAmount - preAmount >= CONFIG.VERIFICATION_AMOUNT) {
+          const accountKeys = tx.transaction?.message?.accountKeys || [];
+          if (accountKeys.some(k => (typeof k === 'string' ? k : k.pubkey) === senderWallet)) {
+            return { verified: true, txSignature: sig.signature };
+          }
         }
-        
-        currentAgent = data;
-        renderResult(data);
-        result.classList.add('show');
-      } catch (e) {
-        error.textContent = 'Failed to fetch. Try again.';
-        error.classList.add('show');
-        console.error(e);
-      } finally {
-        btn.disabled = false;
-        loading.classList.remove('show');
       }
     }
     
-    function renderResult(data) {
-      document.getElementById('rName').textContent = data.name || `Agent ${data.wallet.slice(0,8)}...`;
-      document.getElementById('rWallet').textContent = data.wallet;
-      
-      const desc = data.info?.description;
-      const descEl = document.getElementById('rDesc');
-      descEl.textContent = desc || '';
-      descEl.style.display = desc ? 'block' : 'none';
-      
-      const socialEl = document.getElementById('rSocial');
-      let socialHtml = '';
-      if (data.social?.twitter) socialHtml += `<a href="https://twitter.com/${data.social.twitter}" target="_blank">@${data.social.twitter}</a>`;
-      if (data.social?.website) socialHtml += `<a href="${data.social.website}" target="_blank">${data.social.website.replace(/^https?:\/\//, '')}</a>`;
-      socialEl.innerHTML = socialHtml;
-      socialEl.style.display = socialHtml ? 'flex' : 'none';
-      
-      // AGENT FAIRSCORE
-      const score = data.agent_fairscore || 0;
-      document.getElementById('rScore').textContent = score;
-      
-      const tierBadge = document.getElementById('rTierBadge');
-      const tier = score >= 80 ? 'gold' : score >= 50 ? 'silver' : 'bronze';
-      tierBadge.textContent = tier.charAt(0).toUpperCase() + tier.slice(1);
-      tierBadge.className = 'tier ' + tier;
-      
-      // Trust signals - SAID score prominently displayed
-      const saidScore = data.said?.score;
-      document.getElementById('rSaidScore').textContent = saidScore !== null && saidScore !== undefined ? saidScore : '—';
-      document.getElementById('rTrustTier').textContent = data.said?.trustTier || '—';
-      document.getElementById('rAttest').textContent = data.said?.feedbackCount || 0;
-      document.getElementById('rBaseScore').textContent = data.fairscore_base || '—';
-      
-      // Feature scores
-      const features = data.features || {};
-      const longVal = features.longevity || 0;
-      const expVal = features.experience || 0;
-      const convVal = features.conviction || 0;
-      const capVal = features.capital || 0;
-      
-      document.getElementById('fLong').textContent = longVal;
-      document.getElementById('fExp').textContent = expVal;
-      document.getElementById('fConv').textContent = convVal;
-      document.getElementById('fCap').textContent = capVal;
-      
-      // Qualitative descriptions
-      document.getElementById('fLongDesc').textContent = getLongevityDesc(longVal);
-      document.getElementById('fExpDesc').textContent = getExperienceDesc(expVal);
-      document.getElementById('fConvDesc').textContent = getConvictionDesc(convVal);
-      document.getElementById('fCapDesc').textContent = getCapitalDesc(capVal);
-      
-      setTimeout(() => {
-        document.getElementById('fLongBar').style.width = longVal + '%';
-        document.getElementById('fExpBar').style.width = expVal + '%';
-        document.getElementById('fConvBar').style.width = convVal + '%';
-        document.getElementById('fCapBar').style.width = capVal + '%';
-      }, 100);
-      
-      // Badges
-      const badges = (data.badges || []).filter(b => !HIDE_BADGES.includes(b.id));
-      document.getElementById('rBadges').innerHTML = badges.length > 0 
-        ? badges.map(b => {
-            let cls = 'badge';
-            if (b.id === 'said_verified') cls += ' verified';
-            if (b.id === 'said_trusted') cls += ' trusted';
-            if (b.id === 'fairscale_verified') cls += ' fs-verified';
-            if (b.id === 'x402_enabled') cls += ' x402';
-            return `<span class="${cls}">${b.label}</span>`;
-          }).join('')
-        : '<span style="color: var(--dim); font-size: 0.8rem;">No badges yet</span>';
-      
-      // Hide verify section if already verified
-      const isVerified = data.isVerified || badges.some(b => b.id === 'fairscale_verified');
-      document.getElementById('verifySection').style.display = isVerified ? 'none' : 'block';
-    }
+    return { verified: false, error: 'No payment found. Send $5 USDC and try again.' };
+  } catch (e) {
+    return { verified: false, error: e.message };
+  }
+}
+
+// =============================================================================
+// AGENT SCORE CALCULATIONS
+// =============================================================================
+
+function calculateAgentFeatures(fairscaleData) {
+  const f = fairscaleData?.features || {};
+  const T = AGENT_THRESHOLDS;
+  
+  // ==========================================================================
+  // LONGEVITY
+  // - wallet_age_days: RAW value, we normalize to 30 days = 100%
+  // - active_days: RAW value
+  // - Activity RATIO is key for agents (consistency > raw age)
+  // ==========================================================================
+  
+  const walletAgeDays = f.wallet_age_days || 0;
+  const activeDays = f.active_days || 0;
+  
+  // Age score: 30 days = 100%
+  const ageScore = Math.min((walletAgeDays / T.WALLET_AGE_MAX_DAYS) * 100, 100);
+  
+  // Activity ratio: what % of days were they active?
+  // For agents, being active 50% of days is excellent
+  const activityRatio = walletAgeDays > 0 
+    ? Math.min((activeDays / walletAgeDays) * 200, 100) // 50% active = 100%
+    : 0;
+  
+  // Longevity: 30% age, 70% activity ratio (agents need consistency, not age)
+  const longevity = Math.round((ageScore * 0.3) + (activityRatio * 0.7));
+  
+  // ==========================================================================
+  // EXPERIENCE
+  // - tx_count: RAW value, normalize to 100 txs = 100%
+  // - platform_diversity: RAW value, 5 protocols = 100%
+  // ==========================================================================
+  
+  const txCount = f.tx_count || 0;
+  const platformDiversity = f.platform_diversity || 0;
+  
+  const txScore = Math.min((txCount / T.TX_COUNT_MAX) * 100, 100);
+  const diversityScore = Math.min((platformDiversity / T.PLATFORM_DIVERSITY_MAX) * 100, 100);
+  
+  // Experience: 60% transactions, 40% diversity
+  const experience = Math.round((txScore * 0.6) + (diversityScore * 0.4));
+  
+  // ==========================================================================
+  // CONVICTION
+  // - conviction_ratio: Already 0-1, multiply by 100
+  // - median_hold_days: RAW, 7 days = 100% for agents
+  // - no_instant_dumps: Already 0-1, multiply by 100
+  // ==========================================================================
+  
+  const convictionRatio = (f.conviction_ratio || 0) * 100;
+  const medianHoldDays = f.median_hold_days || 0;
+  const noInstantDumps = (f.no_instant_dumps || 0) * 100;
+  
+  const holdScore = Math.min((medianHoldDays / T.MEDIAN_HOLD_DAYS_MAX) * 100, 100);
+  
+  // Conviction: 40% ratio, 30% hold time, 30% no dumps
+  const conviction = Math.round((convictionRatio * 0.4) + (holdScore * 0.3) + (noInstantDumps * 0.3));
+  
+  // ==========================================================================
+  // CAPITAL
+  // - These are PERCENTILE scores (0-1), already normalized by FairScale
+  // - Just multiply by 100 to get 0-100 scale
+  // ==========================================================================
+  
+  const majorPercentile = (f.major_percentile_score || 0) * 100;
+  const stablePercentile = (f.stable_percentile_score || 0) * 100;
+  const lstPercentile = (f.lst_percentile_score || 0) * 100;
+  const solPercentile = (f.native_sol_percentile || 0) * 100;
+  
+  // Capital: weighted average of percentiles
+  const capital = Math.round(
+    (majorPercentile * 0.3) + 
+    (stablePercentile * 0.3) + 
+    (lstPercentile * 0.2) + 
+    (solPercentile * 0.2)
+  );
+  
+  // ==========================================================================
+  // FALLBACK: If features are all 0 but FairScale gave a score
+  // ==========================================================================
+  
+  const allZero = walletAgeDays === 0 && txCount === 0 && activeDays === 0;
+  
+  if (allZero && fairscaleData) {
+    const fsBase = fairscaleData.fairscore_base || fairscaleData.fairscore || 0;
+    const fsTier = fairscaleData.tier;
+    const tierBonus = fsTier === 'gold' ? 15 : fsTier === 'silver' ? 8 : 0;
     
-    function addToDirectory() {
-      if (!currentAgent) return;
-      
-      const badges = (currentAgent.badges || []).filter(b => !HIDE_BADGES.includes(b.id));
-      
-      const agent = {
-        wallet: currentAgent.wallet,
-        name: currentAgent.name || `Agent ${currentAgent.wallet.slice(0,8)}...`,
-        score: currentAgent.agent_fairscore || 0,
-        badges: badges,
-        features: currentAgent.features,
-        social: currentAgent.social,
-        saidScore: currentAgent.said?.score,
-        addedAt: Date.now()
-      };
-      
-      const idx = directory.findIndex(a => a.wallet === agent.wallet);
-      if (idx >= 0) {
-        directory[idx] = { ...directory[idx], ...agent, updatedAt: Date.now() };
-      } else {
-        directory.push(agent);
-      }
-      
-      directory.sort((a, b) => (b.score || 0) - (a.score || 0));
-      localStorage.setItem('fairscale_dir_v5', JSON.stringify(directory));
-      
-      document.getElementById('walletInput').value = '';
-      document.getElementById('result').classList.remove('show');
-      currentAgent = null;
-      
-      renderDirectory();
-      updateStats();
-      document.querySelector('[data-tab="directory"]').click();
+    // Derive from their score with variance
+    return {
+      longevity: Math.min(Math.round(fsBase * 0.85 + tierBonus + Math.random() * 5), 100),
+      experience: Math.min(Math.round(fsBase * 0.95 + tierBonus + Math.random() * 5), 100),
+      conviction: Math.min(Math.round(fsBase * 0.90 + tierBonus + Math.random() * 5), 100),
+      capital: Math.min(Math.round(fsBase * 0.80 + tierBonus + Math.random() * 5), 100),
+      _fallback: true
+    };
+  }
+  
+  return {
+    longevity: Math.min(Math.max(longevity, 0), 100),
+    experience: Math.min(Math.max(experience, 0), 100),
+    conviction: Math.min(Math.max(conviction, 0), 100),
+    capital: Math.min(Math.max(capital, 0), 100),
+    _fallback: false
+  };
+}
+
+function calculateBadges(fairscaleData, saidData, wallet) {
+  const f = fairscaleData?.features || {};
+  const badges = [];
+  
+  // Pass through FairScale badges
+  for (const b of (fairscaleData?.badges || [])) {
+    if (b.id && !badges.find(x => x.id === b.id)) {
+      badges.push({ 
+        id: b.id, 
+        label: BADGE_DEFINITIONS[b.id]?.label || b.label || b.id, 
+        description: b.description || '',
+        tier: b.tier 
+      });
     }
-    
-    function renderDirectory() {
-      const list = document.getElementById('dirList');
-      
-      if (directory.length === 0) {
-        list.innerHTML = '<div class="empty"><img src="assets/icon.png" alt=""><p>No agents yet. Check an agent to add them.</p></div>';
-        return;
-      }
-      
-      list.innerHTML = directory.map((agent, i) => {
-        const saidVerified = agent.badges?.some(b => b.id === 'said_verified');
-        const fsVerified = agent.badges?.some(b => b.id === 'fairscale_verified');
-        const x402 = agent.badges?.some(b => b.id === 'x402_enabled');
-        const shortWallet = `${agent.wallet.slice(0,6)}...${agent.wallet.slice(-4)}`;
-        const otherBadges = (agent.badges || []).filter(b => !['said_verified', 'fairscale_verified', 'x402_enabled'].includes(b.id)).slice(0, 2);
-        
-        return `
-          <div class="dir-item" onclick="viewAgent('${agent.wallet}')">
-            <div class="info">
-              <div class="rank">${i + 1}</div>
-              <div>
-                <div class="name">${agent.name}</div>
-                <div class="wallet">${shortWallet}</div>
-                <div class="mini-badges">
-                  ${fsVerified ? '<span class="mini-badge g">Verified</span>' : ''}
-                  ${saidVerified ? '<span class="mini-badge v">SAID</span>' : ''}
-                  ${x402 ? '<span class="mini-badge x">x402</span>' : ''}
-                  ${otherBadges.map(b => `<span class="mini-badge">${b.label}</span>`).join('')}
-                </div>
-              </div>
-            </div>
-            <div class="score">${agent.score}</div>
-          </div>
-        `;
-      }).join('');
+  }
+  
+  // Feature-based badges (agent thresholds)
+  if ((f.wallet_age_days || 0) >= 30 && !badges.find(b => b.id === 'established')) {
+    badges.push({ ...BADGE_DEFINITIONS.established, id: 'established' });
+  }
+  if ((f.tx_count || 0) >= 100 && !badges.find(b => b.id === 'experienced')) {
+    badges.push({ ...BADGE_DEFINITIONS.experienced, id: 'experienced' });
+  }
+  if ((f.active_days || 0) >= 14 && !badges.find(b => b.id === 'active')) {
+    badges.push({ ...BADGE_DEFINITIONS.active, id: 'active' });
+  }
+  if ((f.platform_diversity || 0) >= 3 && !badges.find(b => b.id === 'diverse')) {
+    badges.push({ ...BADGE_DEFINITIONS.diverse, id: 'diverse' });
+  }
+  if ((f.conviction_ratio || 0) >= 0.4 && !badges.find(b => b.id === 'committed')) {
+    badges.push({ ...BADGE_DEFINITIONS.committed, id: 'committed' });
+  }
+  if (((f.major_percentile_score || 0) >= 0.3 || (f.stable_percentile_score || 0) >= 0.3) && !badges.find(b => b.id === 'capitalised')) {
+    badges.push({ ...BADGE_DEFINITIONS.capitalised, id: 'capitalised' });
+  }
+  
+  // SAID badges
+  const feedbackCount = saidData?.reputation?.feedbackCount || 0;
+  if (feedbackCount >= 1) badges.push({ ...BADGE_DEFINITIONS.attested, id: 'attested' });
+  if (feedbackCount >= 5) badges.push({ ...BADGE_DEFINITIONS.trusted_by_many, id: 'trusted_by_many' });
+  if (saidData?.verified) badges.push({ ...BADGE_DEFINITIONS.said_verified, id: 'said_verified' });
+  if (saidData?.reputation?.trustTier === 'high') badges.push({ ...BADGE_DEFINITIONS.said_trusted, id: 'said_trusted' });
+  if (saidData?.endpoints?.mcp) badges.push({ ...BADGE_DEFINITIONS.mcp_available, id: 'mcp_available' });
+  
+  // Registry badges
+  if (REGISTRY.registeredAgents.has(wallet)) {
+    badges.push({ ...BADGE_DEFINITIONS.registered, id: 'registered' });
+  }
+  if (REGISTRY.verifiedWallets.has(wallet)) {
+    badges.push({ ...BADGE_DEFINITIONS.fairscale_verified, id: 'fairscale_verified' });
+  }
+  
+  return badges;
+}
+
+function calculateAgentFairScore(fairscaleData, features, saidData, wallet) {
+  let score = 0;
+  
+  // 1. FairScale base (40%)
+  const fsScore = fairscaleData?.fairscore || fairscaleData?.fairscore_base || 0;
+  score += fsScore * 0.40;
+  
+  // 2. Agent features (35%)
+  const featureAvg = (features.longevity + features.experience + features.conviction + features.capital) / 4;
+  score += featureAvg * 0.35;
+  
+  // 3. SAID (15%)
+  const saidScore = saidData?.reputation?.score || 0;
+  score += saidScore * 0.15;
+  
+  // 4. Bonuses (up to +15)
+  let bonuses = 0;
+  
+  if (saidData?.verified) bonuses += 3;
+  if (saidData?.reputation?.trustTier === 'high') bonuses += 3;
+  bonuses += Math.min((saidData?.reputation?.feedbackCount || 0) * 1.5, 6);
+  
+  if (fairscaleData?.tier === 'gold') bonuses += 2;
+  else if (fairscaleData?.tier === 'silver') bonuses += 1;
+  
+  if (REGISTRY.registeredAgents.has(wallet)) bonuses += 2;
+  if (REGISTRY.verifiedWallets.has(wallet)) bonuses += 10;
+  
+  score += Math.min(bonuses, 15);
+  
+  return Math.min(Math.round(score), 100);
+}
+
+// =============================================================================
+// AGENT MANAGEMENT
+// =============================================================================
+
+async function getOrCreateAgent(wallet) {
+  if (REGISTRY.agents.has(wallet)) {
+    const cached = REGISTRY.agents.get(wallet);
+    if (Date.now() - new Date(cached.lastUpdated).getTime() < 300000) {
+      return cached;
     }
+  }
+  
+  const [fairscaleData, saidData] = await Promise.all([
+    getFairScaleScore(wallet),
+    getSAIDData(wallet)
+  ]);
+  
+  if (!fairscaleData && !saidData) return null;
+  
+  const features = calculateAgentFeatures(fairscaleData);
+  const badges = calculateBadges(fairscaleData, saidData, wallet);
+  const agentFairScore = calculateAgentFairScore(fairscaleData, features, saidData, wallet);
+  
+  // Get registration data if exists
+  const regData = REGISTRY.registeredAgents.get(wallet);
+  
+  const agent = {
+    wallet,
+    name: regData?.name || saidData?.identity?.name || null,
+    description: regData?.description || saidData?.identity?.description || null,
+    social: {
+      twitter: saidData?.identity?.twitter || null,
+      website: regData?.website || saidData?.identity?.website || null
+    },
+    endpoints: {
+      mcp: regData?.mcp || saidData?.endpoints?.mcp || null,
+      a2a: saidData?.endpoints?.a2a || null
+    },
+    skills: regData?.skills || saidData?.skills || [],
+    scores: {
+      agent_fairscore: agentFairScore,
+      fairscore_base: Math.round(fairscaleData?.fairscore_base || fairscaleData?.fairscore || 0),
+      said_score: saidData?.reputation?.score || null,
+      said_trust_tier: saidData?.reputation?.trustTier || null,
+      attestations: saidData?.reputation?.feedbackCount || 0,
+      tier: fairscaleData?.tier || null
+    },
+    features: {
+      longevity: features.longevity,
+      experience: features.experience,
+      conviction: features.conviction,
+      capital: features.capital
+    },
+    badges,
+    sources: [],
+    isRegistered: REGISTRY.registeredAgents.has(wallet),
+    isVerified: REGISTRY.verifiedWallets.has(wallet),
+    lastUpdated: new Date().toISOString()
+  };
+  
+  if (fairscaleData) agent.sources.push('fairscale');
+  if (saidData?.registered) agent.sources.push('said');
+  if (regData) agent.sources.push('registry');
+  
+  REGISTRY.agents.set(wallet, agent);
+  return agent;
+}
+
+// =============================================================================
+// SERVICES SYNC (Solana only)
+// =============================================================================
+
+async function syncServices() {
+  const services = await getX402SolanaServices();
+  let added = 0;
+  
+  for (const svc of services) {
+    const id = `sol_${Math.random().toString(36).substr(2, 9)}`;
+    const resource = svc.url || svc.resource || svc.endpoint;
     
-    function viewAgent(wallet) {
-      document.getElementById('walletInput').value = wallet;
-      document.querySelector('[data-tab="check"]').click();
-      checkAgent();
-    }
+    if (!resource || Array.from(REGISTRY.services.values()).find(s => s.resource === resource)) continue;
     
-    function updateStats() {
-      document.getElementById('statTotal').textContent = directory.length;
-      const avg = directory.length > 0 ? Math.round(directory.reduce((s, a) => s + (a.score || 0), 0) / directory.length) : 0;
-      document.getElementById('statAvg').textContent = avg;
-      const verified = directory.filter(a => a.badges?.some(b => b.id === 'said_verified' || b.id === 'fairscale_verified')).length;
-      document.getElementById('statVerified').textContent = verified;
-    }
-    
-    // Services
-    async function loadServices() {
-      const grid = document.getElementById('servicesGrid');
-      const loading = document.getElementById('servicesLoading');
-      
-      loading.classList.add('show');
-      grid.innerHTML = '';
-      
-      try {
-        await fetch(`${API}/sync`, { method: 'POST' }).catch(() => {});
-        const res = await fetch(`${API}/services?limit=50`);
-        const data = await res.json();
-        services = data.services || [];
-        renderServices();
-      } catch (e) {
-        grid.innerHTML = '<div class="empty"><p>Failed to load services.</p></div>';
-      } finally {
-        loading.classList.remove('show');
-      }
-    }
-    
-    function refreshServices() {
-      services = [];
-      loadServices();
-    }
-    
-    function renderServices() {
-      const grid = document.getElementById('servicesGrid');
-      
-      if (services.length === 0) {
-        grid.innerHTML = '<div class="empty" style="grid-column: 1/-1;"><p>No x402 services found.</p></div>';
-        return;
-      }
-      
-      grid.innerHTML = services.map(s => {
-        const name = s.name || 'Service';
-        const desc = s.description || 'Pay-per-request API';
-        const price = s.pricing?.price || '—';
-        const url = s.resource || '#';
-        
-        return `
-          <div class="service-card">
-            <div class="name">${name}</div>
-            <div class="desc">${desc}</div>
-            <div class="meta">
-              <span class="category">${s.category || 'utility'}</span>
-              <span class="price">${price}</span>
-            </div>
-            ${url !== '#' ? `<button class="btn btn-sm btn-purple" onclick="window.open('${url}', '_blank')">Open</button>` : ''}
-          </div>
-        `;
-      }).join('');
-    }
-    
-    // Verification
-    function openVerifyModal() {
-      document.getElementById('verifyModal').classList.add('show');
-      document.getElementById('verifyStatus').classList.remove('show');
-    }
-    
-    function closeModal(e) {
-      if (e.target.classList.contains('modal')) {
-        document.getElementById('verifyModal').classList.remove('show');
-      }
-    }
-    
-    function copyPaymentAddress() {
-      navigator.clipboard.writeText(PAYMENT_ADDRESS);
-      alert('Address copied!');
-    }
-    
-    async function verifyPayment() {
-      if (!currentAgent) {
-        alert('Please check an agent first');
-        return;
-      }
-      
-      const status = document.getElementById('verifyStatus');
-      status.classList.add('show');
-      status.className = 'modal-status show checking';
-      status.textContent = 'Checking for payment...';
-      
-      try {
-        const res = await fetch(`${API}/verify`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ wallet: currentAgent.wallet })
-        });
-        
-        const data = await res.json();
-        
-        if (data.success) {
-          status.className = 'modal-status show success';
-          status.textContent = '✓ Verified! +15 score boost applied. Refreshing...';
-          
-          setTimeout(() => {
-            document.getElementById('verifyModal').classList.remove('show');
-            checkAgent();
-          }, 2000);
-        } else {
-          status.className = 'modal-status show error';
-          status.textContent = data.error || 'Payment not found. Please send $5 USDC and try again.';
-        }
-      } catch (e) {
-        status.className = 'modal-status show error';
-        status.textContent = 'Verification failed. Please try again.';
-      }
-    }
-    
-    function viewOnSolscan() {
-      if (currentAgent) {
-        window.open(`https://solscan.io/account/${currentAgent.wallet}`, '_blank');
-      }
-    }
-    
-    function checkUrlParams() {
-      const params = new URLSearchParams(window.location.search);
-      const wallet = params.get('wallet');
-      if (wallet) {
-        document.getElementById('walletInput').value = wallet;
-        checkAgent();
-      }
-    }
-    
-    document.addEventListener('keydown', e => {
-      if (e.key === 'Escape') document.getElementById('verifyModal').classList.remove('show');
+    REGISTRY.services.set(id, {
+      id,
+      source: 'x402_solana',
+      resource,
+      name: svc.name || 'Solana Service',
+      description: svc.description || 'x402 Solana endpoint',
+      category: svc.category || 'utility',
+      pricing: {
+        price: svc.price_usd ? `$${svc.price_usd}` : svc.price || 'Contact',
+        raw: svc.price_usd || svc.price
+      },
+      network: 'solana',
+      discoveredAt: new Date().toISOString()
     });
-    
-    renderDirectory();
-    updateStats();
-    checkUrlParams();
-  </script>
-</body>
-</html>
+    added++;
+  }
+  
+  REGISTRY.lastSync = new Date().toISOString();
+  return { added, total: REGISTRY.services.size };
+}
+
+// =============================================================================
+// ROUTES
+// =============================================================================
+
+app.get('/', (req, res) => {
+  res.json({
+    service: 'FairScale Agent Registry',
+    version: '8.0.0',
+    description: 'Agent reputation scoring for Solana',
+    endpoints: {
+      'GET /score?wallet=': 'Get agent reputation score',
+      'POST /register': 'Register your agent',
+      'POST /verify': 'Verify payment for score boost',
+      'GET /directory': 'List registered agents',
+      'GET /services': 'Solana x402 services'
+    }
+  });
+});
+
+// Check agent score
+app.get('/score', async (req, res) => {
+  const { wallet } = req.query;
+  if (!wallet) return res.status(400).json({ error: 'Missing wallet' });
+  
+  const agent = await getOrCreateAgent(wallet);
+  if (!agent) return res.status(404).json({ error: 'Could not fetch data', wallet });
+  
+  res.json({
+    wallet,
+    name: agent.name || `Agent ${wallet.slice(0, 8)}...`,
+    description: agent.description,
+    agent_fairscore: agent.scores.agent_fairscore,
+    fairscore_base: agent.scores.fairscore_base,
+    tier: agent.scores.tier,
+    features: agent.features,
+    badges: agent.badges,
+    said: {
+      registered: agent.sources.includes('said'),
+      verified: agent.badges.some(b => b.id === 'said_verified'),
+      score: agent.scores.said_score,
+      trustTier: agent.scores.said_trust_tier,
+      feedbackCount: agent.scores.attestations
+    },
+    social: agent.social,
+    endpoints: agent.endpoints,
+    skills: agent.skills,
+    isRegistered: agent.isRegistered,
+    isVerified: agent.isVerified,
+    sources: agent.sources
+  });
+});
+
+// Register agent
+app.post('/register', async (req, res) => {
+  const { wallet, name, description, website, mcp, skills } = req.body;
+  
+  if (!wallet) return res.status(400).json({ error: 'Missing wallet' });
+  
+  // Store registration
+  REGISTRY.registeredAgents.set(wallet, {
+    wallet,
+    name: name || null,
+    description: description || null,
+    website: website || null,
+    mcp: mcp || null,
+    skills: skills || [],
+    registeredAt: new Date().toISOString()
+  });
+  
+  // Clear cache to recalculate
+  REGISTRY.agents.delete(wallet);
+  
+  // Return updated score
+  const agent = await getOrCreateAgent(wallet);
+  
+  res.json({
+    success: true,
+    message: 'Agent registered! +2 score bonus applied.',
+    agent: agent ? {
+      wallet,
+      name: agent.name,
+      agent_fairscore: agent.scores.agent_fairscore,
+      badges: agent.badges
+    } : null
+  });
+});
+
+// Verify payment
+app.post('/verify', async (req, res) => {
+  const { wallet } = req.body;
+  if (!wallet) return res.status(400).json({ error: 'Missing wallet' });
+  
+  if (REGISTRY.verifiedWallets.has(wallet)) {
+    return res.json({ success: true, message: 'Already verified' });
+  }
+  
+  const result = await verifyPayment(wallet);
+  
+  if (result.verified) {
+    REGISTRY.verifiedWallets.set(wallet, {
+      verifiedAt: new Date().toISOString(),
+      txSignature: result.txSignature
+    });
+    REGISTRY.agents.delete(wallet);
+    return res.json({ success: true, message: '+10 score boost applied', txSignature: result.txSignature });
+  }
+  
+  res.status(400).json({ success: false, error: result.error, paymentAddress: CONFIG.PAYMENT_ADDRESS });
+});
+
+// Directory of registered agents
+app.get('/directory', (req, res) => {
+  const agents = Array.from(REGISTRY.agents.values())
+    .filter(a => a.isRegistered || a.sources.includes('said'))
+    .sort((a, b) => b.scores.agent_fairscore - a.scores.agent_fairscore)
+    .slice(0, 100);
+  
+  res.json({
+    total: agents.length,
+    agents: agents.map(a => ({
+      wallet: a.wallet,
+      name: a.name || `Agent ${a.wallet.slice(0, 8)}...`,
+      agent_fairscore: a.scores.agent_fairscore,
+      badges: a.badges.map(b => b.id),
+      isVerified: a.isVerified
+    }))
+  });
+});
+
+// Solana services
+app.get('/services', async (req, res) => {
+  if (REGISTRY.services.size === 0) await syncServices();
+  
+  const services = Array.from(REGISTRY.services.values());
+  res.json({ total: services.length, network: 'solana', services });
+});
+
+app.post('/sync', async (req, res) => {
+  const result = await syncServices();
+  res.json({ success: true, ...result });
+});
+
+app.get('/stats', (req, res) => {
+  const agents = Array.from(REGISTRY.agents.values());
+  res.json({
+    totalAgents: agents.length,
+    registeredAgents: REGISTRY.registeredAgents.size,
+    verifiedAgents: REGISTRY.verifiedWallets.size,
+    services: REGISTRY.services.size,
+    avgScore: agents.length ? Math.round(agents.reduce((s, a) => s + a.scores.agent_fairscore, 0) / agents.length) : 0
+  });
+});
+
+// =============================================================================
+// START
+// =============================================================================
+
+app.listen(CONFIG.PORT, () => {
+  console.log(`FairScale Agent Registry v8 on port ${CONFIG.PORT}`);
+  syncServices();
+});
