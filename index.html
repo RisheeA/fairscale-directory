@@ -407,11 +407,11 @@
           <div class="info-box"><div class="k">Base</div><div class="v">${d.fairscore_base || '—'}</div></div>
         </div>
         <div class="metrics">
-          <h4>On-Chain Metrics</h4>
+          <h4>Trust Metrics</h4>
           <div class="metric-grid">
-            ${['longevity', 'experience', 'stability', 'capital'].map(k => `
+            ${['activity', 'diversity', 'reliability', 'trackRecord'].map(k => `
               <div class="metric">
-                <div class="metric-top"><span class="lbl">${k}</span><span class="val">${f[k] || 0}</span></div>
+                <div class="metric-top"><span class="lbl">${k === 'trackRecord' ? 'Track Record' : k}</span><span class="val">${f[k] || 0}</span></div>
                 <div class="metric-bar"><div class="metric-bar-fill" style="width:${f[k] || 0}%"></div></div>
                 <div class="desc">${desc[k] || ''}</div>
               </div>
