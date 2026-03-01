@@ -6,193 +6,165 @@
   <title>FairScale Agent Registry</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
-    @font-face { font-family: 'Advercase'; src: url('assets/Advercase-Regular.ttf') format('truetype'); font-weight: 400; }
+    @font-face { font-family: 'Advercase'; src: url('assets/Advercase-Regular.ttf') format('truetype'); }
     @font-face { font-family: 'Advercase'; src: url('assets/Advercase-Bold.ttf') format('truetype'); font-weight: 700; }
     
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    
     :root {
-      --bg: #0a0a0a;
-      --card: rgba(17, 17, 17, 0.92);
-      --card-solid: #111;
-      --border: rgba(30, 30, 30, 0.9);
-      --primary: #e8d4c4;
-      --secondary: #263b4e;
-      --accent: #4a9079;
-      --gold: #d4a853;
-      --purple: #8b5cf6;
-      --text: #fff;
-      --muted: #999;
-      --dim: #666;
+      --bg: #0a0a0a; --card: rgba(17,17,17,0.94); --border: rgba(35,35,35,0.9);
+      --primary: #e8d4c4; --secondary: #1e3a4c; --accent: #4a9079;
+      --gold: #d4a853; --text: #fff; --muted: #888; --dim: #555;
     }
     
     body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
-    body::before { content: ''; position: fixed; inset: 0; background: url('assets/background.png') center/cover no-repeat; opacity: 0.08; z-index: -1; pointer-events: none; }
+    body::before { content: ''; position: fixed; inset: 0; background: url('assets/background.png') center/cover no-repeat; opacity: 0.06; z-index: -1; }
     
-    .header { display: flex; justify-content: space-between; align-items: center; padding: 18px 40px; border-bottom: 1px solid var(--border); background: rgba(10,10,10,0.95); backdrop-filter: blur(10px); }
-    .header img { height: 30px; }
-    .header nav { display: flex; gap: 20px; }
-    .header nav a { font-family: 'Advercase', serif; color: var(--muted); text-decoration: none; font-size: 0.85rem; }
+    .header { display: flex; justify-content: space-between; align-items: center; padding: 16px 32px; border-bottom: 1px solid var(--border); background: rgba(8,8,8,0.95); }
+    .header img { height: 28px; }
+    .header nav a { font-family: 'Advercase'; color: var(--muted); text-decoration: none; margin-left: 20px; font-size: 0.85rem; }
     .header nav a:hover { color: var(--primary); }
     
-    .container { max-width: 880px; margin: 0 auto; padding: 40px 20px; }
+    .container { max-width: 840px; margin: 0 auto; padding: 32px 20px; }
     
-    .mode-toggle { display: flex; justify-content: center; margin-bottom: 28px; }
-    .mode-btn { font-family: 'Advercase', serif; background: rgba(0,0,0,0.5); border: 1px solid var(--border); color: var(--muted); padding: 14px 36px; font-size: 0.95rem; cursor: pointer; transition: all 0.2s; }
-    .mode-btn:first-child { border-radius: 10px 0 0 10px; }
-    .mode-btn:last-child { border-radius: 0 10px 10px 0; }
+    .mode-toggle { display: flex; justify-content: center; margin-bottom: 24px; }
+    .mode-btn { font-family: 'Advercase'; background: transparent; border: 1px solid var(--border); color: var(--muted); padding: 12px 32px; font-size: 0.9rem; cursor: pointer; transition: 0.2s; }
+    .mode-btn:first-child { border-radius: 8px 0 0 8px; }
+    .mode-btn:last-child { border-radius: 0 8px 8px 0; }
     .mode-btn.active { background: var(--primary); border-color: var(--primary); color: var(--bg); }
-    .mode-btn:not(.active):hover { border-color: var(--dim); color: var(--text); }
     
-    .tabs { display: flex; gap: 8px; margin-bottom: 28px; }
-    .tab { font-family: 'Advercase', serif; background: rgba(0,0,0,0.5); border: 1px solid var(--border); color: var(--muted); padding: 11px 24px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; transition: all 0.2s; }
-    .tab:hover { color: var(--text); border-color: var(--dim); }
+    .tabs { display: flex; gap: 6px; margin-bottom: 24px; flex-wrap: wrap; }
+    .tab { font-family: 'Advercase'; background: transparent; border: 1px solid var(--border); color: var(--muted); padding: 10px 20px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; }
+    .tab:hover { border-color: var(--dim); color: var(--text); }
     .tab.active { background: var(--secondary); border-color: var(--secondary); color: var(--text); }
     
-    .card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 28px; margin-bottom: 24px; backdrop-filter: blur(10px); }
-    .card h2 { font-family: 'Advercase', serif; color: var(--primary); margin-bottom: 18px; font-size: 1.15rem; }
-    .card p.sub { color: var(--muted); font-size: 0.85rem; margin-bottom: 20px; line-height: 1.5; }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 20px; }
+    .card h2 { font-family: 'Advercase'; color: var(--primary); margin-bottom: 12px; font-size: 1.1rem; }
+    .card .sub { color: var(--muted); font-size: 0.85rem; margin-bottom: 16px; line-height: 1.5; }
     
-    .input-row { display: flex; gap: 10px; margin-bottom: 12px; }
-    .input-row input, .input-row textarea { flex: 1; background: rgba(0,0,0,0.5); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; font-size: 0.95rem; color: var(--text); font-family: inherit; }
-    .input-row input:focus, .input-row textarea:focus { outline: none; border-color: var(--primary); }
-    .input-row input::placeholder, .input-row textarea::placeholder { color: var(--dim); }
-    .input-row textarea { min-height: 80px; resize: vertical; }
+    .input-row { display: flex; gap: 10px; }
+    input, textarea { flex: 1; background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 6px; padding: 12px 14px; font-size: 0.9rem; color: var(--text); font-family: inherit; }
+    input:focus, textarea:focus { outline: none; border-color: var(--primary); }
+    input::placeholder, textarea::placeholder { color: var(--dim); }
+    textarea { min-height: 70px; resize: vertical; margin-top: 10px; }
     
-    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
-    .form-grid input { width: 100%; background: rgba(0,0,0,0.5); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; font-size: 0.9rem; color: var(--text); }
-    .form-grid input:focus { outline: none; border-color: var(--primary); }
-    .form-grid input::placeholder { color: var(--dim); }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+    label { display: block; font-size: 0.7rem; color: var(--muted); margin-bottom: 4px; text-transform: uppercase; }
     
-    label { display: block; font-size: 0.75rem; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
-    
-    .btn { background: var(--primary); color: var(--bg); border: none; border-radius: 8px; padding: 13px 28px; font-family: 'Advercase', serif; font-size: 0.9rem; cursor: pointer; transition: all 0.2s; }
-    .btn:hover { background: #f5e6da; transform: translateY(-1px); }
-    .btn:disabled { background: var(--border); color: var(--dim); cursor: not-allowed; transform: none; }
+    .btn { background: var(--primary); color: var(--bg); border: none; border-radius: 6px; padding: 12px 24px; font-family: 'Advercase'; font-size: 0.85rem; cursor: pointer; transition: 0.2s; }
+    .btn:hover { opacity: 0.9; }
+    .btn:disabled { background: var(--border); color: var(--dim); cursor: not-allowed; }
     .btn-secondary { background: var(--secondary); color: var(--text); }
     .btn-gold { background: var(--gold); color: var(--bg); }
-    .btn-purple { background: var(--purple); color: #fff; }
-    .btn-sm { padding: 10px 18px; font-size: 0.8rem; }
-    .btn-block { width: 100%; }
+    .btn-block { width: 100%; margin-top: 14px; }
     
-    .loading { display: none; align-items: center; justify-content: center; gap: 10px; padding: 32px; color: var(--muted); }
+    .loading { display: none; align-items: center; justify-content: center; gap: 10px; padding: 28px; color: var(--muted); }
     .loading.show { display: flex; }
-    .spinner { width: 20px; height: 20px; border: 2px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
+    .spinner { width: 18px; height: 18px; border: 2px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
     
-    .error, .success { border-radius: 8px; padding: 14px; margin-top: 14px; display: none; font-size: 0.9rem; }
-    .error { background: rgba(40,15,15,0.9); border: 1px solid #5a2525; color: #e87070; }
-    .success { background: rgba(15,40,25,0.9); border: 1px solid #255a35; color: #70e890; }
-    .error.show, .success.show { display: block; }
+    .msg { border-radius: 6px; padding: 12px; margin-top: 12px; font-size: 0.85rem; display: none; }
+    .msg.show { display: block; }
+    .msg.error { background: rgba(60,20,20,0.8); border: 1px solid #4a2020; color: #e07070; }
+    .msg.success { background: rgba(20,50,30,0.8); border: 1px solid #204a30; color: #70e090; }
     
-    .result { display: none; background: rgba(8,8,8,0.95); border: 1px solid var(--border); border-radius: 14px; margin-top: 20px; overflow: hidden; }
+    .result { display: none; background: rgba(6,6,6,0.96); border: 1px solid var(--border); border-radius: 12px; margin-top: 16px; overflow: hidden; }
     .result.show { display: block; }
     
-    .result-header { padding: 24px 28px; border-bottom: 1px solid var(--border); }
-    .result-name { font-family: 'Advercase', serif; font-size: 1.4rem; color: var(--primary); }
-    .result-wallet { font-family: monospace; font-size: 0.7rem; color: var(--dim); margin-top: 5px; }
-    .result-desc { color: var(--muted); font-size: 0.85rem; line-height: 1.5; margin-top: 10px; }
-    .result-social { display: flex; gap: 14px; margin-top: 10px; }
-    .result-social a { color: var(--accent); font-size: 0.8rem; text-decoration: none; }
+    .result-header { padding: 20px 24px; border-bottom: 1px solid var(--border); }
+    .result-name { font-family: 'Advercase'; font-size: 1.3rem; color: var(--primary); }
+    .result-wallet { font-family: monospace; font-size: 0.65rem; color: var(--dim); margin-top: 4px; }
+    .result-desc { color: var(--muted); font-size: 0.8rem; margin-top: 8px; line-height: 1.4; }
+    .result-link { color: var(--accent); font-size: 0.8rem; margin-top: 6px; display: inline-block; text-decoration: none; }
     
-    .score-hero { padding: 32px; background: linear-gradient(135deg, var(--secondary), #1a2a38); text-align: center; border-bottom: 1px solid var(--border); }
-    .score-hero .value { font-family: 'Advercase', serif; font-size: 4.5rem; font-weight: 700; color: var(--primary); line-height: 1; }
-    .score-hero .label { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.12em; margin-top: 8px; }
-    .score-hero .tier { display: inline-block; margin-top: 14px; padding: 5px 16px; border-radius: 16px; font-family: 'Advercase', serif; font-size: 0.8rem; }
-    .tier.bronze { background: #8b6914; } .tier.silver { background: #71717a; } .tier.gold { background: var(--gold); color: #000; }
+    .score-hero { padding: 28px; background: linear-gradient(135deg, var(--secondary), #142830); text-align: center; }
+    .score-hero .value { font-family: 'Advercase'; font-size: 4rem; font-weight: 700; color: var(--primary); line-height: 1; }
+    .score-hero .label { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 6px; }
+    .score-hero .tier { display: inline-block; margin-top: 10px; padding: 4px 14px; border-radius: 12px; font-family: 'Advercase'; font-size: 0.75rem; }
+    .tier.bronze { background: #6b5010; } .tier.silver { background: #505058; } .tier.gold { background: var(--gold); color: #000; }
     
-    .info-section { padding: 18px 28px; border-bottom: 1px solid var(--border); }
-    .info-section h4 { font-family: 'Advercase', serif; color: var(--primary); font-size: 0.85rem; margin-bottom: 12px; }
-    .info-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-    .info-item { background: var(--card-solid); border-radius: 8px; padding: 12px; text-align: center; }
-    .info-item .k { font-size: 0.6rem; color: var(--dim); text-transform: uppercase; }
-    .info-item .v { font-family: 'Advercase', serif; color: var(--text); margin-top: 4px; font-size: 1.1rem; }
-    .info-item.hl { background: linear-gradient(135deg, #1a3a2a, #0f2a1a); border: 1px solid var(--accent); }
-    .info-item.hl .v { color: var(--accent); }
+    .info-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; padding: 16px 24px; border-bottom: 1px solid var(--border); }
+    .info-box { background: rgba(0,0,0,0.3); border-radius: 6px; padding: 10px; text-align: center; }
+    .info-box .k { font-size: 0.55rem; color: var(--dim); text-transform: uppercase; }
+    .info-box .v { font-family: 'Advercase'; color: var(--text); margin-top: 3px; font-size: 1rem; }
+    .info-box.hl { background: rgba(74,144,121,0.15); border: 1px solid var(--accent); }
+    .info-box.hl .v { color: var(--accent); }
     
-    .scores-section { padding: 20px 28px; border-bottom: 1px solid var(--border); }
-    .scores-section h4 { font-family: 'Advercase', serif; color: var(--primary); font-size: 0.85rem; margin-bottom: 14px; }
-    .score-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-    .score-card { background: var(--card-solid); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
-    .score-card-header { display: flex; justify-content: space-between; align-items: center; }
-    .score-card .val { font-family: 'Advercase', serif; font-size: 1.6rem; font-weight: 700; }
-    .score-card .lbl { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; }
-    .score-card .desc { font-size: 0.7rem; color: var(--dim); margin-top: 6px; }
-    .score-bar { height: 4px; background: var(--border); border-radius: 2px; margin: 8px 0 4px; overflow: hidden; }
-    .score-bar-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--accent)); border-radius: 2px; transition: width 0.5s ease; }
+    .metrics { padding: 20px 24px; }
+    .metrics h4 { font-family: 'Advercase'; color: var(--primary); font-size: 0.85rem; margin-bottom: 12px; }
+    .metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .metric { background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 8px; padding: 14px; }
+    .metric-top { display: flex; justify-content: space-between; align-items: center; }
+    .metric .lbl { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; }
+    .metric .val { font-family: 'Advercase'; font-size: 1.4rem; font-weight: 700; }
+    .metric-bar { height: 3px; background: var(--border); border-radius: 2px; margin: 8px 0 6px; overflow: hidden; }
+    .metric-bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--primary)); border-radius: 2px; transition: width 0.4s; }
+    .metric .desc { font-size: 0.7rem; color: var(--dim); line-height: 1.4; }
     
-    .badges-section { padding: 16px 28px; border-bottom: 1px solid var(--border); }
-    .badges-section h4 { font-family: 'Advercase', serif; color: var(--primary); font-size: 0.85rem; margin-bottom: 10px; }
-    .badges-row { display: flex; flex-wrap: wrap; gap: 6px; }
-    .badge { background: var(--secondary); border-radius: 5px; padding: 5px 12px; font-size: 0.75rem; }
-    .badge.v { background: var(--accent); } .badge.g { background: var(--gold); color: #000; } .badge.d { background: linear-gradient(135deg, #60a5fa, #a78bfa); }
+    .verify-cta { padding: 20px 24px; background: linear-gradient(135deg, #1a1508, #101418); border-top: 1px solid var(--border); }
+    .verify-box { border: 1px dashed var(--gold); border-radius: 10px; padding: 18px; text-align: center; }
+    .verify-box h4 { font-family: 'Advercase'; color: var(--gold); font-size: 0.95rem; }
+    .verify-box p { font-size: 0.75rem; color: var(--muted); margin: 6px 0 10px; }
+    .verify-box .price { font-family: 'Advercase'; font-size: 1.6rem; color: var(--gold); }
+    .verify-box .boost { font-size: 0.7rem; color: var(--accent); margin: 4px 0 12px; }
     
-    .verify-section { padding: 20px 28px; background: linear-gradient(135deg, #1a1508, #0f1419); border-bottom: 1px solid var(--border); }
-    .verify-box { border: 1px dashed var(--gold); border-radius: 12px; padding: 20px; text-align: center; }
-    .verify-box h4 { font-family: 'Advercase', serif; color: var(--gold); font-size: 1rem; margin-bottom: 6px; }
-    .verify-box p { font-size: 0.8rem; color: var(--muted); margin-bottom: 12px; }
-    .verify-price { font-family: 'Advercase', serif; font-size: 1.8rem; color: var(--gold); }
-    .verify-boost { font-size: 0.75rem; color: var(--accent); margin: 6px 0 14px; }
+    .actions { padding: 14px 24px; display: flex; gap: 8px; border-top: 1px solid var(--border); }
+    .actions .btn { flex: 1; }
     
-    .actions-row { padding: 16px 28px; display: flex; gap: 10px; }
-    .actions-row .btn { flex: 1; }
+    .dir-list { display: flex; flex-direction: column; gap: 8px; }
+    .dir-item { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.15s; }
+    .dir-item:hover { border-color: var(--dim); transform: translateX(3px); }
+    .dir-item .info { display: flex; align-items: center; gap: 12px; }
+    .dir-item .rank { font-family: 'Advercase'; color: var(--dim); width: 24px; }
+    .dir-item .name { font-family: 'Advercase'; color: var(--primary); font-size: 0.95rem; }
+    .dir-item .wallet { font-family: monospace; font-size: 0.6rem; color: var(--dim); margin-top: 2px; }
+    .dir-item .tags { display: flex; gap: 4px; margin-top: 4px; }
+    .dir-item .tag { background: var(--secondary); border-radius: 3px; padding: 2px 6px; font-size: 0.5rem; color: var(--muted); }
+    .dir-item .tag.v { background: var(--gold); color: var(--bg); }
+    .dir-item .score { font-family: 'Advercase'; font-size: 1.8rem; font-weight: 700; color: var(--primary); }
     
-    .dir-list { display: flex; flex-direction: column; gap: 10px; }
-    .dir-item { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: all 0.2s; }
-    .dir-item:hover { background: rgba(30,30,30,0.9); transform: translateX(4px); }
-    .dir-item .info { display: flex; align-items: center; gap: 14px; }
-    .dir-item .rank { font-family: 'Advercase', serif; font-size: 1.1rem; color: var(--dim); width: 28px; }
-    .dir-item .name { font-family: 'Advercase', serif; color: var(--primary); }
-    .dir-item .wallet { font-family: monospace; font-size: 0.65rem; color: var(--dim); margin-top: 2px; }
-    .dir-item .mini-badges { display: flex; gap: 4px; margin-top: 4px; }
-    .dir-item .mb { background: var(--secondary); border-radius: 3px; padding: 2px 6px; font-size: 0.55rem; color: var(--muted); }
-    .dir-item .mb.v { background: var(--accent); color: #fff; }
-    .dir-item .mb.g { background: var(--gold); color: #000; }
-    .dir-item .score { font-family: 'Advercase', serif; font-size: 2rem; font-weight: 700; color: var(--primary); }
+    .empty { text-align: center; padding: 40px; color: var(--dim); font-size: 0.85rem; }
     
-    .empty { text-align: center; padding: 50px 20px; color: var(--dim); }
-    
-    .services-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-    .services-header h3 { font-family: 'Advercase', serif; color: var(--primary); }
-    .services-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
-    .service-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 18px; transition: all 0.2s; }
-    .service-card:hover { border-color: var(--purple); transform: translateY(-2px); }
-    .service-card .name { font-family: 'Advercase', serif; color: var(--primary); margin-bottom: 6px; }
-    .service-card .desc { font-size: 0.75rem; color: var(--muted); line-height: 1.4; margin-bottom: 12px; min-height: 36px; }
-    .service-card .meta { display: flex; justify-content: space-between; align-items: center; padding-top: 12px; border-top: 1px solid var(--border); }
-    .service-card .cat { font-size: 0.65rem; padding: 3px 8px; background: var(--purple); border-radius: 4px; color: #fff; }
-    .service-card .price { font-family: 'Advercase', serif; color: var(--accent); }
+    .svc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
+    .svc-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+    .svc-card .name { font-family: 'Advercase'; color: var(--primary); margin-bottom: 4px; }
+    .svc-card .desc { font-size: 0.75rem; color: var(--muted); line-height: 1.4; margin-bottom: 10px; min-height: 32px; }
+    .svc-card .meta { display: flex; justify-content: space-between; align-items: center; padding-top: 10px; border-top: 1px solid var(--border); }
+    .svc-card .cat { font-size: 0.6rem; padding: 2px 6px; background: var(--secondary); border-radius: 3px; color: var(--muted); }
+    .svc-card .price { font-family: 'Advercase'; color: var(--accent); font-size: 0.9rem; }
     
     .tab-content { display: none; }
     .tab-content.active { display: block; }
+    .mode-content { display: none; }
+    .mode-content.active { display: block; }
     
-    .footer { margin-top: 50px; padding: 24px; border-top: 1px solid var(--border); text-align: center; background: rgba(10,10,10,0.9); }
-    .footer a { font-family: 'Advercase', serif; color: var(--muted); text-decoration: none; margin: 0 14px; font-size: 0.8rem; }
+    .footer { margin-top: 40px; padding: 20px; border-top: 1px solid var(--border); text-align: center; }
+    .footer a { font-family: 'Advercase'; color: var(--dim); text-decoration: none; margin: 0 12px; font-size: 0.75rem; }
     
-    .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 1000; align-items: center; justify-content: center; }
+    .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 100; align-items: center; justify-content: center; }
     .modal.show { display: flex; }
-    .modal-content { background: var(--card-solid); border: 1px solid var(--border); border-radius: 16px; padding: 32px; max-width: 420px; width: 90%; text-align: center; }
-    .modal-content h3 { font-family: 'Advercase', serif; color: var(--gold); margin-bottom: 14px; }
-    .modal-content p { font-size: 0.85rem; color: var(--muted); margin-bottom: 14px; }
-    .modal-address { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 14px; font-family: monospace; font-size: 0.7rem; color: var(--primary); word-break: break-all; margin-bottom: 14px; }
-    .modal-amount { font-family: 'Advercase', serif; font-size: 2rem; color: var(--gold); margin-bottom: 8px; }
-    .modal-buttons { display: flex; gap: 10px; margin-top: 18px; }
-    .modal-buttons .btn { flex: 1; }
-    .modal-status { margin-top: 14px; padding: 12px; border-radius: 8px; font-size: 0.85rem; display: none; }
+    .modal-box { background: #111; border: 1px solid var(--border); border-radius: 12px; padding: 28px; max-width: 380px; width: 90%; text-align: center; }
+    .modal-box h3 { font-family: 'Advercase'; color: var(--gold); margin-bottom: 12px; }
+    .modal-box p { font-size: 0.8rem; color: var(--muted); margin-bottom: 12px; }
+    .modal-addr { background: #000; border: 1px solid var(--border); border-radius: 6px; padding: 12px; font-family: monospace; font-size: 0.65rem; color: var(--primary); word-break: break-all; margin-bottom: 12px; }
+    .modal-amt { font-family: 'Advercase'; font-size: 1.8rem; color: var(--gold); margin-bottom: 6px; }
+    .modal-btns { display: flex; gap: 8px; margin-top: 16px; }
+    .modal-btns .btn { flex: 1; }
+    .modal-status { margin-top: 12px; padding: 10px; border-radius: 6px; font-size: 0.8rem; display: none; }
     .modal-status.show { display: block; }
-    .modal-status.checking { background: var(--secondary); color: var(--muted); }
-    .modal-status.success { background: #0f2a1a; color: var(--accent); }
-    .modal-status.error { background: #1a0a0a; color: #e87070; }
+    .modal-status.checking { background: var(--secondary); }
+    .modal-status.success { background: #1a3020; color: var(--accent); }
+    .modal-status.error { background: #301a1a; color: #e07070; }
     
-    @media (max-width: 700px) {
-      .header { padding: 14px 18px; }
-      .input-row { flex-direction: column; }
-      .form-grid { grid-template-columns: 1fr; }
-      .score-grid, .info-grid { grid-template-columns: 1fr 1fr; }
-      .dir-item { flex-direction: column; align-items: flex-start; gap: 10px; }
+    pre { background: #000; padding: 14px; border-radius: 6px; font-size: 0.75rem; color: var(--accent); overflow-x: auto; margin-top: 10px; }
+    
+    @media (max-width: 600px) {
+      .input-row, .form-row { flex-direction: column; display: flex; }
+      .form-row { display: flex; flex-direction: column; }
+      .metric-grid, .info-row { grid-template-columns: 1fr 1fr; }
+      .dir-item { flex-direction: column; align-items: flex-start; gap: 8px; }
       .dir-item .score { align-self: flex-end; }
-      .services-grid { grid-template-columns: 1fr; }
-      .modal-buttons { flex-direction: column; }
+      .svc-grid { grid-template-columns: 1fr; }
+      .modal-btns { flex-direction: column; }
     }
   </style>
 </head>
@@ -202,7 +174,6 @@
     <nav>
       <a href="https://fairscale.xyz" target="_blank">Website</a>
       <a href="https://docs.fairscale.xyz" target="_blank">Docs</a>
-      <a href="https://twitter.com/fairscalexyz" target="_blank">Twitter</a>
     </nav>
   </header>
 
@@ -212,7 +183,8 @@
       <button class="mode-btn" data-mode="human">I'm a Human</button>
     </div>
 
-    <div id="mode-agent" class="mode-content">
+    <!-- AGENT MODE -->
+    <div id="mode-agent" class="mode-content active">
       <div class="tabs">
         <button class="tab active" data-tab="register">Register</button>
         <button class="tab" data-tab="check">Check Score</button>
@@ -223,25 +195,28 @@
       <div id="tab-register" class="tab-content active">
         <div class="card">
           <h2>Register Your Agent</h2>
-          <p class="sub">Add your agent to the FairScale registry. Get +2 score bonus and appear in the directory.</p>
-          <div class="input-row"><input type="text" id="regWallet" placeholder="Agent wallet address *"></div>
-          <div class="form-grid">
-            <div><label>Agent Name</label><input type="text" id="regName" placeholder="My Agent"></div>
+          <p class="sub">Add your agent to the registry. Registration via CLI with signature verification is recommended for security.</p>
+          <pre>npx fairscale-register --wallet YOUR_WALLET --name "Agent Name"</pre>
+          <p class="sub" style="margin-top:16px;">Or register without verification (lower trust):</p>
+          <div class="input-row"><input type="text" id="regWallet" placeholder="Agent wallet address"></div>
+          <div class="form-row">
+            <div><label>Name</label><input type="text" id="regName" placeholder="My Agent"></div>
             <div><label>Website</label><input type="text" id="regWebsite" placeholder="https://..."></div>
           </div>
-          <div class="input-row"><textarea id="regDesc" placeholder="Description (what does your agent do?)"></textarea></div>
-          <div class="form-grid">
-            <div><label>MCP Endpoint</label><input type="text" id="regMcp" placeholder="https://mcp.example.com"></div>
-            <div><label>Skills</label><input type="text" id="regSkills" placeholder="trading, defi, nft"></div>
+          <textarea id="regDesc" placeholder="What does your agent do?"></textarea>
+          <div class="form-row">
+            <div><label>MCP Endpoint</label><input type="text" id="regMcp" placeholder="https://mcp..."></div>
+            <div></div>
           </div>
-          <button class="btn btn-block" id="registerBtn">Register Agent</button>
-          <div class="error" id="regError"></div>
-          <div class="success" id="regSuccess"></div>
+          <button class="btn btn-block" id="registerBtn">Register</button>
+          <div class="msg error" id="regError"></div>
+          <div class="msg success" id="regSuccess"></div>
         </div>
+
         <div class="card">
-          <h2>CLI Registration</h2>
-          <p class="sub">Register via command line:</p>
-          <pre style="background:#000;padding:16px;border-radius:8px;font-size:0.8rem;color:var(--accent);overflow-x:auto;">npx fairscale-register --wallet YOUR_WALLET --name "Agent"</pre>
+          <h2>Register x402 Service</h2>
+          <p class="sub">Expose a paid API endpoint. Requires CLI with signature for security.</p>
+          <pre>npx fairscale-register service --wallet WALLET --url URL --name "Service" --price "$0.01"</pre>
         </div>
       </div>
 
@@ -249,61 +224,59 @@
         <div class="card">
           <h2>Check Agent Score</h2>
           <div class="input-row">
-            <input type="text" id="walletInput" placeholder="Enter wallet address...">
+            <input type="text" id="walletInput" placeholder="Wallet address">
             <button class="btn" id="checkBtn">Check</button>
           </div>
-          <div class="error" id="checkError"></div>
+          <div class="msg error" id="checkError"></div>
           <div class="loading" id="loading"><div class="spinner"></div><span>Analyzing...</span></div>
         </div>
         <div class="result" id="result"></div>
       </div>
 
       <div id="tab-directory" class="tab-content">
-        <div class="card" style="padding:20px 24px;">
-          <div style="display:flex;justify-content:space-between;align-items:center;">
-            <h2 style="margin:0;">Registered Agents</h2>
-            <span style="color:var(--muted);font-size:0.85rem;" id="dirCount">0 agents</span>
-          </div>
+        <div class="card" style="padding:16px 20px;display:flex;justify-content:space-between;align-items:center;">
+          <h2 style="margin:0;">Registered Agents</h2>
+          <span style="color:var(--muted);font-size:0.8rem;" id="dirCount">0</span>
         </div>
         <div class="dir-list" id="dirList"><div class="empty">No agents registered yet</div></div>
       </div>
 
       <div id="tab-services" class="tab-content">
-        <div class="services-header">
-          <h3>Solana x402 Services</h3>
-          <button class="btn btn-sm btn-purple" onclick="loadServices()">Refresh</button>
+        <div class="card" style="padding:16px 20px;display:flex;justify-content:space-between;align-items:center;">
+          <h2 style="margin:0;">x402 Services</h2>
+          <span style="color:var(--muted);font-size:0.8rem;" id="svcCount">0</span>
         </div>
         <div class="loading" id="svcLoading"><div class="spinner"></div><span>Loading...</span></div>
-        <div class="services-grid" id="svcGrid"></div>
+        <div class="svc-grid" id="svcGrid"></div>
+        <div class="empty" id="svcEmpty" style="display:none;">No services registered. Use CLI to add yours.</div>
       </div>
     </div>
 
-    <div id="mode-human" class="mode-content" style="display:none;">
+    <!-- HUMAN MODE -->
+    <div id="mode-human" class="mode-content">
       <div class="tabs">
         <button class="tab active" data-tab="h-check">Check Agent</button>
-        <button class="tab" data-tab="h-directory">Browse Directory</button>
+        <button class="tab" data-tab="h-directory">Browse Agents</button>
       </div>
 
       <div id="tab-h-check" class="tab-content active">
         <div class="card">
           <h2>Verify Agent Reputation</h2>
-          <p class="sub">Check any agent's on-chain reputation score and trust signals.</p>
+          <p class="sub">Enter a wallet address to see on-chain behavior metrics and trust signals.</p>
           <div class="input-row">
-            <input type="text" id="hWalletInput" placeholder="Enter agent wallet...">
+            <input type="text" id="hWalletInput" placeholder="Agent wallet address">
             <button class="btn" id="hCheckBtn">Check</button>
           </div>
-          <div class="error" id="hCheckError"></div>
+          <div class="msg error" id="hCheckError"></div>
           <div class="loading" id="hLoading"><div class="spinner"></div><span>Fetching...</span></div>
         </div>
         <div class="result" id="hResult"></div>
       </div>
 
       <div id="tab-h-directory" class="tab-content">
-        <div class="card" style="padding:20px 24px;">
-          <div style="display:flex;justify-content:space-between;align-items:center;">
-            <h2 style="margin:0;">Agent Directory</h2>
-            <span style="color:var(--muted);font-size:0.85rem;" id="hDirCount">0 agents</span>
-          </div>
+        <div class="card" style="padding:16px 20px;display:flex;justify-content:space-between;align-items:center;">
+          <h2 style="margin:0;">Agent Directory</h2>
+          <span style="color:var(--muted);font-size:0.8rem;" id="hDirCount">0</span>
         </div>
         <div class="dir-list" id="hDirList"><div class="empty">No agents found</div></div>
       </div>
@@ -316,13 +289,13 @@
     </footer>
   </div>
 
-  <div class="modal" id="verifyModal" onclick="closeModal(event)">
-    <div class="modal-content" onclick="event.stopPropagation()">
+  <div class="modal" id="verifyModal" onclick="if(event.target===this)this.classList.remove('show')">
+    <div class="modal-box">
       <h3>Verify Agent</h3>
-      <p>Send $5 USDC on Solana for +10 score boost.</p>
-      <div class="modal-amount">$5 USDC</div>
-      <div class="modal-address">fairAUEuR1SCcHL254Vb3F3XpUWLruJ2a11f6QfANEN</div>
-      <div class="modal-buttons">
+      <p>Send $5 USDC on Solana for +8 score boost</p>
+      <div class="modal-amt">$5 USDC</div>
+      <div class="modal-addr">fairAUEuR1SCcHL254Vb3F3XpUWLruJ2a11f6QfANEN</div>
+      <div class="modal-btns">
         <button class="btn btn-secondary" onclick="navigator.clipboard.writeText('fairAUEuR1SCcHL254Vb3F3XpUWLruJ2a11f6QfANEN');alert('Copied!')">Copy</button>
         <button class="btn btn-gold" onclick="verifyPayment()">Verify</button>
       </div>
@@ -332,208 +305,224 @@
 
   <script>
     const API = 'https://fairscale-reputation-api-production.up.railway.app';
-    let currentAgent = null, services = [], directory = [];
-    
-    document.querySelectorAll('.mode-btn').forEach(btn => {
-      btn.onclick = () => {
-        document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        document.querySelectorAll('.mode-content').forEach(c => c.style.display = 'none');
-        document.getElementById('mode-' + btn.dataset.mode).style.display = 'block';
+    let current = null;
+
+    // Mode toggle
+    document.querySelectorAll('.mode-btn').forEach(b => {
+      b.onclick = () => {
+        document.querySelectorAll('.mode-btn').forEach(x => x.classList.remove('active'));
+        document.querySelectorAll('.mode-content').forEach(x => x.classList.remove('active'));
+        b.classList.add('active');
+        document.getElementById('mode-' + b.dataset.mode).classList.add('active');
       };
     });
-    
-    document.querySelectorAll('.tab').forEach(tab => {
-      tab.onclick = () => {
-        const parent = tab.closest('.mode-content');
-        parent.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        parent.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-        tab.classList.add('active');
-        parent.querySelector('#tab-' + tab.dataset.tab).classList.add('active');
-        if (tab.dataset.tab === 'services') loadServices();
-        if (tab.dataset.tab === 'directory' || tab.dataset.tab === 'h-directory') loadDirectory();
+
+    // Tabs
+    document.querySelectorAll('.tab').forEach(t => {
+      t.onclick = () => {
+        const p = t.closest('.mode-content');
+        p.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+        p.querySelectorAll('.tab-content').forEach(x => x.classList.remove('active'));
+        t.classList.add('active');
+        p.querySelector('#tab-' + t.dataset.tab).classList.add('active');
+        if (t.dataset.tab === 'directory' || t.dataset.tab === 'h-directory') loadDir();
+        if (t.dataset.tab === 'services') loadSvc();
       };
     });
-    
+
+    // Register
     document.getElementById('registerBtn').onclick = async () => {
-      const wallet = document.getElementById('regWallet').value.trim();
-      const error = document.getElementById('regError');
-      const success = document.getElementById('regSuccess');
-      error.classList.remove('show'); success.classList.remove('show');
-      
-      if (!wallet || wallet.length < 32) { error.textContent = 'Enter valid wallet'; error.classList.add('show'); return; }
-      
+      const w = document.getElementById('regWallet').value.trim();
+      const err = document.getElementById('regError');
+      const ok = document.getElementById('regSuccess');
+      err.classList.remove('show'); ok.classList.remove('show');
+      if (!w || w.length < 32) { err.textContent = 'Invalid wallet'; err.classList.add('show'); return; }
       const btn = document.getElementById('registerBtn');
-      btn.disabled = true; btn.textContent = 'Registering...';
-      
+      btn.disabled = true;
       try {
-        const res = await fetch(`${API}/register`, {
+        const r = await fetch(`${API}/register`, {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            wallet,
+            wallet: w,
             name: document.getElementById('regName').value.trim() || null,
             description: document.getElementById('regDesc').value.trim() || null,
             website: document.getElementById('regWebsite').value.trim() || null,
-            mcp: document.getElementById('regMcp').value.trim() || null,
-            skills: document.getElementById('regSkills').value.split(',').map(s => s.trim()).filter(Boolean)
+            mcp: document.getElementById('regMcp').value.trim() || null
           })
         });
-        const data = await res.json();
-        if (data.success) {
-          success.innerHTML = `✓ Registered! Score: <strong>${data.agent?.agent_fairscore || '—'}</strong>`;
-          success.classList.add('show');
-          document.querySelectorAll('#mode-agent input, #mode-agent textarea').forEach(i => i.value = '');
-        } else { error.textContent = data.error || 'Failed'; error.classList.add('show'); }
-      } catch (e) { error.textContent = 'Network error'; error.classList.add('show'); }
-      finally { btn.disabled = false; btn.textContent = 'Register Agent'; }
+        const d = await r.json();
+        if (d.success) { ok.innerHTML = `✓ Registered. Score: <b>${d.agent?.agent_fairscore || '—'}</b>`; ok.classList.add('show'); }
+        else { err.textContent = d.error || 'Failed'; err.classList.add('show'); }
+      } catch (e) { err.textContent = 'Network error'; err.classList.add('show'); }
+      btn.disabled = false;
     };
-    
-    async function checkAgent(wId, eId, lId, rId) {
-      const wallet = document.getElementById(wId).value.trim();
-      const error = document.getElementById(eId);
-      const loading = document.getElementById(lId);
-      const result = document.getElementById(rId);
-      error.classList.remove('show'); result.classList.remove('show');
-      if (!wallet || wallet.length < 32) { error.textContent = 'Enter valid wallet'; error.classList.add('show'); return; }
-      loading.classList.add('show');
+
+    // Check
+    async function check(wId, eId, lId, rId) {
+      const w = document.getElementById(wId).value.trim();
+      const err = document.getElementById(eId);
+      const ld = document.getElementById(lId);
+      const res = document.getElementById(rId);
+      err.classList.remove('show'); res.classList.remove('show');
+      if (!w || w.length < 32) { err.textContent = 'Invalid wallet'; err.classList.add('show'); return; }
+      ld.classList.add('show');
       try {
-        const res = await fetch(`${API}/score?wallet=${encodeURIComponent(wallet)}`);
-        const data = await res.json();
-        if (data.error) throw new Error(data.error);
-        currentAgent = data;
-        renderResult(data, result);
-        result.classList.add('show');
-      } catch (e) { error.textContent = e.message || 'Failed'; error.classList.add('show'); }
-      finally { loading.classList.remove('show'); }
+        const r = await fetch(`${API}/score?wallet=${encodeURIComponent(w)}`);
+        const d = await r.json();
+        if (d.error) throw new Error(d.error);
+        current = d;
+        render(d, res);
+        res.classList.add('show');
+      } catch (e) { err.textContent = e.message; err.classList.add('show'); }
+      ld.classList.remove('show');
     }
-    
-    document.getElementById('checkBtn').onclick = () => checkAgent('walletInput', 'checkError', 'loading', 'result');
-    document.getElementById('hCheckBtn').onclick = () => checkAgent('hWalletInput', 'hCheckError', 'hLoading', 'hResult');
-    document.getElementById('walletInput').onkeypress = e => e.key === 'Enter' && checkAgent('walletInput', 'checkError', 'loading', 'result');
-    document.getElementById('hWalletInput').onkeypress = e => e.key === 'Enter' && checkAgent('hWalletInput', 'hCheckError', 'hLoading', 'hResult');
-    
-    function renderResult(d, container) {
-      const score = d.agent_fairscore || 0;
-      const tier = score >= 70 ? 'gold' : score >= 45 ? 'silver' : 'bronze';
+
+    document.getElementById('checkBtn').onclick = () => check('walletInput', 'checkError', 'loading', 'result');
+    document.getElementById('hCheckBtn').onclick = () => check('hWalletInput', 'hCheckError', 'hLoading', 'hResult');
+    document.getElementById('walletInput').onkeypress = e => e.key === 'Enter' && check('walletInput', 'checkError', 'loading', 'result');
+    document.getElementById('hWalletInput').onkeypress = e => e.key === 'Enter' && check('hWalletInput', 'hCheckError', 'hLoading', 'hResult');
+
+    function render(d, el) {
+      const s = d.agent_fairscore || 0;
+      const tier = s >= 70 ? 'gold' : s >= 40 ? 'silver' : 'bronze';
       const f = d.features || {};
-      const badges = d.badges || [];
-      
-      container.innerHTML = `
+      const desc = d.descriptions || {};
+
+      el.innerHTML = `
         <div class="result-header">
-          <div class="result-name">${d.name || 'Agent ' + d.wallet.slice(0,8) + '...'}</div>
+          <div class="result-name">${d.name || 'Agent ' + d.wallet.slice(0, 8) + '...'}</div>
           <div class="result-wallet">${d.wallet}</div>
           ${d.description ? `<div class="result-desc">${d.description}</div>` : ''}
-          <div class="result-social">
-            ${d.social?.twitter ? `<a href="https://twitter.com/${d.social.twitter}" target="_blank">@${d.social.twitter}</a>` : ''}
-            ${d.social?.website ? `<a href="${d.social.website}" target="_blank">${d.social.website.replace(/^https?:\/\//,'')}</a>` : ''}
-          </div>
+          ${d.website ? `<a class="result-link" href="${d.website}" target="_blank">${d.website.replace(/^https?:\/\//, '')}</a>` : ''}
         </div>
         <div class="score-hero">
-          <div class="value">${score}</div>
+          <div class="value">${s}</div>
           <div class="label">Agent FairScore</div>
-          <div class="tier ${tier}">${tier.charAt(0).toUpperCase()+tier.slice(1)}</div>
+          <div class="tier ${tier}">${tier}</div>
         </div>
-        <div class="info-section">
-          <h4>Trust Signals</h4>
-          <div class="info-grid">
-            <div class="info-item hl"><div class="k">SAID</div><div class="v">${d.said?.score??'—'}</div></div>
-            <div class="info-item"><div class="k">Trust</div><div class="v">${d.said?.trustTier||'—'}</div></div>
-            <div class="info-item"><div class="k">Attest</div><div class="v">${d.said?.feedbackCount||0}</div></div>
-            <div class="info-item"><div class="k">Base</div><div class="v">${d.fairscore_base||'—'}</div></div>
+        <div class="info-row">
+          <div class="info-box hl"><div class="k">SAID</div><div class="v">${d.said?.score ?? '—'}</div></div>
+          <div class="info-box"><div class="k">Trust</div><div class="v">${d.said?.trustTier || '—'}</div></div>
+          <div class="info-box"><div class="k">Attest</div><div class="v">${d.said?.feedbackCount || 0}</div></div>
+          <div class="info-box"><div class="k">Base</div><div class="v">${d.fairscore_base || '—'}</div></div>
+        </div>
+        <div class="metrics">
+          <h4>On-Chain Metrics</h4>
+          <div class="metric-grid">
+            ${['longevity', 'experience', 'stability', 'capital'].map(k => `
+              <div class="metric">
+                <div class="metric-top"><span class="lbl">${k}</span><span class="val">${f[k] || 0}</span></div>
+                <div class="metric-bar"><div class="metric-bar-fill" style="width:${f[k] || 0}%"></div></div>
+                <div class="desc">${desc[k] || ''}</div>
+              </div>
+            `).join('')}
           </div>
         </div>
-        <div class="scores-section">
-          <h4>Agent Metrics</h4>
-          <div class="score-grid">
-            ${['longevity','experience','conviction','capital'].map(k => {
-              const v = f[k]||0;
-              const labels = {longevity:'Longevity',experience:'Experience',conviction:'Conviction',capital:'Capital'};
-              const descs = {
-                longevity: v>=60?'Consistent activity':v>=30?'Building presence':'New agent',
-                experience: v>=60?'High protocol usage':v>=30?'Moderate activity':'Early stage',
-                conviction: v>=60?'Strong commitment':v>=30?'Balanced approach':'Active trading',
-                capital: v>=60?'Well capitalized':v>=30?'Moderate holdings':'Growing'
-              };
-              return `<div class="score-card"><div class="score-card-header"><span class="lbl">${labels[k]}</span><span class="val">${v}</span></div><div class="score-bar"><div class="score-bar-fill" style="width:${v}%"></div></div><div class="desc">${descs[k]}</div></div>`;
-            }).join('')}
+        ${!d.isVerified ? `
+        <div class="verify-cta">
+          <div class="verify-box">
+            <h4>Boost Your Score</h4>
+            <p>Pay to verify and increase visibility</p>
+            <div class="price">$5 USDC</div>
+            <div class="boost">+8 Score Boost</div>
+            <button class="btn btn-gold" onclick="document.getElementById('verifyModal').classList.add('show')">Verify</button>
           </div>
+        </div>` : ''}
+        <div class="actions">
+          <button class="btn btn-secondary" onclick="window.open('https://solscan.io/account/${d.wallet}','_blank')">Solscan</button>
         </div>
-        <div class="badges-section">
-          <h4>Badges</h4>
-          <div class="badges-row">
-            ${badges.length ? badges.map(b => {
-              let c='badge';
-              if(b.id==='said_verified'||b.id==='said_trusted')c+=' v';
-              if(b.id==='fairscale_verified')c+=' g';
-              if(b.id==='diamond_hands')c+=' d';
-              return `<span class="${c}">${b.label}</span>`;
-            }).join('') : '<span style="color:var(--dim)">No badges</span>'}
-          </div>
-        </div>
-        ${!d.isVerified ? `<div class="verify-section"><div class="verify-box"><h4>Get Verified</h4><p>Boost score with verification</p><div class="verify-price">$5 USDC</div><div class="verify-boost">+10 Score</div><button class="btn btn-gold" onclick="openVerifyModal()">Verify</button></div></div>` : ''}
-        <div class="actions-row"><button class="btn btn-secondary" onclick="window.open('https://solscan.io/account/${d.wallet}','_blank')">Solscan</button></div>
       `;
     }
-    
-    async function loadDirectory() {
+
+    async function loadDir() {
       try {
-        const res = await fetch(`${API}/directory`);
-        const data = await res.json();
-        directory = data.agents || [];
-        document.getElementById('dirCount').textContent = directory.length + ' agents';
-        document.getElementById('hDirCount').textContent = directory.length + ' agents';
-        const html = directory.length ? directory.map((a,i) => {
-          const sv = a.badges?.includes('said_verified');
-          const fv = a.badges?.includes('fairscale_verified');
-          return `<div class="dir-item" onclick="quickCheck('${a.wallet}')"><div class="info"><div class="rank">${i+1}</div><div><div class="name">${a.name}</div><div class="wallet">${a.wallet.slice(0,6)}...${a.wallet.slice(-4)}</div><div class="mini-badges">${fv?'<span class="mb g">Verified</span>':''}${sv?'<span class="mb v">SAID</span>':''}</div></div></div><div class="score">${a.agent_fairscore}</div></div>`;
-        }).join('') : '<div class="empty">No agents yet</div>';
+        const r = await fetch(`${API}/directory`);
+        const d = await r.json();
+        const agents = d.agents || [];
+        document.getElementById('dirCount').textContent = agents.length;
+        document.getElementById('hDirCount').textContent = agents.length;
+        const html = agents.length ? agents.map((a, i) => `
+          <div class="dir-item" onclick="quickCheck('${a.wallet}')">
+            <div class="info">
+              <div class="rank">${i + 1}</div>
+              <div>
+                <div class="name">${a.name}</div>
+                <div class="wallet">${a.wallet.slice(0, 6)}...${a.wallet.slice(-4)}</div>
+                <div class="tags">
+                  ${a.isVerified ? '<span class="tag v">Verified</span>' : ''}
+                  ${a.services > 0 ? `<span class="tag">${a.services} service${a.services > 1 ? 's' : ''}</span>` : ''}
+                </div>
+              </div>
+            </div>
+            <div class="score">${a.agent_fairscore}</div>
+          </div>
+        `).join('') : '<div class="empty">No agents registered</div>';
         document.getElementById('dirList').innerHTML = html;
         document.getElementById('hDirList').innerHTML = html;
-      } catch(e) { console.error(e); }
+      } catch (e) { console.error(e); }
     }
-    
+
     function quickCheck(w) {
       document.getElementById('walletInput').value = w;
       document.getElementById('hWalletInput').value = w;
-      document.querySelector('[data-tab="check"]')?.click();
-      document.querySelector('[data-tab="h-check"]')?.click();
-      checkAgent('walletInput','checkError','loading','result');
+      document.querySelector('#mode-agent [data-tab="check"]')?.click();
+      document.querySelector('#mode-human [data-tab="h-check"]')?.click();
+      check('walletInput', 'checkError', 'loading', 'result');
     }
-    
-    async function loadServices() {
+
+    async function loadSvc() {
       const grid = document.getElementById('svcGrid');
-      const loading = document.getElementById('svcLoading');
-      loading.classList.add('show'); grid.innerHTML = '';
+      const ld = document.getElementById('svcLoading');
+      const empty = document.getElementById('svcEmpty');
+      ld.classList.add('show'); grid.innerHTML = ''; empty.style.display = 'none';
       try {
-        const res = await fetch(`${API}/services`);
-        const data = await res.json();
-        services = data.services || [];
-        grid.innerHTML = services.length ? services.map(s => `<div class="service-card"><div class="name">${s.name}</div><div class="desc">${s.description}</div><div class="meta"><span class="cat">${s.category}</span><span class="price">${s.pricing?.price||'—'}</span></div></div>`).join('') : '<div class="empty" style="grid-column:1/-1">No Solana services</div>';
-      } catch(e) { grid.innerHTML = '<div class="empty">Failed</div>'; }
-      finally { loading.classList.remove('show'); }
+        const r = await fetch(`${API}/services`);
+        const d = await r.json();
+        const svcs = d.services || [];
+        document.getElementById('svcCount').textContent = svcs.length;
+        if (svcs.length) {
+          grid.innerHTML = svcs.map(s => `
+            <div class="svc-card">
+              <div class="name">${s.name}</div>
+              <div class="desc">${s.description || 'x402 endpoint'}</div>
+              <div class="meta">
+                <span class="cat">${s.category}</span>
+                <span class="price">${s.price}</span>
+              </div>
+            </div>
+          `).join('');
+        } else {
+          empty.style.display = 'block';
+        }
+      } catch (e) { empty.style.display = 'block'; empty.textContent = 'Failed to load'; }
+      ld.classList.remove('show');
     }
-    
-    function openVerifyModal() { document.getElementById('verifyModal').classList.add('show'); }
-    function closeModal(e) { if(e.target.classList.contains('modal')) e.target.classList.remove('show'); }
-    
+
     async function verifyPayment() {
-      if(!currentAgent) return;
-      const status = document.getElementById('verifyStatus');
-      status.className = 'modal-status show checking'; status.textContent = 'Checking...';
+      if (!current) return;
+      const st = document.getElementById('verifyStatus');
+      st.className = 'modal-status show checking'; st.textContent = 'Checking...';
       try {
-        const res = await fetch(`${API}/verify`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({wallet:currentAgent.wallet}) });
-        const data = await res.json();
-        if(data.success) { status.className='modal-status show success'; status.textContent='✓ Verified!'; setTimeout(()=>{document.getElementById('verifyModal').classList.remove('show');checkAgent('walletInput','checkError','loading','result');},1500); }
-        else { status.className='modal-status show error'; status.textContent=data.error||'Not found'; }
-      } catch(e) { status.className='modal-status show error'; status.textContent='Error'; }
+        const r = await fetch(`${API}/verify`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ wallet: current.wallet })
+        });
+        const d = await r.json();
+        if (d.success) {
+          st.className = 'modal-status show success'; st.textContent = '✓ Verified!';
+          setTimeout(() => { document.getElementById('verifyModal').classList.remove('show'); check('walletInput', 'checkError', 'loading', 'result'); }, 1200);
+        } else {
+          st.className = 'modal-status show error'; st.textContent = d.error || 'Not found';
+        }
+      } catch (e) { st.className = 'modal-status show error'; st.textContent = 'Error'; }
     }
-    
-    document.addEventListener('keydown', e => { if(e.key==='Escape') document.querySelectorAll('.modal').forEach(m=>m.classList.remove('show')); });
-    
-    const params = new URLSearchParams(location.search);
-    if(params.get('wallet')) { document.getElementById('walletInput').value=params.get('wallet'); document.querySelector('[data-tab="check"]')?.click(); setTimeout(()=>checkAgent('walletInput','checkError','loading','result'),100); }
-    
-    loadDirectory();
+
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') document.getElementById('verifyModal').classList.remove('show'); });
+
+    const p = new URLSearchParams(location.search);
+    if (p.get('wallet')) { document.getElementById('walletInput').value = p.get('wallet'); document.querySelector('[data-tab="check"]')?.click(); setTimeout(() => check('walletInput', 'checkError', 'loading', 'result'), 100); }
+
+    loadDir();
   </script>
 </body>
 </html>
