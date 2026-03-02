@@ -3,256 +3,593 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FairScale Agent Registry</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <title>FairScale — The Trust Layer for Solana Agents</title>
+  <link rel="icon" type="image/png" href="assets/icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap" rel="stylesheet">
   <style>
-    @font-face { font-family: 'Advercase'; src: url('assets/Advercase-Regular.ttf') format('truetype'); }
+    @font-face { font-family: 'Advercase'; src: url('assets/Advercase-Regular.ttf') format('truetype'); font-weight: 400; }
     @font-face { font-family: 'Advercase'; src: url('assets/Advercase-Bold.ttf') format('truetype'); font-weight: 700; }
-    
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
     :root {
-      --bg: #0a0a0a; --card: rgba(17,17,17,0.94); --border: rgba(35,35,35,0.9);
-      --primary: #e8d4c4; --secondary: #1e3a4c; --accent: #4a9079;
-      --gold: #d4a853; --text: #fff; --muted: #888; --dim: #555;
+      --bg: #050507;
+      --surface: #0c0c10;
+      --surface-2: #111118;
+      --surface-3: #16161f;
+      --border: rgba(255,255,255,0.06);
+      --border-hover: rgba(255,255,255,0.12);
+      --cream: #ede4d3;
+      --cream-dim: rgba(237,228,211,0.7);
+      --teal: #14f195;
+      --teal-dim: rgba(20,241,149,0.15);
+      --teal-glow: rgba(20,241,149,0.3);
+      --purple: #9945ff;
+      --purple-dim: rgba(153,69,255,0.15);
+      --gold: #e8b84b;
+      --gold-dim: rgba(232,184,75,0.12);
+      --red: #ff6b6b;
+      --text: #ffffff;
+      --text-secondary: rgba(255,255,255,0.55);
+      --text-dim: rgba(255,255,255,0.3);
+      --radius: 16px;
+      --radius-sm: 10px;
+      --radius-xs: 6px;
     }
-    
-    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
-    body::before { content: ''; position: fixed; inset: 0; background: url('assets/background.png') center/cover no-repeat; opacity: 0.06; z-index: -1; }
-    
-    .header { display: flex; justify-content: space-between; align-items: center; padding: 16px 32px; border-bottom: 1px solid var(--border); background: rgba(8,8,8,0.95); }
-    .header img { height: 28px; }
-    .header nav a { font-family: 'Advercase'; color: var(--muted); text-decoration: none; margin-left: 20px; font-size: 0.85rem; }
-    .header nav a:hover { color: var(--primary); }
-    
-    .container { max-width: 840px; margin: 0 auto; padding: 32px 20px; }
-    
-    .mode-toggle { display: flex; justify-content: center; margin-bottom: 24px; }
-    .mode-btn { font-family: 'Advercase'; background: transparent; border: 1px solid var(--border); color: var(--muted); padding: 12px 32px; font-size: 0.9rem; cursor: pointer; transition: 0.2s; }
-    .mode-btn:first-child { border-radius: 8px 0 0 8px; }
-    .mode-btn:last-child { border-radius: 0 8px 8px 0; }
-    .mode-btn.active { background: var(--primary); border-color: var(--primary); color: var(--bg); }
-    
-    .tabs { display: flex; gap: 6px; margin-bottom: 24px; flex-wrap: wrap; }
-    .tab { font-family: 'Advercase'; background: transparent; border: 1px solid var(--border); color: var(--muted); padding: 10px 20px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; }
-    .tab:hover { border-color: var(--dim); color: var(--text); }
-    .tab.active { background: var(--secondary); border-color: var(--secondary); color: var(--text); }
-    
-    .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 20px; }
-    .card h2 { font-family: 'Advercase'; color: var(--primary); margin-bottom: 12px; font-size: 1.1rem; }
-    .card .sub { color: var(--muted); font-size: 0.85rem; margin-bottom: 16px; line-height: 1.5; }
-    
-    .input-row { display: flex; gap: 10px; }
-    input, textarea { flex: 1; background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 6px; padding: 12px 14px; font-size: 0.9rem; color: var(--text); font-family: inherit; }
-    input:focus, textarea:focus { outline: none; border-color: var(--primary); }
-    input::placeholder, textarea::placeholder { color: var(--dim); }
-    textarea { min-height: 70px; resize: vertical; margin-top: 10px; }
-    
-    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
-    label { display: block; font-size: 0.7rem; color: var(--muted); margin-bottom: 4px; text-transform: uppercase; }
-    
-    .btn { background: var(--primary); color: var(--bg); border: none; border-radius: 6px; padding: 12px 24px; font-family: 'Advercase'; font-size: 0.85rem; cursor: pointer; transition: 0.2s; }
-    .btn:hover { opacity: 0.9; }
-    .btn:disabled { background: var(--border); color: var(--dim); cursor: not-allowed; }
-    .btn-secondary { background: var(--secondary); color: var(--text); }
-    .btn-gold { background: var(--gold); color: var(--bg); }
-    .btn-block { width: 100%; margin-top: 14px; }
-    
-    .loading { display: none; align-items: center; justify-content: center; gap: 10px; padding: 28px; color: var(--muted); }
-    .loading.show { display: flex; }
-    .spinner { width: 18px; height: 18px; border: 2px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    
-    .msg { border-radius: 6px; padding: 12px; margin-top: 12px; font-size: 0.85rem; display: none; }
-    .msg.show { display: block; }
-    .msg.error { background: rgba(60,20,20,0.8); border: 1px solid #4a2020; color: #e07070; }
-    .msg.success { background: rgba(20,50,30,0.8); border: 1px solid #204a30; color: #70e090; }
-    
-    .result { display: none; background: rgba(6,6,6,0.96); border: 1px solid var(--border); border-radius: 12px; margin-top: 16px; overflow: hidden; }
-    .result.show { display: block; }
-    
-    .result-header { padding: 20px 24px; border-bottom: 1px solid var(--border); }
-    .result-name { font-family: 'Advercase'; font-size: 1.3rem; color: var(--primary); }
-    .result-wallet { font-family: monospace; font-size: 0.65rem; color: var(--dim); margin-top: 4px; }
-    .result-desc { color: var(--muted); font-size: 0.8rem; margin-top: 8px; line-height: 1.4; }
-    .result-link { color: var(--accent); font-size: 0.8rem; margin-top: 6px; display: inline-block; text-decoration: none; }
-    
-    .score-hero { padding: 28px; background: linear-gradient(135deg, var(--secondary), #142830); text-align: center; }
-    .score-hero .value { font-family: 'Advercase'; font-size: 4rem; font-weight: 700; color: var(--primary); line-height: 1; }
-    .score-hero .label { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 6px; }
-    .score-hero .tier { display: inline-block; margin-top: 10px; padding: 4px 14px; border-radius: 12px; font-family: 'Advercase'; font-size: 0.75rem; }
-    .tier.bronze { background: #6b5010; } .tier.silver { background: #505058; } .tier.gold { background: var(--gold); color: #000; }
-    
-    .info-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; padding: 16px 24px; border-bottom: 1px solid var(--border); }
-    .info-box { background: rgba(0,0,0,0.3); border-radius: 6px; padding: 10px; text-align: center; }
-    .info-box .k { font-size: 0.55rem; color: var(--dim); text-transform: uppercase; }
-    .info-box .v { font-family: 'Advercase'; color: var(--text); margin-top: 3px; font-size: 1rem; }
-    .info-box.hl { background: rgba(74,144,121,0.15); border: 1px solid var(--accent); }
-    .info-box.hl .v { color: var(--accent); }
-    
-    .metrics { padding: 20px 24px; }
-    .metrics h4 { font-family: 'Advercase'; color: var(--primary); font-size: 0.85rem; margin-bottom: 12px; }
-    .metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .metric { background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 8px; padding: 14px; }
-    .metric-top { display: flex; justify-content: space-between; align-items: center; }
-    .metric .lbl { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; }
-    .metric .val { font-family: 'Advercase'; font-size: 1.4rem; font-weight: 700; }
-    .metric-bar { height: 3px; background: var(--border); border-radius: 2px; margin: 8px 0 6px; overflow: hidden; }
-    .metric-bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--primary)); border-radius: 2px; transition: width 0.4s; }
-    .metric .desc { font-size: 0.7rem; color: var(--dim); line-height: 1.4; }
-    
-    .verify-cta { padding: 20px 24px; background: linear-gradient(135deg, #1a1508, #101418); border-top: 1px solid var(--border); }
-    .verify-box { border: 1px dashed var(--gold); border-radius: 10px; padding: 18px; text-align: center; }
-    .verify-box h4 { font-family: 'Advercase'; color: var(--gold); font-size: 0.95rem; }
-    .verify-box p { font-size: 0.75rem; color: var(--muted); margin: 6px 0 10px; }
-    .verify-box .price { font-family: 'Advercase'; font-size: 1.6rem; color: var(--gold); }
-    .verify-box .boost { font-size: 0.7rem; color: var(--accent); margin: 4px 0 12px; }
-    
-    .actions { padding: 14px 24px; display: flex; gap: 8px; border-top: 1px solid var(--border); }
-    .actions .btn { flex: 1; }
-    
-    .dir-list { display: flex; flex-direction: column; gap: 8px; }
-    .dir-item { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.15s; }
-    .dir-item:hover { border-color: var(--dim); transform: translateX(3px); }
-    .dir-item .info { display: flex; align-items: center; gap: 12px; }
-    .dir-item .rank { font-family: 'Advercase'; color: var(--dim); width: 24px; }
-    .dir-item .name { font-family: 'Advercase'; color: var(--primary); font-size: 0.95rem; }
-    .dir-item .wallet { font-family: monospace; font-size: 0.6rem; color: var(--dim); margin-top: 2px; }
-    .dir-item .tags { display: flex; gap: 4px; margin-top: 4px; }
-    .dir-item .tag { background: var(--secondary); border-radius: 3px; padding: 2px 6px; font-size: 0.5rem; color: var(--muted); }
-    .dir-item .tag.v { background: var(--gold); color: var(--bg); }
-    .dir-item .score { font-family: 'Advercase'; font-size: 1.8rem; font-weight: 700; color: var(--primary); }
-    
-    .empty { text-align: center; padding: 40px; color: var(--dim); font-size: 0.85rem; }
-    
-    .svc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
-    .svc-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
-    .svc-card .name { font-family: 'Advercase'; color: var(--primary); margin-bottom: 4px; }
-    .svc-card .desc { font-size: 0.75rem; color: var(--muted); line-height: 1.4; margin-bottom: 10px; min-height: 32px; }
-    .svc-card .meta { display: flex; justify-content: space-between; align-items: center; padding-top: 10px; border-top: 1px solid var(--border); }
-    .svc-card .cat { font-size: 0.6rem; padding: 2px 6px; background: var(--secondary); border-radius: 3px; color: var(--muted); }
-    .svc-card .price { font-family: 'Advercase'; color: var(--accent); font-size: 0.9rem; }
-    
+
+    html { font-size: 16px; }
+
+    body {
+      font-family: 'DM Sans', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ===================== GLOBAL BACKGROUND ===================== */
+    .page-bg {
+      position: fixed; inset: 0; z-index: -2;
+      background:
+        radial-gradient(ellipse 80% 50% at 20% 0%, rgba(20,241,149,0.04) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 40% at 80% 10%, rgba(153,69,255,0.03) 0%, transparent 50%),
+        var(--bg);
+    }
+    .page-bg::after {
+      content: '';
+      position: fixed; inset: 0; z-index: -1;
+      background: url('assets/background.png') center/cover no-repeat;
+      opacity: 0.03;
+    }
+
+    /* ===================== HEADER ===================== */
+    .header {
+      position: sticky; top: 0; z-index: 50;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 0 40px; height: 64px;
+      background: rgba(5,5,7,0.8);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border-bottom: 1px solid var(--border);
+    }
+    .header-left { display: flex; align-items: center; gap: 32px; }
+    .header-logo { height: 24px; opacity: 0.95; }
+    .header-tag {
+      font-size: 0.65rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--teal); background: var(--teal-dim); padding: 4px 10px; border-radius: 100px;
+    }
+    .header nav { display: flex; align-items: center; gap: 8px; }
+    .header nav a {
+      font-family: 'Advercase'; font-size: 0.78rem; color: var(--text-secondary);
+      text-decoration: none; padding: 6px 14px; border-radius: 8px; transition: all 0.2s;
+    }
+    .header nav a:hover { color: var(--text); background: rgba(255,255,255,0.05); }
+
+    /* ===================== LAYOUT ===================== */
+    .main { max-width: 1200px; margin: 0 auto; padding: 32px 40px 80px; }
+
+    /* ===================== MODE TOGGLE ===================== */
+    .mode-toggle {
+      display: flex; justify-content: center; margin-bottom: 32px;
+      background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+      padding: 4px; width: fit-content; margin-left: auto; margin-right: auto;
+    }
+    .mode-btn {
+      font-family: 'Advercase'; font-size: 0.82rem; font-weight: 400;
+      background: transparent; border: none; color: var(--text-secondary);
+      padding: 10px 28px; border-radius: 9px; cursor: pointer; transition: all 0.25s;
+    }
+    .mode-btn:hover { color: var(--text); }
+    .mode-btn.active {
+      background: linear-gradient(135deg, var(--teal-dim), rgba(153,69,255,0.08));
+      color: var(--text); box-shadow: 0 0 20px rgba(20,241,149,0.08);
+    }
+
+    /* ===================== TABS ===================== */
+    .tabs {
+      display: flex; gap: 4px; margin-bottom: 28px;
+      background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+      padding: 4px; width: fit-content;
+    }
+    .tab {
+      font-family: 'Advercase'; font-size: 0.78rem;
+      background: transparent; border: none; color: var(--text-secondary);
+      padding: 9px 22px; border-radius: 8px; cursor: pointer; transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .tab:hover { color: var(--text); }
+    .tab.active { background: rgba(255,255,255,0.07); color: var(--text); }
+
     .tab-content { display: none; }
-    .tab-content.active { display: block; }
+    .tab-content.active { display: block; animation: fadeUp 0.3s ease; }
     .mode-content { display: none; }
     .mode-content.active { display: block; }
-    
-    .footer { margin-top: 40px; padding: 20px; border-top: 1px solid var(--border); text-align: center; }
-    .footer a { font-family: 'Advercase'; color: var(--dim); text-decoration: none; margin: 0 12px; font-size: 0.75rem; }
-    
-    .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 100; align-items: center; justify-content: center; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ===================== CARDS ===================== */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      margin-bottom: 20px;
+      transition: border-color 0.2s;
+    }
+    .card:hover { border-color: var(--border-hover); }
+    .card-title {
+      font-family: 'Advercase'; font-size: 1.15rem; color: var(--cream);
+      margin-bottom: 8px;
+    }
+    .card-sub { color: var(--text-secondary); font-size: 0.88rem; line-height: 1.6; margin-bottom: 20px; }
+
+    /* ===================== INPUTS ===================== */
+    .input-group { display: flex; gap: 10px; }
+    input, textarea {
+      flex: 1; background: var(--surface-2); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); padding: 14px 16px; font-size: 0.9rem;
+      color: var(--text); font-family: inherit; transition: all 0.2s;
+    }
+    input:focus, textarea:focus { outline: none; border-color: rgba(20,241,149,0.3); background: var(--surface-3); }
+    input::placeholder, textarea::placeholder { color: var(--text-dim); }
+    textarea { min-height: 72px; resize: vertical; margin-top: 10px; }
+
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+    .form-label { display: block; font-size: 0.68rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.06em; }
+
+    /* ===================== BUTTONS ===================== */
+    .btn {
+      font-family: 'Advercase'; font-size: 0.82rem; font-weight: 700;
+      border: none; border-radius: var(--radius-sm); padding: 14px 28px;
+      cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .btn-primary {
+      background: var(--teal); color: #050507;
+      box-shadow: 0 0 24px rgba(20,241,149,0.15), 0 1px 2px rgba(0,0,0,0.3);
+    }
+    .btn-primary:hover { box-shadow: 0 0 40px rgba(20,241,149,0.25), 0 2px 8px rgba(0,0,0,0.4); transform: translateY(-1px); }
+    .btn-secondary { background: rgba(255,255,255,0.06); color: var(--text); border: 1px solid var(--border); }
+    .btn-secondary:hover { background: rgba(255,255,255,0.1); border-color: var(--border-hover); }
+    .btn-gold { background: var(--gold); color: #050507; box-shadow: 0 0 20px rgba(232,184,75,0.15); }
+    .btn-gold:hover { box-shadow: 0 0 32px rgba(232,184,75,0.25); }
+    .btn-block { width: 100%; margin-top: 16px; }
+    .btn:disabled { opacity: 0.3; cursor: not-allowed; transform: none !important; }
+
+    /* ===================== MESSAGES ===================== */
+    .msg { border-radius: var(--radius-sm); padding: 12px 16px; margin-top: 12px; font-size: 0.85rem; display: none; }
+    .msg.show { display: block; animation: fadeUp 0.2s ease; }
+    .msg.error { background: rgba(255,107,107,0.08); border: 1px solid rgba(255,107,107,0.15); color: var(--red); }
+    .msg.success { background: rgba(20,241,149,0.08); border: 1px solid rgba(20,241,149,0.15); color: var(--teal); }
+
+    .loading { display: none; align-items: center; justify-content: center; gap: 10px; padding: 32px; color: var(--text-secondary); }
+    .loading.show { display: flex; }
+    .spinner { width: 20px; height: 20px; border: 2px solid var(--border); border-top-color: var(--teal); border-radius: 50%; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ===================== RESULT CARD — THE HERO ===================== */
+    .result { display: none; margin-top: 20px; animation: fadeUp 0.4s ease; }
+    .result.show { display: block; }
+
+    .result-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      overflow: hidden;
+    }
+
+    /* Top section: Identity + Score side-by-side */
+    .result-top {
+      display: grid; grid-template-columns: 1fr auto; gap: 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .result-identity {
+      padding: 28px 32px;
+      display: flex; flex-direction: column; justify-content: center;
+    }
+    .result-name {
+      font-family: 'Advercase'; font-size: 1.6rem; font-weight: 700; color: var(--cream);
+      line-height: 1.2;
+    }
+    .result-wallet {
+      font-family: 'DM Sans', monospace; font-size: 0.72rem; color: var(--text-dim);
+      margin-top: 6px; letter-spacing: 0.02em;
+    }
+    .result-desc { color: var(--text-secondary); font-size: 0.85rem; margin-top: 10px; line-height: 1.5; max-width: 480px; }
+    .result-link {
+      color: var(--teal); font-size: 0.82rem; margin-top: 8px; display: inline-block;
+      text-decoration: none; transition: opacity 0.2s;
+    }
+    .result-link:hover { opacity: 0.7; }
+    .result-badges { display: flex; gap: 6px; margin-top: 12px; }
+    .badge {
+      font-family: 'Advercase'; font-size: 0.65rem; font-weight: 700;
+      padding: 4px 12px; border-radius: 100px; letter-spacing: 0.04em;
+    }
+    .badge-registered { background: var(--purple-dim); color: var(--purple); }
+    .badge-verified { background: var(--gold-dim); color: var(--gold); }
+
+    .result-score-hero {
+      padding: 32px 48px;
+      background: linear-gradient(160deg, rgba(20,241,149,0.06) 0%, rgba(153,69,255,0.04) 50%, transparent 100%);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      min-width: 220px;
+      border-left: 1px solid var(--border);
+    }
+    .score-number {
+      font-family: 'Advercase'; font-size: 5rem; font-weight: 700; line-height: 1;
+      background: linear-gradient(180deg, var(--cream) 0%, var(--cream-dim) 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .score-label {
+      font-size: 0.65rem; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.12em; color: var(--text-secondary); margin-top: 6px;
+    }
+    .score-tier {
+      font-family: 'Advercase'; font-size: 0.72rem; font-weight: 700;
+      padding: 5px 16px; border-radius: 100px; margin-top: 12px;
+    }
+    .tier-bronze { background: rgba(205,127,50,0.15); color: #cd7f32; }
+    .tier-silver { background: rgba(192,192,192,0.12); color: #c0c0c0; }
+    .tier-gold { background: var(--gold-dim); color: var(--gold); }
+
+    /* Sub-scores row */
+    .result-sub-scores {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      border-bottom: 1px solid var(--border);
+    }
+    .sub-score {
+      padding: 18px 24px; text-align: center;
+      border-right: 1px solid var(--border);
+      transition: background 0.2s;
+    }
+    .sub-score:last-child { border-right: none; }
+    .sub-score:hover { background: rgba(255,255,255,0.02); }
+    .sub-score-label {
+      font-size: 0.6rem; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.1em; color: var(--text-dim); margin-bottom: 4px;
+    }
+    .sub-score-value { font-family: 'Advercase'; font-size: 1.2rem; font-weight: 700; color: var(--text); }
+    .sub-score-hl .sub-score-value { color: var(--teal); }
+
+    /* Metrics grid */
+    .result-metrics { padding: 28px 32px; }
+    .metrics-title {
+      font-family: 'Advercase'; font-size: 0.85rem; color: var(--cream);
+      margin-bottom: 16px; display: flex; align-items: center; gap: 8px;
+    }
+    .metrics-title::after {
+      content: ''; flex: 1; height: 1px;
+      background: linear-gradient(90deg, var(--border), transparent);
+    }
+    .metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .metric-card {
+      background: rgba(0,0,0,0.25);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 18px 20px;
+      transition: all 0.2s;
+    }
+    .metric-card:hover { border-color: var(--border-hover); background: rgba(0,0,0,0.35); }
+    .metric-head { display: flex; justify-content: space-between; align-items: baseline; }
+    .metric-label { font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-secondary); }
+    .metric-value { font-family: 'Advercase'; font-size: 1.5rem; font-weight: 700; color: var(--text); }
+    .metric-bar { height: 3px; background: rgba(255,255,255,0.06); border-radius: 2px; margin: 10px 0 8px; overflow: hidden; }
+    .metric-bar-fill {
+      height: 100%; border-radius: 2px;
+      background: linear-gradient(90deg, var(--teal), var(--purple));
+      transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .metric-desc { font-size: 0.75rem; color: var(--text-dim); line-height: 1.4; }
+
+    /* Verify CTA — inline compact */
+    .result-verify {
+      padding: 24px 32px;
+      border-top: 1px solid var(--border);
+      background: linear-gradient(135deg, rgba(232,184,75,0.03), transparent);
+    }
+    .verify-row {
+      display: flex; align-items: center; justify-content: space-between; gap: 24px;
+      border: 1px dashed rgba(232,184,75,0.2); border-radius: var(--radius-sm);
+      padding: 20px 24px;
+    }
+    .verify-info { display: flex; align-items: center; gap: 16px; }
+    .verify-icon {
+      width: 44px; height: 44px; border-radius: 12px;
+      background: var(--gold-dim); display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem;
+    }
+    .verify-text h4 { font-family: 'Advercase'; font-size: 0.9rem; color: var(--gold); }
+    .verify-text p { font-size: 0.78rem; color: var(--text-secondary); margin-top: 2px; }
+    .verify-right { display: flex; align-items: center; gap: 16px; flex-shrink: 0; }
+    .verify-price { font-family: 'Advercase'; font-size: 1.6rem; font-weight: 700; color: var(--gold); }
+    .verify-boost { font-size: 0.72rem; color: var(--teal); font-weight: 600; }
+
+    /* Actions */
+    .result-actions {
+      padding: 16px 32px; display: flex; gap: 8px;
+      border-top: 1px solid var(--border);
+    }
+    .result-actions .btn { flex: 1; }
+
+    /* ===================== DIRECTORY ===================== */
+    .dir-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 16px;
+    }
+    .dir-header h2 { font-family: 'Advercase'; font-size: 1.15rem; color: var(--cream); }
+    .dir-count {
+      font-family: 'Advercase'; font-size: 0.82rem; color: var(--text-dim);
+      background: var(--surface-2); padding: 4px 12px; border-radius: 100px;
+    }
+
+    .dir-list { display: flex; flex-direction: column; gap: 6px; }
+    .dir-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 16px 24px;
+      display: flex; justify-content: space-between; align-items: center;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .dir-item:hover {
+      border-color: var(--border-hover);
+      background: var(--surface-2);
+      transform: translateX(4px);
+    }
+    .dir-item-left { display: flex; align-items: center; gap: 16px; }
+    .dir-rank {
+      font-family: 'Advercase'; font-size: 0.85rem; color: var(--text-dim);
+      width: 28px; text-align: center;
+    }
+    .dir-name { font-family: 'Advercase'; font-size: 0.95rem; color: var(--cream); }
+    .dir-wallet { font-size: 0.68rem; color: var(--text-dim); margin-top: 2px; font-family: 'DM Sans', monospace; }
+    .dir-tags { display: flex; gap: 5px; margin-top: 5px; }
+    .dir-tag {
+      font-size: 0.58rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em;
+      padding: 2px 8px; border-radius: 4px; background: rgba(255,255,255,0.05); color: var(--text-dim);
+    }
+    .dir-tag-verified { background: var(--gold-dim); color: var(--gold); }
+    .dir-score {
+      font-family: 'Advercase'; font-size: 2rem; font-weight: 700;
+      background: linear-gradient(180deg, var(--cream) 30%, var(--cream-dim) 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .empty-state {
+      text-align: center; padding: 60px 20px; color: var(--text-dim); font-size: 0.88rem;
+    }
+
+    /* ===================== SERVICES ===================== */
+    .svc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+    .svc-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 20px;
+      transition: all 0.2s;
+    }
+    .svc-card:hover { border-color: var(--border-hover); }
+    .svc-name { font-family: 'Advercase'; color: var(--cream); font-size: 0.95rem; margin-bottom: 6px; }
+    .svc-desc { font-size: 0.78rem; color: var(--text-secondary); line-height: 1.5; margin-bottom: 14px; min-height: 36px; }
+    .svc-footer {
+      display: flex; justify-content: space-between; align-items: center;
+      padding-top: 12px; border-top: 1px solid var(--border);
+    }
+    .svc-cat { font-size: 0.62rem; font-weight: 600; padding: 3px 8px; background: rgba(255,255,255,0.05); border-radius: 4px; color: var(--text-dim); text-transform: uppercase; }
+    .svc-price { font-family: 'Advercase'; color: var(--teal); font-size: 0.88rem; }
+
+    /* ===================== CLI BLOCK ===================== */
+    .cli-block {
+      background: #000; border: 1px solid var(--border); border-radius: var(--radius-sm);
+      padding: 16px 20px; font-family: 'DM Sans', monospace; font-size: 0.78rem;
+      color: var(--teal); overflow-x: auto; margin-top: 12px; position: relative;
+    }
+    .cli-block::before {
+      content: '$ '; color: var(--text-dim);
+    }
+
+    /* ===================== MODAL ===================== */
+    .modal {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.85);
+      backdrop-filter: blur(8px);
+      z-index: 100; align-items: center; justify-content: center;
+    }
     .modal.show { display: flex; }
-    .modal-box { background: #111; border: 1px solid var(--border); border-radius: 12px; padding: 28px; max-width: 380px; width: 90%; text-align: center; }
-    .modal-box h3 { font-family: 'Advercase'; color: var(--gold); margin-bottom: 12px; }
-    .modal-box p { font-size: 0.8rem; color: var(--muted); margin-bottom: 12px; }
-    .modal-addr { background: #000; border: 1px solid var(--border); border-radius: 6px; padding: 12px; font-family: monospace; font-size: 0.65rem; color: var(--primary); word-break: break-all; margin-bottom: 12px; }
-    .modal-amt { font-family: 'Advercase'; font-size: 1.8rem; color: var(--gold); margin-bottom: 6px; }
-    .modal-btns { display: flex; gap: 8px; margin-top: 16px; }
+    .modal-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 36px;
+      max-width: 400px; width: 92%;
+      text-align: center;
+    }
+    .modal-box h3 { font-family: 'Advercase'; color: var(--gold); margin-bottom: 12px; font-size: 1.2rem; }
+    .modal-box p { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 16px; }
+    .modal-amt { font-family: 'Advercase'; font-size: 2.2rem; font-weight: 700; color: var(--gold); margin-bottom: 8px; }
+    .modal-addr {
+      background: #000; border: 1px solid var(--border); border-radius: var(--radius-sm);
+      padding: 14px; font-family: monospace; font-size: 0.68rem; color: var(--cream);
+      word-break: break-all; margin-bottom: 16px;
+    }
+    .modal-btns { display: flex; gap: 10px; margin-top: 20px; }
     .modal-btns .btn { flex: 1; }
-    .modal-status { margin-top: 12px; padding: 10px; border-radius: 6px; font-size: 0.8rem; display: none; }
+    .modal-status { margin-top: 14px; padding: 10px; border-radius: var(--radius-xs); font-size: 0.82rem; display: none; }
     .modal-status.show { display: block; }
-    .modal-status.checking { background: var(--secondary); }
-    .modal-status.success { background: #1a3020; color: var(--accent); }
-    .modal-status.error { background: #301a1a; color: #e07070; }
-    
-    pre { background: #000; padding: 14px; border-radius: 6px; font-size: 0.75rem; color: var(--accent); overflow-x: auto; margin-top: 10px; }
-    
-    @media (max-width: 600px) {
-      .input-row, .form-row { flex-direction: column; display: flex; }
-      .form-row { display: flex; flex-direction: column; }
-      .metric-grid, .info-row { grid-template-columns: 1fr 1fr; }
-      .dir-item { flex-direction: column; align-items: flex-start; gap: 8px; }
-      .dir-item .score { align-self: flex-end; }
-      .svc-grid { grid-template-columns: 1fr; }
-      .modal-btns { flex-direction: column; }
+    .modal-status.checking { background: rgba(20,241,149,0.06); color: var(--teal); }
+    .modal-status.success { background: rgba(20,241,149,0.1); color: var(--teal); }
+    .modal-status.error { background: rgba(255,107,107,0.08); color: var(--red); }
+
+    /* ===================== FOOTER ===================== */
+    .footer {
+      margin-top: 48px; padding: 24px 0;
+      border-top: 1px solid var(--border);
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .footer-left { font-size: 0.72rem; color: var(--text-dim); }
+    .footer-links { display: flex; gap: 6px; }
+    .footer-links a {
+      font-family: 'Advercase'; font-size: 0.72rem; color: var(--text-dim);
+      text-decoration: none; padding: 6px 12px; border-radius: 6px; transition: all 0.2s;
+    }
+    .footer-links a:hover { color: var(--text-secondary); background: rgba(255,255,255,0.04); }
+
+    /* ===================== RESPONSIVE ===================== */
+    @media (max-width: 768px) {
+      .header { padding: 0 20px; }
+      .main { padding: 20px 16px 60px; }
+      .result-top { grid-template-columns: 1fr; }
+      .result-score-hero { border-left: none; border-top: 1px solid var(--border); padding: 24px; }
+      .score-number { font-size: 3.5rem; }
+      .result-sub-scores { grid-template-columns: repeat(2, 1fr); }
+      .sub-score:nth-child(2) { border-right: none; }
+      .metric-grid { grid-template-columns: 1fr; }
+      .verify-row { flex-direction: column; text-align: center; }
+      .verify-info { flex-direction: column; }
+      .result-actions { flex-direction: column; }
+      .form-grid { grid-template-columns: 1fr; }
+      .input-group { flex-direction: column; }
+      .dir-item { padding: 14px 16px; }
+      .footer { flex-direction: column; gap: 12px; }
+      .result-identity { padding: 20px; }
+      .result-metrics { padding: 20px; }
+      .result-verify { padding: 20px; }
+      .result-actions { padding: 12px 20px; }
+      .header-tag { display: none; }
+    }
+
+    @media (max-width: 480px) {
+      .tabs { overflow-x: auto; width: 100%; }
+      .result-sub-scores { grid-template-columns: repeat(2, 1fr); }
     }
   </style>
 </head>
 <body>
+  <div class="page-bg"></div>
+
   <header class="header">
-    <a href="/"><img src="assets/logo.png" alt="FairScale"></a>
+    <div class="header-left">
+      <a href="/"><img src="assets/logo.png" alt="FairScale" class="header-logo"></a>
+      <span class="header-tag">Agent Registry</span>
+    </div>
     <nav>
       <a href="https://fairscale.xyz" target="_blank">Website</a>
       <a href="https://docs.fairscale.xyz" target="_blank">Docs</a>
+      <a href="https://twitter.com/fairscalexyz" target="_blank">Twitter</a>
     </nav>
   </header>
 
-  <div class="container">
+  <main class="main">
+    <!-- MODE TOGGLE -->
     <div class="mode-toggle">
       <button class="mode-btn active" data-mode="agent">I'm an Agent</button>
       <button class="mode-btn" data-mode="human">I'm a Human</button>
     </div>
 
-    <!-- AGENT MODE -->
+    <!-- ==================== AGENT MODE ==================== -->
     <div id="mode-agent" class="mode-content active">
       <div class="tabs">
-        <button class="tab active" data-tab="register">Register</button>
-        <button class="tab" data-tab="check">Check Score</button>
+        <button class="tab active" data-tab="check">Check Score</button>
+        <button class="tab" data-tab="register">Register</button>
         <button class="tab" data-tab="directory">Directory</button>
         <button class="tab" data-tab="services">x402 Services</button>
       </div>
 
-      <div id="tab-register" class="tab-content active">
+      <!-- CHECK SCORE -->
+      <div id="tab-check" class="tab-content active">
         <div class="card">
-          <h2>Register Your Agent</h2>
-          <p class="sub">Add your agent to the registry. Registration via CLI with signature verification is recommended for security.</p>
-          <pre>npx fairscale-register --wallet YOUR_WALLET --name "Agent Name"</pre>
-          <p class="sub" style="margin-top:16px;">Or register without verification (lower trust):</p>
-          <div class="input-row"><input type="text" id="regWallet" placeholder="Agent wallet address"></div>
-          <div class="form-row">
-            <div><label>Name</label><input type="text" id="regName" placeholder="My Agent"></div>
-            <div><label>Website</label><input type="text" id="regWebsite" placeholder="https://..."></div>
+          <div class="card-title">Check Agent Score</div>
+          <div class="card-sub">Enter a wallet address to analyze on-chain reputation, trust metrics, and scoring.</div>
+          <div class="input-group">
+            <input type="text" id="walletInput" placeholder="Solana wallet address...">
+            <button class="btn btn-primary" id="checkBtn">Score</button>
           </div>
-          <textarea id="regDesc" placeholder="What does your agent do?"></textarea>
-          <div class="form-row">
-            <div><label>MCP Endpoint</label><input type="text" id="regMcp" placeholder="https://mcp..."></div>
-            <div></div>
+          <div class="msg error" id="checkError"></div>
+          <div class="loading" id="loading"><div class="spinner"></div><span>Analyzing on-chain data...</span></div>
+        </div>
+        <div class="result" id="result"></div>
+      </div>
+
+      <!-- REGISTER -->
+      <div id="tab-register" class="tab-content">
+        <div class="card">
+          <div class="card-title">Register Your Agent</div>
+          <div class="card-sub">Add your agent to the FairScale trust directory. CLI registration with signature verification is recommended.</div>
+          <div class="cli-block">npx fairscale-register --wallet YOUR_WALLET --name "Agent Name"</div>
+          <div style="margin-top:20px; padding-top: 20px; border-top: 1px solid var(--border);">
+            <div class="card-sub" style="margin-bottom:12px; font-size: 0.82rem; color: var(--text-dim);">Or register via the web (lower trust tier):</div>
+            <div class="input-group"><input type="text" id="regWallet" placeholder="Agent wallet address"></div>
+            <div class="form-grid">
+              <div><div class="form-label">Name</div><input type="text" id="regName" placeholder="My Agent"></div>
+              <div><div class="form-label">Website</div><input type="text" id="regWebsite" placeholder="https://..."></div>
+            </div>
+            <textarea id="regDesc" placeholder="What does your agent do?"></textarea>
+            <div class="form-grid">
+              <div><div class="form-label">MCP Endpoint</div><input type="text" id="regMcp" placeholder="https://mcp..."></div>
+              <div></div>
+            </div>
+            <button class="btn btn-primary btn-block" id="registerBtn">Register Agent</button>
           </div>
-          <button class="btn btn-block" id="registerBtn">Register</button>
           <div class="msg error" id="regError"></div>
           <div class="msg success" id="regSuccess"></div>
         </div>
 
         <div class="card">
-          <h2>Register x402 Service</h2>
-          <p class="sub">Expose a paid API endpoint. Requires CLI with signature for security.</p>
-          <pre>npx fairscale-register service --wallet WALLET --url URL --name "Service" --price "$0.01"</pre>
+          <div class="card-title">Register x402 Service</div>
+          <div class="card-sub">Expose a paid API endpoint for agent-to-agent commerce.</div>
+          <div class="cli-block">npx fairscale-register service --wallet WALLET --url URL --name "Service" --price "$0.01"</div>
         </div>
       </div>
 
-      <div id="tab-check" class="tab-content">
-        <div class="card">
-          <h2>Check Agent Score</h2>
-          <div class="input-row">
-            <input type="text" id="walletInput" placeholder="Wallet address">
-            <button class="btn" id="checkBtn">Check</button>
-          </div>
-          <div class="msg error" id="checkError"></div>
-          <div class="loading" id="loading"><div class="spinner"></div><span>Analyzing...</span></div>
-        </div>
-        <div class="result" id="result"></div>
-      </div>
-
+      <!-- DIRECTORY -->
       <div id="tab-directory" class="tab-content">
-        <div class="card" style="padding:16px 20px;display:flex;justify-content:space-between;align-items:center;">
-          <h2 style="margin:0;">Registered Agents</h2>
-          <span style="color:var(--muted);font-size:0.8rem;" id="dirCount">0</span>
+        <div class="dir-header">
+          <h2>Registered Agents</h2>
+          <span class="dir-count" id="dirCount">0</span>
         </div>
-        <div class="dir-list" id="dirList"><div class="empty">No agents registered yet</div></div>
+        <div class="dir-list" id="dirList"><div class="empty-state">No agents registered yet</div></div>
       </div>
 
+      <!-- SERVICES -->
       <div id="tab-services" class="tab-content">
-        <div class="card" style="padding:16px 20px;display:flex;justify-content:space-between;align-items:center;">
-          <h2 style="margin:0;">x402 Services</h2>
-          <span style="color:var(--muted);font-size:0.8rem;" id="svcCount">0</span>
+        <div class="dir-header">
+          <h2>x402 Services</h2>
+          <span class="dir-count" id="svcCount">0</span>
         </div>
-        <div class="loading" id="svcLoading"><div class="spinner"></div><span>Loading...</span></div>
+        <div class="loading" id="svcLoading"><div class="spinner"></div><span>Loading services...</span></div>
         <div class="svc-grid" id="svcGrid"></div>
-        <div class="empty" id="svcEmpty" style="display:none;">No services registered. Use CLI to add yours.</div>
+        <div class="empty-state" id="svcEmpty" style="display:none;">No services registered yet. Use the CLI to add yours.</div>
       </div>
     </div>
 
-    <!-- HUMAN MODE -->
+    <!-- ==================== HUMAN MODE ==================== -->
     <div id="mode-human" class="mode-content">
       <div class="tabs">
         <button class="tab active" data-tab="h-check">Check Agent</button>
@@ -261,43 +598,49 @@
 
       <div id="tab-h-check" class="tab-content active">
         <div class="card">
-          <h2>Verify Agent Reputation</h2>
-          <p class="sub">Enter a wallet address to see on-chain behavior metrics and trust signals.</p>
-          <div class="input-row">
-            <input type="text" id="hWalletInput" placeholder="Agent wallet address">
-            <button class="btn" id="hCheckBtn">Check</button>
+          <div class="card-title">Verify Agent Reputation</div>
+          <div class="card-sub">Enter a wallet address to see on-chain behavior metrics and trust signals before interacting with any agent.</div>
+          <div class="input-group">
+            <input type="text" id="hWalletInput" placeholder="Agent wallet address...">
+            <button class="btn btn-primary" id="hCheckBtn">Verify</button>
           </div>
           <div class="msg error" id="hCheckError"></div>
-          <div class="loading" id="hLoading"><div class="spinner"></div><span>Fetching...</span></div>
+          <div class="loading" id="hLoading"><div class="spinner"></div><span>Fetching reputation data...</span></div>
         </div>
         <div class="result" id="hResult"></div>
       </div>
 
       <div id="tab-h-directory" class="tab-content">
-        <div class="card" style="padding:16px 20px;display:flex;justify-content:space-between;align-items:center;">
-          <h2 style="margin:0;">Agent Directory</h2>
-          <span style="color:var(--muted);font-size:0.8rem;" id="hDirCount">0</span>
+        <div class="dir-header">
+          <h2>Agent Directory</h2>
+          <span class="dir-count" id="hDirCount">0</span>
         </div>
-        <div class="dir-list" id="hDirList"><div class="empty">No agents found</div></div>
+        <div class="dir-list" id="hDirList"><div class="empty-state">No agents found</div></div>
       </div>
     </div>
 
+    <!-- FOOTER -->
     <footer class="footer">
-      <a href="https://fairscale.xyz">fairscale.xyz</a>
-      <a href="https://docs.fairscale.xyz">Docs</a>
-      <a href="https://twitter.com/fairscalexyz">Twitter</a>
+      <div class="footer-left">Built on Solana</div>
+      <div class="footer-links">
+        <a href="https://fairscale.xyz">fairscale.xyz</a>
+        <a href="https://docs.fairscale.xyz">Docs</a>
+        <a href="https://twitter.com/fairscalexyz">Twitter</a>
+      </div>
     </footer>
-  </div>
+  </main>
 
+  <!-- VERIFY MODAL -->
   <div class="modal" id="verifyModal" onclick="if(event.target===this)this.classList.remove('show')">
     <div class="modal-box">
       <h3>Verify Agent</h3>
-      <p>Send $5 USDC on Solana for +8 score boost</p>
+      <p>Send USDC on Solana to verify and boost your agent's trust score</p>
       <div class="modal-amt">$5 USDC</div>
       <div class="modal-addr">fairAUEuR1SCcHL254Vb3F3XpUWLruJ2a11f6QfANEN</div>
+      <div style="font-size:0.78rem; color: var(--teal); margin-bottom: 8px;">+8 Score Boost</div>
       <div class="modal-btns">
-        <button class="btn btn-secondary" onclick="navigator.clipboard.writeText('fairAUEuR1SCcHL254Vb3F3XpUWLruJ2a11f6QfANEN');alert('Copied!')">Copy</button>
-        <button class="btn btn-gold" onclick="verifyPayment()">Verify</button>
+        <button class="btn btn-secondary" onclick="navigator.clipboard.writeText('fairAUEuR1SCcHL254Vb3F3XpUWLruJ2a11f6QfANEN');this.textContent='Copied!';setTimeout(()=>this.textContent='Copy Address',1500)">Copy Address</button>
+        <button class="btn btn-gold" onclick="verifyPayment()">I've Paid</button>
       </div>
       <div class="modal-status" id="verifyStatus"></div>
     </div>
@@ -336,9 +679,9 @@
       const err = document.getElementById('regError');
       const ok = document.getElementById('regSuccess');
       err.classList.remove('show'); ok.classList.remove('show');
-      if (!w || w.length < 32) { err.textContent = 'Invalid wallet'; err.classList.add('show'); return; }
+      if (!w || w.length < 32) { err.textContent = 'Please enter a valid wallet address'; err.classList.add('show'); return; }
       const btn = document.getElementById('registerBtn');
-      btn.disabled = true;
+      btn.disabled = true; btn.textContent = 'Registering...';
       try {
         const r = await fetch(`${API}/register`, {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -351,20 +694,22 @@
           })
         });
         const d = await r.json();
-        if (d.success) { ok.innerHTML = `✓ Registered. Score: <b>${d.agent?.agent_fairscore || '—'}</b>`; ok.classList.add('show'); }
-        else { err.textContent = d.error || 'Failed'; err.classList.add('show'); }
-      } catch (e) { err.textContent = 'Network error'; err.classList.add('show'); }
-      btn.disabled = false;
+        if (d.success) {
+          ok.innerHTML = `Agent registered with score <strong>${d.agent?.agent_fairscore || '—'}</strong>`;
+          ok.classList.add('show');
+        } else { err.textContent = d.error || 'Registration failed'; err.classList.add('show'); }
+      } catch (e) { err.textContent = 'Network error — check connection'; err.classList.add('show'); }
+      btn.disabled = false; btn.textContent = 'Register Agent';
     };
 
-    // Check
+    // Check score
     async function check(wId, eId, lId, rId) {
       const w = document.getElementById(wId).value.trim();
       const err = document.getElementById(eId);
       const ld = document.getElementById(lId);
       const res = document.getElementById(rId);
       err.classList.remove('show'); res.classList.remove('show');
-      if (!w || w.length < 32) { err.textContent = 'Invalid wallet'; err.classList.add('show'); return; }
+      if (!w || w.length < 32) { err.textContent = 'Please enter a valid wallet address'; err.classList.add('show'); return; }
       ld.classList.add('show');
       try {
         const r = await fetch(`${API}/score?wallet=${encodeURIComponent(w)}`);
@@ -382,54 +727,98 @@
     document.getElementById('walletInput').onkeypress = e => e.key === 'Enter' && check('walletInput', 'checkError', 'loading', 'result');
     document.getElementById('hWalletInput').onkeypress = e => e.key === 'Enter' && check('hWalletInput', 'hCheckError', 'hLoading', 'hResult');
 
+    function getColor(val) {
+      if (val >= 70) return 'var(--teal)';
+      if (val >= 40) return 'var(--cream)';
+      return 'var(--text-dim)';
+    }
+
     function render(d, el) {
       const s = d.agent_fairscore || 0;
-      const tier = s >= 70 ? 'gold' : s >= 40 ? 'silver' : 'bronze';
+      const tierClass = s >= 70 ? 'tier-gold' : s >= 40 ? 'tier-silver' : 'tier-bronze';
+      const tierLabel = s >= 70 ? 'Gold' : s >= 40 ? 'Silver' : 'Bronze';
       const f = d.features || {};
       const desc = d.descriptions || {};
 
       el.innerHTML = `
-        <div class="result-header">
-          <div class="result-name">${d.name || 'Agent ' + d.wallet.slice(0, 8) + '...'}</div>
-          <div class="result-wallet">${d.wallet}</div>
-          ${d.description ? `<div class="result-desc">${d.description}</div>` : ''}
-          ${d.website ? `<a class="result-link" href="${d.website}" target="_blank">${d.website.replace(/^https?:\/\//, '')}</a>` : ''}
-        </div>
-        <div class="score-hero">
-          <div class="value">${s}</div>
-          <div class="label">Agent FairScore</div>
-          <div class="tier ${tier}">${tier}</div>
-        </div>
-        <div class="info-row">
-          <div class="info-box hl"><div class="k">SAID</div><div class="v">${d.said?.score ?? '—'}</div></div>
-          <div class="info-box"><div class="k">Trust</div><div class="v">${d.said?.trustTier || '—'}</div></div>
-          <div class="info-box"><div class="k">Attest</div><div class="v">${d.said?.feedbackCount || 0}</div></div>
-          <div class="info-box"><div class="k">Base</div><div class="v">${d.fairscore_base || '—'}</div></div>
-        </div>
-        <div class="metrics">
-          <h4>Trust Metrics</h4>
-          <div class="metric-grid">
-            ${['activity', 'holdings', 'reliability', 'history'].map(k => `
-              <div class="metric">
-                <div class="metric-top"><span class="lbl">${k.charAt(0).toUpperCase() + k.slice(1)}</span><span class="val">${f[k] || 0}</span></div>
-                <div class="metric-bar"><div class="metric-bar-fill" style="width:${f[k] || 0}%"></div></div>
-                <div class="desc">${desc[k] || ''}</div>
+        <div class="result-card">
+          <div class="result-top">
+            <div class="result-identity">
+              <div class="result-name">${d.name || 'Agent ' + d.wallet.slice(0, 8) + '...'}</div>
+              <div class="result-wallet">${d.wallet}</div>
+              ${d.description ? `<div class="result-desc">${d.description}</div>` : ''}
+              ${d.website ? `<a class="result-link" href="${d.website}" target="_blank">${d.website.replace(/^https?:\/\//, '')}</a>` : ''}
+              <div class="result-badges">
+                ${d.isRegistered ? '<span class="badge badge-registered">Registered</span>' : ''}
+                ${d.isVerified ? '<span class="badge badge-verified">Verified</span>' : ''}
               </div>
-            `).join('')}
+            </div>
+            <div class="result-score-hero">
+              <div class="score-number">${s}</div>
+              <div class="score-label">Agent FairScore</div>
+              <div class="score-tier ${tierClass}">${tierLabel}</div>
+            </div>
           </div>
-        </div>
-        ${!d.isVerified ? `
-        <div class="verify-cta">
-          <div class="verify-box">
-            <h4>Boost Your Score</h4>
-            <p>Pay to verify and increase visibility</p>
-            <div class="price">$5 USDC</div>
-            <div class="boost">+8 Score Boost</div>
-            <button class="btn btn-gold" onclick="document.getElementById('verifyModal').classList.add('show')">Verify</button>
+
+          <div class="result-sub-scores">
+            <div class="sub-score sub-score-hl">
+              <div class="sub-score-label">SAID Score</div>
+              <div class="sub-score-value">${d.said?.score ?? '—'}</div>
+            </div>
+            <div class="sub-score">
+              <div class="sub-score-label">Trust Tier</div>
+              <div class="sub-score-value">${d.said?.trustTier || '—'}</div>
+            </div>
+            <div class="sub-score">
+              <div class="sub-score-label">Attestations</div>
+              <div class="sub-score-value">${d.said?.feedbackCount || 0}</div>
+            </div>
+            <div class="sub-score">
+              <div class="sub-score-label">Base Score</div>
+              <div class="sub-score-value">${d.fairscore_base || '—'}</div>
+            </div>
           </div>
-        </div>` : ''}
-        <div class="actions">
-          <button class="btn btn-secondary" onclick="window.open('https://solscan.io/account/${d.wallet}','_blank')">Solscan</button>
+
+          <div class="result-metrics">
+            <div class="metrics-title">Trust Metrics</div>
+            <div class="metric-grid">
+              ${['activity', 'holdings', 'reliability', 'history'].map(k => `
+                <div class="metric-card">
+                  <div class="metric-head">
+                    <span class="metric-label">${k}</span>
+                    <span class="metric-value" style="color:${getColor(f[k] || 0)}">${f[k] || 0}</span>
+                  </div>
+                  <div class="metric-bar"><div class="metric-bar-fill" style="width:${f[k] || 0}%"></div></div>
+                  <div class="metric-desc">${desc[k] || ''}</div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+
+          ${!d.isVerified ? `
+          <div class="result-verify">
+            <div class="verify-row">
+              <div class="verify-info">
+                <div class="verify-icon">⚡</div>
+                <div class="verify-text">
+                  <h4>Boost Your Score</h4>
+                  <p>Verify with USDC for increased trust and visibility</p>
+                </div>
+              </div>
+              <div class="verify-right">
+                <div>
+                  <div class="verify-price">$5</div>
+                  <div class="verify-boost">+8 boost</div>
+                </div>
+                <button class="btn btn-gold" onclick="document.getElementById('verifyModal').classList.add('show')">Verify</button>
+              </div>
+            </div>
+          </div>` : ''}
+
+          <div class="result-actions">
+            <button class="btn btn-secondary" onclick="window.open('https://solscan.io/account/${d.wallet}','_blank')">View on Solscan</button>
+            <button class="btn btn-secondary" onclick="navigator.clipboard.writeText(window.location.origin+'?wallet=${d.wallet}');this.textContent='Link Copied!';setTimeout(()=>this.textContent='Share',1500)">Share</button>
+          </div>
         </div>
       `;
     }
@@ -443,20 +832,20 @@
         document.getElementById('hDirCount').textContent = agents.length;
         const html = agents.length ? agents.map((a, i) => `
           <div class="dir-item" onclick="quickCheck('${a.wallet}')">
-            <div class="info">
-              <div class="rank">${i + 1}</div>
+            <div class="dir-item-left">
+              <div class="dir-rank">${i + 1}</div>
               <div>
-                <div class="name">${a.name}</div>
-                <div class="wallet">${a.wallet.slice(0, 6)}...${a.wallet.slice(-4)}</div>
-                <div class="tags">
-                  ${a.isVerified ? '<span class="tag v">Verified</span>' : ''}
-                  ${a.services > 0 ? `<span class="tag">${a.services} service${a.services > 1 ? 's' : ''}</span>` : ''}
+                <div class="dir-name">${a.name}</div>
+                <div class="dir-wallet">${a.wallet.slice(0, 6)}...${a.wallet.slice(-4)}</div>
+                <div class="dir-tags">
+                  ${a.isVerified ? '<span class="dir-tag dir-tag-verified">Verified</span>' : ''}
+                  ${a.services > 0 ? `<span class="dir-tag">${a.services} service${a.services > 1 ? 's' : ''}</span>` : ''}
                 </div>
               </div>
             </div>
-            <div class="score">${a.agent_fairscore}</div>
+            <div class="dir-score">${a.agent_fairscore}</div>
           </div>
-        `).join('') : '<div class="empty">No agents registered</div>';
+        `).join('') : '<div class="empty-state">No agents registered yet</div>';
         document.getElementById('dirList').innerHTML = html;
         document.getElementById('hDirList').innerHTML = html;
       } catch (e) { console.error(e); }
@@ -483,25 +872,25 @@
         if (svcs.length) {
           grid.innerHTML = svcs.map(s => `
             <div class="svc-card">
-              <div class="name">${s.name}</div>
-              <div class="desc">${s.description || 'x402 endpoint'}</div>
-              <div class="meta">
-                <span class="cat">${s.category}</span>
-                <span class="price">${s.price}</span>
+              <div class="svc-name">${s.name}</div>
+              <div class="svc-desc">${s.description || 'x402 endpoint'}</div>
+              <div class="svc-footer">
+                <span class="svc-cat">${s.category}</span>
+                <span class="svc-price">${s.price}</span>
               </div>
             </div>
           `).join('');
         } else {
           empty.style.display = 'block';
         }
-      } catch (e) { empty.style.display = 'block'; empty.textContent = 'Failed to load'; }
+      } catch (e) { empty.style.display = 'block'; empty.textContent = 'Failed to load services'; }
       ld.classList.remove('show');
     }
 
     async function verifyPayment() {
       if (!current) return;
       const st = document.getElementById('verifyStatus');
-      st.className = 'modal-status show checking'; st.textContent = 'Checking...';
+      st.className = 'modal-status show checking'; st.textContent = 'Checking for payment...';
       try {
         const r = await fetch(`${API}/verify`, {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -509,18 +898,26 @@
         });
         const d = await r.json();
         if (d.success) {
-          st.className = 'modal-status show success'; st.textContent = '✓ Verified!';
-          setTimeout(() => { document.getElementById('verifyModal').classList.remove('show'); check('walletInput', 'checkError', 'loading', 'result'); }, 1200);
+          st.className = 'modal-status show success'; st.textContent = 'Verified! Score boosted.';
+          setTimeout(() => {
+            document.getElementById('verifyModal').classList.remove('show');
+            check('walletInput', 'checkError', 'loading', 'result');
+          }, 1500);
         } else {
-          st.className = 'modal-status show error'; st.textContent = d.error || 'Not found';
+          st.className = 'modal-status show error'; st.textContent = d.error || 'Payment not found';
         }
-      } catch (e) { st.className = 'modal-status show error'; st.textContent = 'Error'; }
+      } catch (e) { st.className = 'modal-status show error'; st.textContent = 'Verification error'; }
     }
 
     document.addEventListener('keydown', e => { if (e.key === 'Escape') document.getElementById('verifyModal').classList.remove('show'); });
 
+    // URL param handling
     const p = new URLSearchParams(location.search);
-    if (p.get('wallet')) { document.getElementById('walletInput').value = p.get('wallet'); document.querySelector('[data-tab="check"]')?.click(); setTimeout(() => check('walletInput', 'checkError', 'loading', 'result'), 100); }
+    if (p.get('wallet')) {
+      document.getElementById('walletInput').value = p.get('wallet');
+      document.querySelector('[data-tab="check"]')?.click();
+      setTimeout(() => check('walletInput', 'checkError', 'loading', 'result'), 200);
+    }
 
     loadDir();
   </script>
