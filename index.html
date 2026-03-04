@@ -478,8 +478,8 @@
         p.querySelectorAll('.tab-content').forEach(x => x.classList.remove('active'));
         t.classList.add('active');
         p.querySelector('#tab-' + t.dataset.tab).classList.add('active');
-        if (t.dataset.tab === 'directory') { dirPage = 1; loadDir(); }
-        if (t.dataset.tab === 'h-directory') { hDirPage = 1; loadDir('h'); }
+        if (t.dataset.tab === 'directory') { dirPage = 1; loadDir(false); }
+        if (t.dataset.tab === 'h-directory') { hDirPage = 1; loadDir(true); }
         if (t.dataset.tab === 'leaderboard') loadLB('lbTabs', 'lbList');
         if (t.dataset.tab === 'h-leaderboard') loadLB('hLbTabs', 'hLbList');
       };
@@ -640,40 +640,44 @@
 
     // Directory
     let dirDebounce = null;
-    function setupDirControls(prefix) {
-      const searchEl = document.getElementById(prefix + 'DirSearch');
-      const sourceEl = document.getElementById(prefix + 'DirSource');
-      const sortEl = document.getElementById(prefix + 'DirSort');
-      const recEl = document.getElementById(prefix + 'DirRec');
-      const handler = () => {
-        if (prefix === 'h') hDirPage = 1; else dirPage = 1;
-        clearTimeout(dirDebounce);
-        dirDebounce = setTimeout(() => loadDir(prefix === 'h' ? 'h' : ''), 300);
-      };
-      searchEl.oninput = handler;
-      sourceEl.onchange = handler;
-      sortEl.onchange = handler;
-      recEl.onchange = handler;
-    }
-    setupDirControls('');
-    setupDirControls('h');
 
-    async function loadDir(prefix = '') {
-      const p = prefix === 'h' ? 'h' : '';
-      const page = p === 'h' ? hDirPage : dirPage;
-      const search = document.getElementById(p + (p ? 'D' : 'd') + 'irSearch').value.trim();
-      const source = document.getElementById(p + (p ? 'D' : 'd') + 'irSource').value;
-      const sort = document.getElementById(p + (p ? 'D' : 'd') + 'irSort').value;
-      const rec = document.getElementById(p + (p ? 'D' : 'd') + 'irRec').value;
+    // Agent mode filter IDs: dirSearch, dirSource, dirSort, dirRec
+    // Human mode filter IDs: hDirSearch, hDirSource, hDirSort, hDirRec
+    function setupDirControls(isHuman) {
+      const pre = isHuman ? 'hDir' : 'dir';
+      const searchEl = document.getElementById(pre + 'Search');
+      const sourceEl = document.getElementById(pre + 'Source');
+      const sortEl = document.getElementById(pre + 'Sort');
+      const recEl = document.getElementById(pre + 'Rec');
+      const handler = () => {
+        if (isHuman) hDirPage = 1; else dirPage = 1;
+        clearTimeout(dirDebounce);
+        dirDebounce = setTimeout(() => loadDir(isHuman), 300);
+      };
+      if (searchEl) searchEl.oninput = handler;
+      if (sourceEl) sourceEl.onchange = handler;
+      if (sortEl) sortEl.onchange = handler;
+      if (recEl) recEl.onchange = handler;
+    }
+    setupDirControls(false);
+    setupDirControls(true);
+
+    async function loadDir(isHuman = false) {
+      const pre = isHuman ? 'hDir' : 'dir';
+      const page = isHuman ? hDirPage : dirPage;
+      const search = (document.getElementById(pre + 'Search')?.value || '').trim();
+      const source = document.getElementById(pre + 'Source')?.value || '';
+      const sort = document.getElementById(pre + 'Sort')?.value || 'agent_fairscore';
+      const rec = document.getElementById(pre + 'Rec')?.value || '';
       
       const params = new URLSearchParams({ page, limit: 25, sort });
       if (search) params.set('search', search);
       if (source) params.set('source', source);
       if (rec) params.set('recommendation', rec);
 
-      const listEl = document.getElementById(p ? 'hDirList' : 'dirList');
-      const countEl = document.getElementById(p ? 'hDirCount' : 'dirCount');
-      const pagEl = document.getElementById(p ? 'hDirPagination' : 'dirPagination');
+      const listEl = document.getElementById(isHuman ? 'hDirList' : 'dirList');
+      const countEl = document.getElementById(isHuman ? 'hDirCount' : 'dirCount');
+      const pagEl = document.getElementById(isHuman ? 'hDirPagination' : 'dirPagination');
       
       try {
         const r = await fetch(`${API}/directory?${params}`);
@@ -697,7 +701,7 @@
               recLabel ? `<span class="tag rec rec-${recColor}">${recLabel}</span>` : '',
             ].filter(Boolean).join('');
 
-            const subscore = sort !== 'agent_fairscore' ? `<div class="subscore">${sort}: ${a.features?.[sort] || '—'}</div>` : '';
+            const subscore = sort !== 'agent_fairscore' ? `<div class="subscore">${sort.replace(/_/g, ' ')}: ${a.features?.[sort] || '—'}</div>` : '';
 
             return `
               <div class="dir-item" onclick="quickCheck('${a.wallet}')">
@@ -722,10 +726,11 @@
 
         // Pagination
         if (d.totalPages > 1) {
+          const hStr = isHuman ? 'true' : 'false';
           pagEl.innerHTML = `
-            <button class="btn btn-secondary btn-sm" ${page <= 1 ? 'disabled' : ''} onclick="${p === 'h' ? 'hDirPage' : 'dirPage'}--;loadDir('${prefix}')">← Prev</button>
+            <button class="btn btn-secondary btn-sm" ${page <= 1 ? 'disabled' : ''} onclick="${isHuman ? 'hDirPage' : 'dirPage'}--;loadDir(${hStr})">← Prev</button>
             <span class="page-info">Page ${page} of ${d.totalPages}</span>
-            <button class="btn btn-secondary btn-sm" ${page >= d.totalPages ? 'disabled' : ''} onclick="${p === 'h' ? 'hDirPage' : 'dirPage'}++;loadDir('${prefix}')">Next →</button>
+            <button class="btn btn-secondary btn-sm" ${page >= d.totalPages ? 'disabled' : ''} onclick="${isHuman ? 'hDirPage' : 'dirPage'}++;loadDir(${hStr})">Next →</button>
           `;
         } else {
           pagEl.innerHTML = '';
@@ -822,7 +827,7 @@
     }
 
     // Initial load
-    loadDir();
+    loadDir(false);
   </script>
 </body>
 </html>
