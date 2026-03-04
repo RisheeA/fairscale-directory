@@ -149,6 +149,8 @@
     .metric-bar-fill.social { background: linear-gradient(90deg, #cf6679, #e8889a); }
     .weight { font-size: 0.65rem; color: var(--muted); font-weight: 400; }
     .pct { font-size: 0.65rem; color: var(--accent); font-weight: 400; }
+    .metric.inactive { opacity: 0.45; }
+    .metric.inactive .desc { font-style: italic; }
     .percentile-badge { margin-top: 6px; font-size: 0.75rem; color: var(--accent); background: rgba(212,168,83,0.12); border: 1px solid rgba(212,168,83,0.25); border-radius: 12px; padding: 2px 10px; display: inline-block; }
     .red-flags { background: rgba(220,50,50,0.08); border: 1px solid rgba(220,50,50,0.2); border-radius: 8px; padding: 10px 14px; margin: 12px 0; }
     .red-flags h4 { margin: 0 0 6px; font-size: 0.8rem; color: #dc3232; }
@@ -642,25 +644,31 @@
           <h4>Trust Pillars</h4>
           <div class="metric-grid">
             ${[
-              { key: 'verification', label: 'Verification', cls: 'verification', weight: '25%' },
-              { key: 'reliability', label: 'Reliability', cls: 'reliability', weight: '25%' },
-              { key: 'social', label: 'Social & Rep', cls: 'social', weight: '15%' },
-              { key: 'track_record', label: 'Track Record', cls: 'track_record', weight: '15%' },
-              { key: 'economic_stake', label: 'Economic Stake', cls: 'economic_stake', weight: '10%' },
-              { key: 'ecosystem', label: 'Ecosystem', cls: 'ecosystem', weight: '10%' }
-            ].map(m => `
-              <div class="metric">
+              { key: 'verification', label: 'Verification', cls: 'verification', defaultWeight: 25 },
+              { key: 'reliability', label: 'Reliability', cls: 'reliability', defaultWeight: 25 },
+              { key: 'social', label: 'Social & Rep', cls: 'social', defaultWeight: 15 },
+              { key: 'track_record', label: 'Track Record', cls: 'track_record', defaultWeight: 15 },
+              { key: 'economic_stake', label: 'Economic Stake', cls: 'economic_stake', defaultWeight: 10 },
+              { key: 'ecosystem', label: 'Ecosystem', cls: 'ecosystem', defaultWeight: 10 }
+            ].map(m => {
+              const w = bd.weights_used ? Math.round((bd.weights_used[m.key] || 0) * 100) : m.defaultWeight;
+              const inactive = w === 0;
+              return `
+              <div class="metric${inactive ? ' inactive' : ''}">
                 <div class="metric-top">
-                  <span class="lbl">${m.label} <span class="weight">(${m.weight})</span></span>
+                  <span class="lbl">${m.label} <span class="weight">(${w}%${inactive ? ' — no data' : ''})</span></span>
                   <span class="val">${f[m.key] || 0}${pct?.[m.key] != null ? ` <span class="pct">top ${100 - pct[m.key]}%</span>` : ''}</span>
                 </div>
-                <div class="metric-bar"><div class="metric-bar-fill ${m.cls}" style="width:${f[m.key] || 0}%"></div></div>
-                <div class="desc">${desc[m.key] || ''}</div>
+                <div class="metric-bar"><div class="metric-bar-fill ${m.cls}" style="width:${inactive ? 0 : (f[m.key] || 0)}%"></div></div>
+                <div class="desc">${inactive ? 'No social data linked — weight redistributed' : (desc[m.key] || '')}</div>
               </div>
-            `).join('')}
+            `}).join('')}
           </div>
         </div>
-        ${d.badges?.length ? `<div class="badges-section"><h4>Badges</h4><div class="badge-pills">${d.badges.map(b => `<span class="badge-pill">${typeof b === 'string' ? b : b.name || b.type || 'Badge'}</span>`).join('')}</div></div>` : ''}
+        ${d.badges?.length ? `<div class="badges-section"><h4>Badges</h4><div class="badge-pills">${d.badges.map(b => {
+          const name = typeof b === 'string' ? b : (b?.name || b?.type || b?.label || b?.badge || b?.title || JSON.stringify(b));
+          return `<span class="badge-pill">${name}</span>`;
+        }).join('')}</div></div>` : ''}
         ${!d.isVerified ? `
         <div class="verify-cta">
           <div class="verify-box">
