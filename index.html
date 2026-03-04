@@ -136,10 +136,10 @@
     .metric .val { font-family: 'Advercase'; font-size: 1.4rem; font-weight: 700; }
     .metric-bar { height: 3px; background: var(--border); border-radius: 2px; margin: 8px 0 6px; overflow: hidden; }
     .metric-bar-fill { height: 100%; border-radius: 2px; transition: width 0.4s; }
-    .metric-bar-fill.activity { background: linear-gradient(90deg, #4a9079, #6ab899); }
-    .metric-bar-fill.holdings { background: linear-gradient(90deg, #6478dc, #8090dd); }
-    .metric-bar-fill.reliability { background: linear-gradient(90deg, #9b6abc, #b88ad4); }
-    .metric-bar-fill.history { background: linear-gradient(90deg, var(--primary), #f0e0d0); }
+    .metric-bar-fill.reliability { background: linear-gradient(90deg, #4a9079, #6ab899); }
+    .metric-bar-fill.track_record { background: linear-gradient(90deg, #6478dc, #8090dd); }
+    .metric-bar-fill.economic_stake { background: linear-gradient(90deg, #d4a853, #e8c870); }
+    .metric-bar-fill.ecosystem { background: linear-gradient(90deg, #9b6abc, #b88ad4); }
     .metric .desc { font-size: 0.7rem; color: var(--dim); line-height: 1.4; }
     
     .verify-cta { padding: 20px 24px; background: linear-gradient(135deg, #1a1508, #101418); border-top: 1px solid var(--border); }
@@ -205,10 +205,10 @@
     .lb-item .lb-rank.top3 { color: #cd7f32; }
     .lb-item .lb-name { flex: 1; font-size: 0.85rem; color: var(--text); }
     .lb-item .lb-val { font-family: 'Advercase'; font-size: 1.2rem; font-weight: 700; }
-    .lb-item .lb-val.activity { color: #6ab899; }
-    .lb-item .lb-val.holdings { color: #8090dd; }
-    .lb-item .lb-val.reliability { color: #b88ad4; }
-    .lb-item .lb-val.history { color: var(--primary); }
+    .lb-item .lb-val.reliability { color: #6ab899; }
+    .lb-item .lb-val.track_record { color: #8090dd; }
+    .lb-item .lb-val.economic_stake { color: #e8c870; }
+    .lb-item .lb-val.ecosystem { color: #b88ad4; }
     .lb-item .lb-val.agent_fairscore { color: var(--accent); }
     
     .tab-content { display: none; }
@@ -274,7 +274,6 @@
         <button class="tab" data-tab="register">Register</button>
         <button class="tab" data-tab="directory">Directory</button>
         <button class="tab" data-tab="leaderboard">Leaderboards</button>
-        <button class="tab" data-tab="services">x402 Services</button>
       </div>
 
       <div id="tab-check" class="tab-content active">
@@ -311,12 +310,6 @@
           <div class="msg error" id="regError"></div>
           <div class="msg success" id="regSuccess"></div>
         </div>
-
-        <div class="card">
-          <h2>Register x402 Service</h2>
-          <p class="sub">Expose a paid API endpoint. Requires CLI with signature for security.</p>
-          <pre>npx fairscale-register service --wallet WALLET --url URL --name "Service" --price "$0.01"</pre>
-        </div>
       </div>
 
       <div id="tab-directory" class="tab-content">
@@ -336,10 +329,10 @@
             </select>
             <select id="dirSort">
               <option value="agent_fairscore">FairScore</option>
-              <option value="activity">Activity</option>
-              <option value="holdings">Holdings</option>
               <option value="reliability">Reliability</option>
-              <option value="history">History</option>
+              <option value="track_record">Track Record</option>
+              <option value="economic_stake">Economic Stake</option>
+              <option value="ecosystem">Ecosystem</option>
             </select>
             <select id="dirRec">
               <option value="">All Tiers</option>
@@ -360,24 +353,15 @@
           <h2 style="margin:0 0 12px;">Leaderboards</h2>
           <div class="lb-tabs" id="lbTabs">
             <button class="lb-tab active" data-metric="agent_fairscore">FairScore</button>
-            <button class="lb-tab" data-metric="activity">Activity</button>
-            <button class="lb-tab" data-metric="holdings">Holdings</button>
             <button class="lb-tab" data-metric="reliability">Reliability</button>
-            <button class="lb-tab" data-metric="history">History</button>
+            <button class="lb-tab" data-metric="track_record">Track Record</button>
+            <button class="lb-tab" data-metric="economic_stake">Economic Stake</button>
+            <button class="lb-tab" data-metric="ecosystem">Ecosystem</button>
           </div>
           <div id="lbList"></div>
         </div>
       </div>
 
-      <div id="tab-services" class="tab-content">
-        <div class="card" style="padding:16px 20px;display:flex;justify-content:space-between;align-items:center;">
-          <h2 style="margin:0;">x402 Services</h2>
-          <span style="color:var(--muted);font-size:0.8rem;" id="svcCount">0</span>
-        </div>
-        <div class="loading" id="svcLoading"><div class="spinner"></div><span>Loading...</span></div>
-        <div class="svc-grid" id="svcGrid"></div>
-        <div class="empty" id="svcEmpty" style="display:none;">No services registered. Use CLI to add yours.</div>
-      </div>
     </div>
 
     <!-- HUMAN MODE -->
@@ -418,10 +402,10 @@
             </select>
             <select id="hDirSort">
               <option value="agent_fairscore">FairScore</option>
-              <option value="activity">Activity</option>
-              <option value="holdings">Holdings</option>
               <option value="reliability">Reliability</option>
-              <option value="history">History</option>
+              <option value="track_record">Track Record</option>
+              <option value="economic_stake">Economic Stake</option>
+              <option value="ecosystem">Ecosystem</option>
             </select>
             <select id="hDirRec">
               <option value="">All Tiers</option>
@@ -439,10 +423,10 @@
           <h2 style="margin:0 0 12px;">Leaderboards</h2>
           <div class="lb-tabs" id="hLbTabs">
             <button class="lb-tab active" data-metric="agent_fairscore">FairScore</button>
-            <button class="lb-tab" data-metric="activity">Activity</button>
-            <button class="lb-tab" data-metric="holdings">Holdings</button>
             <button class="lb-tab" data-metric="reliability">Reliability</button>
-            <button class="lb-tab" data-metric="history">History</button>
+            <button class="lb-tab" data-metric="track_record">Track Record</button>
+            <button class="lb-tab" data-metric="economic_stake">Economic Stake</button>
+            <button class="lb-tab" data-metric="ecosystem">Ecosystem</button>
           </div>
           <div id="hLbList"></div>
         </div>
@@ -498,7 +482,6 @@
         if (t.dataset.tab === 'h-directory') { hDirPage = 1; loadDir('h'); }
         if (t.dataset.tab === 'leaderboard') loadLB('lbTabs', 'lbList');
         if (t.dataset.tab === 'h-leaderboard') loadLB('hLbTabs', 'hLbList');
-        if (t.dataset.tab === 'services') loadSvc();
       };
     });
 
@@ -579,7 +562,7 @@
       if (d.isVerified) boosts.push({ label: 'Verified +5', gold: true });
       if (d.isRegistered) boosts.push({ label: 'Registered +2', gold: false });
       if (d.said?.score > 0) boosts.push({ label: `SAID Rep +${Math.min((d.said?.feedbackCount || 0) * 3, 12)}`, gold: false });
-      if (d.said?.trustTier === 'high') boosts.push({ label: 'Trust +4', gold: false });
+      if (d.said?.trustTier === 'high') boosts.push({ label: 'High Trust +4', gold: false });
       if (!boosts.length) return '';
       return `<div class="boosts-section"><h4>Score Boosts</h4><div class="boost-pills">${boosts.map(b => `<span class="boost-pill${b.gold ? ' gold' : ''}">${b.label}</span>`).join('')}</div></div>`;
     }
@@ -625,11 +608,16 @@
         <div class="metrics">
           <h4>Trust Metrics</h4>
           <div class="metric-grid">
-            ${['activity', 'holdings', 'reliability', 'history'].map(k => `
+            ${[
+              { key: 'reliability', label: 'Reliability', cls: 'reliability' },
+              { key: 'track_record', label: 'Track Record', cls: 'track_record' },
+              { key: 'economic_stake', label: 'Economic Stake', cls: 'economic_stake' },
+              { key: 'ecosystem', label: 'Ecosystem', cls: 'ecosystem' }
+            ].map(m => `
               <div class="metric">
-                <div class="metric-top"><span class="lbl">${k.charAt(0).toUpperCase() + k.slice(1)}</span><span class="val">${f[k] || 0}</span></div>
-                <div class="metric-bar"><div class="metric-bar-fill ${k}" style="width:${f[k] || 0}%"></div></div>
-                <div class="desc">${desc[k] || ''}</div>
+                <div class="metric-top"><span class="lbl">${m.label}</span><span class="val">${f[m.key] || 0}</span></div>
+                <div class="metric-bar"><div class="metric-bar-fill ${m.cls}" style="width:${f[m.key] || 0}%"></div></div>
+                <div class="desc">${desc[m.key] || ''}</div>
               </div>
             `).join('')}
           </div>
@@ -803,35 +791,6 @@
         };
       });
     });
-
-    // Services
-    async function loadSvc() {
-      const grid = document.getElementById('svcGrid');
-      const ld = document.getElementById('svcLoading');
-      const empty = document.getElementById('svcEmpty');
-      ld.classList.add('show'); grid.innerHTML = ''; empty.style.display = 'none';
-      try {
-        const r = await fetch(`${API}/services`);
-        const d = await r.json();
-        const svcs = d.services || [];
-        document.getElementById('svcCount').textContent = svcs.length;
-        if (svcs.length) {
-          grid.innerHTML = svcs.map(s => `
-            <div class="svc-card">
-              <div class="name">${s.name}</div>
-              <div class="desc">${s.description || 'x402 endpoint'}</div>
-              <div class="meta">
-                <span class="cat">${s.category}</span>
-                <span class="price">${s.price}</span>
-              </div>
-            </div>
-          `).join('');
-        } else {
-          empty.style.display = 'block';
-        }
-      } catch (e) { empty.style.display = 'block'; empty.textContent = 'Failed to load'; }
-      ld.classList.remove('show');
-    }
 
     // Verify
     async function verifyPayment() {
