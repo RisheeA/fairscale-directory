@@ -3,525 +3,257 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FairScale — The Trust Layer for Solana Agents</title>
-  <link rel="icon" type="image/png" href="assets/icon.png">
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap" rel="stylesheet">
+  <title>FairScale Agent Registry</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
-    @font-face { font-family: 'Advercase'; src: url('assets/Advercase-Regular.ttf') format('truetype'); font-weight: 400; }
+    @font-face { font-family: 'Advercase'; src: url('assets/Advercase-Regular.ttf') format('truetype'); }
     @font-face { font-family: 'Advercase'; src: url('assets/Advercase-Bold.ttf') format('truetype'); font-weight: 700; }
-
-    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-
+    
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     :root {
-      --bg: #050507;
-      --surface: #0c0c10;
-      --surface-2: #111118;
-      --surface-3: #16161f;
-      --border: rgba(255,255,255,0.06);
-      --border-hover: rgba(255,255,255,0.12);
-      --cream: #ede4d3;
-      --cream-dim: rgba(237,228,211,0.7);
-      --teal: #14f195;
-      --teal-dim: rgba(20,241,149,0.15);
-      --teal-glow: rgba(20,241,149,0.3);
-      --purple: #9945ff;
-      --purple-dim: rgba(153,69,255,0.15);
-      --gold: #e8b84b;
-      --gold-dim: rgba(232,184,75,0.12);
-      --red: #ff6b6b;
-      --text: #ffffff;
-      --text-secondary: rgba(255,255,255,0.55);
-      --text-dim: rgba(255,255,255,0.3);
-      --radius: 16px;
-      --radius-sm: 10px;
-      --radius-xs: 6px;
+      --bg: #0a0a0a; --card: rgba(17,17,17,0.94); --border: rgba(35,35,35,0.9);
+      --primary: #e8d4c4; --secondary: #1e3a4c; --accent: #4a9079;
+      --gold: #d4a853; --text: #fff; --muted: #888; --dim: #555;
+      --rec-gold: #d4a853; --rec-green: #4a9079; --rec-yellow: #c9a832;
+      --rec-orange: #c97832; --rec-red: #c94232;
     }
-
-    html { font-size: 16px; }
-
-    body {
-      font-family: 'DM Sans', -apple-system, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      overflow-x: hidden;
-      -webkit-font-smoothing: antialiased;
-    }
-
-    /* ===================== GLOBAL BACKGROUND ===================== */
-    .page-bg {
-      position: fixed; inset: 0; z-index: -2;
-      background:
-        radial-gradient(ellipse 80% 50% at 20% 0%, rgba(20,241,149,0.04) 0%, transparent 60%),
-        radial-gradient(ellipse 60% 40% at 80% 10%, rgba(153,69,255,0.03) 0%, transparent 50%),
-        var(--bg);
-    }
-    .page-bg::after {
-      content: '';
-      position: fixed; inset: 0; z-index: -1;
-      background: url('assets/background.png') center/cover no-repeat;
-      opacity: 0.03;
-    }
-
-    /* ===================== HEADER ===================== */
-    .header {
-      position: sticky; top: 0; z-index: 50;
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 0 40px; height: 64px;
-      background: rgba(5,5,7,0.8);
-      backdrop-filter: blur(20px) saturate(180%);
-      -webkit-backdrop-filter: blur(20px) saturate(180%);
-      border-bottom: 1px solid var(--border);
-    }
-    .header-left { display: flex; align-items: center; gap: 32px; }
-    .header-logo { height: 24px; opacity: 0.95; }
-    .header-tag {
-      font-size: 0.65rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
-      color: var(--teal); background: var(--teal-dim); padding: 4px 10px; border-radius: 100px;
-    }
-    .header nav { display: flex; align-items: center; gap: 8px; }
-    .header nav a {
-      font-family: 'Advercase'; font-size: 0.78rem; color: var(--text-secondary);
-      text-decoration: none; padding: 6px 14px; border-radius: 8px; transition: all 0.2s;
-    }
-    .header nav a:hover { color: var(--text); background: rgba(255,255,255,0.05); }
-
-    /* ===================== LAYOUT ===================== */
-    .main { max-width: 1200px; margin: 0 auto; padding: 32px 40px 80px; }
-
-    /* ===================== MODE TOGGLE ===================== */
-    .mode-toggle {
-      display: flex; justify-content: center; margin-bottom: 32px;
-      background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
-      padding: 4px; width: fit-content; margin-left: auto; margin-right: auto;
-    }
-    .mode-btn {
-      font-family: 'Advercase'; font-size: 0.82rem; font-weight: 400;
-      background: transparent; border: none; color: var(--text-secondary);
-      padding: 10px 28px; border-radius: 9px; cursor: pointer; transition: all 0.25s;
-    }
-    .mode-btn:hover { color: var(--text); }
-    .mode-btn.active {
-      background: linear-gradient(135deg, var(--teal-dim), rgba(153,69,255,0.08));
-      color: var(--text); box-shadow: 0 0 20px rgba(20,241,149,0.08);
-    }
-
-    /* ===================== TABS ===================== */
-    .tabs {
-      display: flex; gap: 4px; margin-bottom: 28px;
-      background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
-      padding: 4px; width: fit-content;
-    }
-    .tab {
-      font-family: 'Advercase'; font-size: 0.78rem;
-      background: transparent; border: none; color: var(--text-secondary);
-      padding: 9px 22px; border-radius: 8px; cursor: pointer; transition: all 0.2s;
-      white-space: nowrap;
-    }
-    .tab:hover { color: var(--text); }
-    .tab.active { background: rgba(255,255,255,0.07); color: var(--text); }
-
+    
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+    body::before { content: ''; position: fixed; inset: 0; background: url('assets/background.png') center/cover no-repeat; opacity: 0.06; z-index: -1; }
+    
+    .header { display: flex; justify-content: space-between; align-items: center; padding: 16px 32px; border-bottom: 1px solid var(--border); background: rgba(8,8,8,0.95); position: sticky; top: 0; z-index: 50; }
+    .header img { height: 28px; }
+    .header nav a { font-family: 'Advercase'; color: var(--muted); text-decoration: none; margin-left: 20px; font-size: 0.85rem; }
+    .header nav a:hover { color: var(--primary); }
+    
+    .container { max-width: 900px; margin: 0 auto; padding: 32px 20px; }
+    
+    .mode-toggle { display: flex; justify-content: center; margin-bottom: 24px; }
+    .mode-btn { font-family: 'Advercase'; background: transparent; border: 1px solid var(--border); color: var(--muted); padding: 12px 32px; font-size: 0.9rem; cursor: pointer; transition: 0.2s; }
+    .mode-btn:first-child { border-radius: 8px 0 0 8px; }
+    .mode-btn:last-child { border-radius: 0 8px 8px 0; }
+    .mode-btn.active { background: var(--primary); border-color: var(--primary); color: var(--bg); }
+    
+    .tabs { display: flex; gap: 6px; margin-bottom: 24px; flex-wrap: wrap; }
+    .tab { font-family: 'Advercase'; background: transparent; border: 1px solid var(--border); color: var(--muted); padding: 10px 20px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; }
+    .tab:hover { border-color: var(--dim); color: var(--text); }
+    .tab.active { background: var(--secondary); border-color: var(--secondary); color: var(--text); }
+    
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 20px; }
+    .card h2 { font-family: 'Advercase'; color: var(--primary); margin-bottom: 12px; font-size: 1.1rem; }
+    .card .sub { color: var(--muted); font-size: 0.85rem; margin-bottom: 16px; line-height: 1.5; }
+    
+    .input-row { display: flex; gap: 10px; }
+    input, textarea, select { flex: 1; background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 6px; padding: 12px 14px; font-size: 0.9rem; color: var(--text); font-family: inherit; }
+    input:focus, textarea:focus, select:focus { outline: none; border-color: var(--primary); }
+    input::placeholder, textarea::placeholder { color: var(--dim); }
+    textarea { min-height: 70px; resize: vertical; margin-top: 10px; }
+    select { cursor: pointer; }
+    select option { background: #111; color: var(--text); }
+    
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+    label { display: block; font-size: 0.7rem; color: var(--muted); margin-bottom: 4px; text-transform: uppercase; }
+    
+    .btn { background: var(--primary); color: var(--bg); border: none; border-radius: 6px; padding: 12px 24px; font-family: 'Advercase'; font-size: 0.85rem; cursor: pointer; transition: 0.2s; }
+    .btn:hover { opacity: 0.9; }
+    .btn:disabled { background: var(--border); color: var(--dim); cursor: not-allowed; }
+    .btn-secondary { background: var(--secondary); color: var(--text); }
+    .btn-gold { background: var(--gold); color: var(--bg); }
+    .btn-block { width: 100%; margin-top: 14px; }
+    .btn-sm { padding: 6px 14px; font-size: 0.75rem; }
+    
+    .loading { display: none; align-items: center; justify-content: center; gap: 10px; padding: 28px; color: var(--muted); }
+    .loading.show { display: flex; }
+    .spinner { width: 18px; height: 18px; border: 2px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    
+    .msg { border-radius: 6px; padding: 12px; margin-top: 12px; font-size: 0.85rem; display: none; }
+    .msg.show { display: block; }
+    .msg.error { background: rgba(60,20,20,0.8); border: 1px solid #4a2020; color: #e07070; }
+    .msg.success { background: rgba(20,50,30,0.8); border: 1px solid #204a30; color: #70e090; }
+    
+    .result { display: none; background: rgba(6,6,6,0.96); border: 1px solid var(--border); border-radius: 12px; margin-top: 16px; overflow: hidden; }
+    .result.show { display: block; }
+    
+    .result-header { padding: 20px 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: flex-start; }
+    .result-header-left { flex: 1; }
+    .result-name { font-family: 'Advercase'; font-size: 1.3rem; color: var(--primary); }
+    .result-wallet { font-family: monospace; font-size: 0.65rem; color: var(--dim); margin-top: 4px; }
+    .result-desc { color: var(--muted); font-size: 0.8rem; margin-top: 8px; line-height: 1.4; }
+    .result-link { color: var(--accent); font-size: 0.8rem; margin-top: 6px; display: inline-block; text-decoration: none; }
+    
+    .score-hero { padding: 28px; background: linear-gradient(135deg, var(--secondary), #142830); text-align: center; }
+    .score-hero .value { font-family: 'Advercase'; font-size: 4rem; font-weight: 700; color: var(--primary); line-height: 1; }
+    .score-hero .label { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 6px; }
+    .score-hero .tier { display: inline-block; margin-top: 10px; padding: 4px 14px; border-radius: 12px; font-family: 'Advercase'; font-size: 0.75rem; }
+    .tier.bronze { background: #6b5010; } .tier.silver { background: #505058; } .tier.gold { background: var(--gold); color: #000; }
+    
+    .rec-badge { display: inline-block; padding: 5px 14px; border-radius: 14px; font-family: 'Advercase'; font-size: 0.7rem; margin-top: 8px; letter-spacing: 0.03em; }
+    .rec-badge.gold { background: rgba(212,168,83,0.2); border: 1px solid var(--rec-gold); color: var(--rec-gold); }
+    .rec-badge.green { background: rgba(74,144,121,0.2); border: 1px solid var(--rec-green); color: var(--rec-green); }
+    .rec-badge.yellow { background: rgba(201,168,50,0.15); border: 1px solid var(--rec-yellow); color: var(--rec-yellow); }
+    .rec-badge.orange { background: rgba(201,120,50,0.15); border: 1px solid var(--rec-orange); color: var(--rec-orange); }
+    .rec-badge.red { background: rgba(201,66,50,0.15); border: 1px solid var(--rec-red); color: var(--rec-red); }
+    
+    .source-tags { display: flex; gap: 5px; margin-top: 10px; flex-wrap: wrap; }
+    .source-tag { padding: 3px 8px; border-radius: 4px; font-size: 0.6rem; font-family: 'Advercase'; text-transform: uppercase; letter-spacing: 0.05em; }
+    .source-tag.said { background: rgba(74,144,121,0.2); color: var(--accent); border: 1px solid rgba(74,144,121,0.4); }
+    .source-tag.erc8004 { background: rgba(100,120,220,0.2); color: #8090dd; border: 1px solid rgba(100,120,220,0.4); }
+    .source-tag.fairscale { background: rgba(232,212,196,0.15); color: var(--primary); border: 1px solid rgba(232,212,196,0.3); }
+    .source-tag.clawkey { background: rgba(212,168,83,0.2); color: var(--gold); border: 1px solid rgba(212,168,83,0.4); }
+    
+    .info-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; padding: 16px 24px; border-bottom: 1px solid var(--border); }
+    .info-box { background: rgba(0,0,0,0.3); border-radius: 6px; padding: 10px; text-align: center; }
+    .info-box .k { font-size: 0.55rem; color: var(--dim); text-transform: uppercase; }
+    .info-box .v { font-family: 'Advercase'; color: var(--text); margin-top: 3px; font-size: 1rem; }
+    .info-box.hl { background: rgba(74,144,121,0.15); border: 1px solid var(--accent); }
+    .info-box.hl .v { color: var(--accent); }
+    .info-box.erc { background: rgba(100,120,220,0.1); border: 1px solid rgba(100,120,220,0.3); }
+    .info-box.erc .v { color: #8090dd; }
+    
+    .boosts-section { padding: 14px 24px; border-bottom: 1px solid var(--border); }
+    .boosts-section h4 { font-family: 'Advercase'; color: var(--muted); font-size: 0.7rem; text-transform: uppercase; margin-bottom: 8px; }
+    .boost-pills { display: flex; gap: 6px; flex-wrap: wrap; }
+    .boost-pill { padding: 4px 10px; border-radius: 10px; font-size: 0.65rem; font-family: 'Advercase'; background: rgba(74,144,121,0.15); border: 1px solid rgba(74,144,121,0.3); color: var(--accent); }
+    .boost-pill.gold { background: rgba(212,168,83,0.15); border-color: rgba(212,168,83,0.3); color: var(--gold); }
+    
+    .erc8004-section { padding: 16px 24px; border-bottom: 1px solid var(--border); background: rgba(100,120,220,0.03); }
+    .erc8004-section h4 { font-family: 'Advercase'; color: #8090dd; font-size: 0.8rem; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+    .erc8004-section h4::before { content: ''; display: inline-block; width: 8px; height: 8px; background: #8090dd; border-radius: 2px; }
+    .erc8004-detail { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .erc8004-detail .kv { background: rgba(0,0,0,0.3); border-radius: 6px; padding: 8px 10px; }
+    .erc8004-detail .kv .k { font-size: 0.55rem; color: var(--dim); text-transform: uppercase; }
+    .erc8004-detail .kv .v { font-size: 0.8rem; color: var(--text); margin-top: 2px; word-break: break-all; }
+    .skill-list { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 6px; }
+    .skill-tag { padding: 2px 8px; border-radius: 3px; font-size: 0.6rem; background: rgba(100,120,220,0.15); color: #8090dd; }
+    
+    .metrics { padding: 20px 24px; }
+    .metrics h4 { font-family: 'Advercase'; color: var(--primary); font-size: 0.85rem; margin-bottom: 12px; }
+    .metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .metric { background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 8px; padding: 14px; }
+    .metric-top { display: flex; justify-content: space-between; align-items: center; }
+    .metric .lbl { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; }
+    .metric .val { font-family: 'Advercase'; font-size: 1.4rem; font-weight: 700; }
+    .metric-bar { height: 3px; background: var(--border); border-radius: 2px; margin: 8px 0 6px; overflow: hidden; }
+    .metric-bar-fill { height: 100%; border-radius: 2px; transition: width 0.4s; }
+    .metric-bar-fill.activity { background: linear-gradient(90deg, #4a9079, #6ab899); }
+    .metric-bar-fill.holdings { background: linear-gradient(90deg, #6478dc, #8090dd); }
+    .metric-bar-fill.reliability { background: linear-gradient(90deg, #9b6abc, #b88ad4); }
+    .metric-bar-fill.history { background: linear-gradient(90deg, var(--primary), #f0e0d0); }
+    .metric .desc { font-size: 0.7rem; color: var(--dim); line-height: 1.4; }
+    
+    .verify-cta { padding: 20px 24px; background: linear-gradient(135deg, #1a1508, #101418); border-top: 1px solid var(--border); }
+    .verify-box { border: 1px dashed var(--gold); border-radius: 10px; padding: 18px; text-align: center; }
+    .verify-box h4 { font-family: 'Advercase'; color: var(--gold); font-size: 0.95rem; }
+    .verify-box p { font-size: 0.75rem; color: var(--muted); margin: 6px 0 10px; }
+    .verify-box .price { font-family: 'Advercase'; font-size: 1.6rem; color: var(--gold); }
+    .verify-box .boost { font-size: 0.7rem; color: var(--accent); margin: 4px 0 12px; }
+    
+    .actions { padding: 14px 24px; display: flex; gap: 8px; border-top: 1px solid var(--border); }
+    .actions .btn { flex: 1; }
+    
+    /* Directory */
+    .dir-controls { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; align-items: center; }
+    .dir-controls input { flex: 2; min-width: 200px; padding: 10px 14px; font-size: 0.85rem; }
+    .dir-controls select { flex: 1; min-width: 120px; padding: 10px 14px; font-size: 0.8rem; }
+    
+    .dir-list { display: flex; flex-direction: column; gap: 8px; }
+    .dir-item { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.15s; }
+    .dir-item:hover { border-color: var(--dim); transform: translateX(3px); }
+    .dir-item .info { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; }
+    .dir-item .rank { font-family: 'Advercase'; color: var(--dim); width: 28px; flex-shrink: 0; font-size: 0.85rem; }
+    .dir-item .name { font-family: 'Advercase'; color: var(--primary); font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .dir-item .wallet { font-family: monospace; font-size: 0.6rem; color: var(--dim); margin-top: 2px; }
+    .dir-item .tags { display: flex; gap: 4px; margin-top: 4px; flex-wrap: wrap; }
+    .dir-item .tag { border-radius: 3px; padding: 2px 6px; font-size: 0.5rem; font-family: 'Advercase'; }
+    .dir-item .tag.v { background: var(--gold); color: var(--bg); }
+    .dir-item .tag.said { background: rgba(74,144,121,0.25); color: var(--accent); }
+    .dir-item .tag.erc8004 { background: rgba(100,120,220,0.25); color: #8090dd; }
+    .dir-item .tag.rec { border-radius: 10px; padding: 2px 8px; }
+    .dir-item .tag.rec-gold { background: rgba(212,168,83,0.2); color: var(--gold); }
+    .dir-item .tag.rec-green { background: rgba(74,144,121,0.2); color: var(--accent); }
+    .dir-item .tag.rec-yellow { background: rgba(201,168,50,0.15); color: var(--rec-yellow); }
+    .dir-item .tag.rec-orange { background: rgba(201,120,50,0.15); color: var(--rec-orange); }
+    .dir-item .right { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+    .dir-item .score { font-family: 'Advercase'; font-size: 1.8rem; font-weight: 700; color: var(--primary); }
+    .dir-item .subscore { font-size: 0.55rem; color: var(--dim); text-align: right; line-height: 1.5; }
+    
+    .pagination { display: flex; justify-content: center; align-items: center; gap: 8px; margin-top: 16px; padding: 12px; }
+    .pagination .btn { padding: 8px 16px; font-size: 0.75rem; }
+    .pagination .page-info { font-size: 0.8rem; color: var(--muted); font-family: 'Advercase'; }
+    
+    .empty { text-align: center; padding: 40px; color: var(--dim); font-size: 0.85rem; }
+    
+    .svc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
+    .svc-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+    .svc-card .name { font-family: 'Advercase'; color: var(--primary); margin-bottom: 4px; }
+    .svc-card .desc { font-size: 0.75rem; color: var(--muted); line-height: 1.4; margin-bottom: 10px; min-height: 32px; }
+    .svc-card .meta { display: flex; justify-content: space-between; align-items: center; padding-top: 10px; border-top: 1px solid var(--border); }
+    .svc-card .cat { font-size: 0.6rem; padding: 2px 6px; background: var(--secondary); border-radius: 3px; color: var(--muted); }
+    .svc-card .price { font-family: 'Advercase'; color: var(--accent); font-size: 0.9rem; }
+    
+    /* Leaderboard */
+    .lb-tabs { display: flex; gap: 4px; margin-bottom: 14px; flex-wrap: wrap; }
+    .lb-tab { font-family: 'Advercase'; background: transparent; border: 1px solid var(--border); color: var(--dim); padding: 6px 14px; border-radius: 4px; cursor: pointer; font-size: 0.7rem; transition: 0.15s; }
+    .lb-tab:hover { border-color: var(--dim); color: var(--muted); }
+    .lb-tab.active { background: var(--secondary); border-color: var(--secondary); color: var(--text); }
+    .lb-item { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-bottom: 1px solid rgba(35,35,35,0.5); }
+    .lb-item:last-child { border-bottom: none; }
+    .lb-item .lb-rank { font-family: 'Advercase'; color: var(--dim); width: 28px; font-size: 0.85rem; }
+    .lb-item .lb-rank.top1 { color: var(--gold); }
+    .lb-item .lb-rank.top2 { color: #c0c0c0; }
+    .lb-item .lb-rank.top3 { color: #cd7f32; }
+    .lb-item .lb-name { flex: 1; font-size: 0.85rem; color: var(--text); }
+    .lb-item .lb-val { font-family: 'Advercase'; font-size: 1.2rem; font-weight: 700; }
+    .lb-item .lb-val.activity { color: #6ab899; }
+    .lb-item .lb-val.holdings { color: #8090dd; }
+    .lb-item .lb-val.reliability { color: #b88ad4; }
+    .lb-item .lb-val.history { color: var(--primary); }
+    .lb-item .lb-val.agent_fairscore { color: var(--accent); }
+    
     .tab-content { display: none; }
-    .tab-content.active { display: block; animation: fadeUp 0.3s ease; }
+    .tab-content.active { display: block; }
     .mode-content { display: none; }
     .mode-content.active { display: block; }
-
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(8px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* ===================== CARDS ===================== */
-    .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 22px 28px;
-      margin-bottom: 16px;
-      transition: border-color 0.2s;
-    }
-    .card:hover { border-color: var(--border-hover); }
-    .card-title {
-      font-family: 'Advercase'; font-size: 1.15rem; color: var(--cream);
-      margin-bottom: 8px;
-    }
-    .card-sub { color: var(--text-secondary); font-size: 0.85rem; line-height: 1.5; margin-bottom: 14px; }
-
-    /* ===================== INPUTS ===================== */
-    .input-group { display: flex; gap: 10px; }
-    input, textarea {
-      flex: 1; background: var(--surface-2); border: 1px solid var(--border);
-      border-radius: var(--radius-sm); padding: 14px 16px; font-size: 0.9rem;
-      color: var(--text); font-family: inherit; transition: all 0.2s;
-    }
-    input:focus, textarea:focus { outline: none; border-color: rgba(20,241,149,0.3); background: var(--surface-3); }
-    input::placeholder, textarea::placeholder { color: var(--text-dim); }
-    textarea { min-height: 72px; resize: vertical; margin-top: 10px; }
-
-    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
-    .form-label { display: block; font-size: 0.68rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.06em; }
-
-    /* ===================== BUTTONS ===================== */
-    .btn {
-      font-family: 'Advercase'; font-size: 0.82rem; font-weight: 700;
-      border: none; border-radius: var(--radius-sm); padding: 14px 28px;
-      cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-    }
-    .btn-primary {
-      background: var(--teal); color: #050507;
-      box-shadow: 0 0 24px rgba(20,241,149,0.15), 0 1px 2px rgba(0,0,0,0.3);
-    }
-    .btn-primary:hover { box-shadow: 0 0 40px rgba(20,241,149,0.25), 0 2px 8px rgba(0,0,0,0.4); transform: translateY(-1px); }
-    .btn-secondary { background: rgba(255,255,255,0.06); color: var(--text); border: 1px solid var(--border); }
-    .btn-secondary:hover { background: rgba(255,255,255,0.1); border-color: var(--border-hover); }
-    .btn-gold { background: var(--gold); color: #050507; box-shadow: 0 0 20px rgba(232,184,75,0.15); }
-    .btn-gold:hover { box-shadow: 0 0 32px rgba(232,184,75,0.25); }
-    .btn-block { width: 100%; margin-top: 16px; }
-    .btn:disabled { opacity: 0.3; cursor: not-allowed; transform: none !important; }
-
-    /* ===================== MESSAGES ===================== */
-    .msg { border-radius: var(--radius-sm); padding: 12px 16px; margin-top: 12px; font-size: 0.85rem; display: none; }
-    .msg.show { display: block; animation: fadeUp 0.2s ease; }
-    .msg.error { background: rgba(255,107,107,0.08); border: 1px solid rgba(255,107,107,0.15); color: var(--red); }
-    .msg.success { background: rgba(20,241,149,0.08); border: 1px solid rgba(20,241,149,0.15); color: var(--teal); }
-
-    .loading { display: none; align-items: center; justify-content: center; gap: 10px; padding: 32px; color: var(--text-secondary); }
-    .loading.show { display: flex; }
-    .spinner { width: 20px; height: 20px; border: 2px solid var(--border); border-top-color: var(--teal); border-radius: 50%; animation: spin 0.8s linear infinite; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* ===================== RESULT CARD — THE HERO ===================== */
-    .result { display: none; margin-top: 16px; animation: fadeUp 0.4s ease; }
-    .result.show { display: block; }
-
-    .result-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      overflow: hidden;
-    }
-
-    /* Top section: Identity + Score side-by-side */
-    .result-top {
-      display: grid; grid-template-columns: 1fr auto; gap: 0;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .result-identity {
-      padding: 20px 28px;
-      display: flex; flex-direction: column; justify-content: center;
-    }
-    .result-name {
-      font-family: 'Advercase'; font-size: 1.35rem; font-weight: 700; color: var(--cream);
-      line-height: 1.2;
-    }
-    .result-wallet {
-      font-family: 'DM Sans', monospace; font-size: 0.68rem; color: var(--text-dim);
-      margin-top: 4px; letter-spacing: 0.02em;
-    }
-    .result-desc-wrap { display: flex; align-items: baseline; gap: 8px; margin-top: 6px; max-width: 560px; }
-    .result-desc {
-      color: var(--text-secondary); font-size: 0.8rem; line-height: 1.4;
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; min-width: 0;
-    }
-    .result-desc.expanded { white-space: normal; }
-    .result-desc-toggle {
-      font-size: 0.72rem; color: var(--teal); cursor: pointer; white-space: nowrap;
-      background: none; border: none; font-family: inherit; padding: 0; flex-shrink: 0;
-    }
-    .result-desc-toggle:hover { opacity: 0.7; }
-    .result-link {
-      color: var(--teal); font-size: 0.78rem; margin-top: 4px; display: inline-block;
-      text-decoration: none; transition: opacity 0.2s;
-    }
-    .result-link:hover { opacity: 0.7; }
-    .result-badges { display: flex; gap: 6px; margin-top: 8px; }
-    .badge {
-      font-family: 'Advercase'; font-size: 0.65rem; font-weight: 700;
-      padding: 4px 12px; border-radius: 100px; letter-spacing: 0.04em;
-    }
-    .badge-registered { background: var(--purple-dim); color: var(--purple); }
-    .badge-verified { background: var(--gold-dim); color: var(--gold); }
-
-    .result-score-hero {
-      padding: 24px 40px;
-      background: linear-gradient(160deg, rgba(20,241,149,0.06) 0%, rgba(153,69,255,0.04) 50%, transparent 100%);
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      min-width: 200px;
-      border-left: 1px solid var(--border);
-    }
-    .score-number {
-      font-family: 'Advercase'; font-size: 4.2rem; font-weight: 700; line-height: 1;
-      background: linear-gradient(180deg, var(--cream) 0%, var(--cream-dim) 100%);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    .score-label {
-      font-size: 0.65rem; font-weight: 600; text-transform: uppercase;
-      letter-spacing: 0.12em; color: var(--text-secondary); margin-top: 6px;
-    }
-    .score-tier {
-      font-family: 'Advercase'; font-size: 0.72rem; font-weight: 700;
-      padding: 5px 16px; border-radius: 100px; margin-top: 12px;
-    }
-    .tier-bronze { background: rgba(205,127,50,0.15); color: #cd7f32; }
-    .tier-silver { background: rgba(192,192,192,0.12); color: #c0c0c0; }
-    .tier-gold { background: var(--gold-dim); color: var(--gold); }
-
-    /* Sub-scores row */
-    .result-sub-scores {
-      display: grid; grid-template-columns: repeat(4, 1fr);
-      border-bottom: 1px solid var(--border);
-    }
-    .sub-score {
-      padding: 14px 20px; text-align: center;
-      border-right: 1px solid var(--border);
-      transition: background 0.2s;
-    }
-    .sub-score:last-child { border-right: none; }
-    .sub-score:hover { background: rgba(255,255,255,0.02); }
-    .sub-score-label {
-      font-size: 0.6rem; font-weight: 600; text-transform: uppercase;
-      letter-spacing: 0.1em; color: var(--text-dim); margin-bottom: 4px;
-    }
-    .sub-score-value { font-family: 'Advercase'; font-size: 1.2rem; font-weight: 700; color: var(--text); }
-    .sub-score-hl .sub-score-value { color: var(--teal); }
-
-    /* Metrics grid — FRONT AND CENTRE */
-    .result-metrics {
-      padding: 20px 28px;
-      background: linear-gradient(180deg, rgba(20,241,149,0.02) 0%, transparent 100%);
-    }
-    .metrics-title {
-      font-family: 'Advercase'; font-size: 0.78rem; color: var(--cream);
-      margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
-      text-transform: uppercase; letter-spacing: 0.06em;
-    }
-    .metrics-title::after {
-      content: ''; flex: 1; height: 1px;
-      background: linear-gradient(90deg, var(--border), transparent);
-    }
-    .metric-grid { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px; }
-    .metric-card {
-      background: rgba(0,0,0,0.3);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      padding: 14px 16px;
-      transition: all 0.2s;
-      position: relative;
-      overflow: hidden;
-    }
-    .metric-card::before {
-      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
-      background: linear-gradient(90deg, var(--teal), var(--purple));
-      opacity: 0; transition: opacity 0.2s;
-    }
-    .metric-card:hover { border-color: var(--border-hover); }
-    .metric-card:hover::before { opacity: 1; }
-    .metric-head { display: flex; justify-content: space-between; align-items: baseline; }
-    .metric-label { font-size: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-secondary); }
-    .metric-value { font-family: 'Advercase'; font-size: 1.8rem; font-weight: 700; color: var(--text); }
-    .metric-bar { height: 3px; background: rgba(255,255,255,0.06); border-radius: 2px; margin: 8px 0 6px; overflow: hidden; }
-    .metric-bar-fill {
-      height: 100%; border-radius: 2px;
-      background: linear-gradient(90deg, var(--teal), var(--purple));
-      transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    .metric-desc { font-size: 0.68rem; color: var(--text-dim); line-height: 1.3; }
-
-    /* Verify CTA — compact inline */
-    .result-verify {
-      padding: 16px 28px;
-      border-top: 1px solid var(--border);
-      background: linear-gradient(135deg, rgba(232,184,75,0.03), transparent);
-    }
-    .verify-row {
-      display: flex; align-items: center; justify-content: space-between; gap: 20px;
-      border: 1px dashed rgba(232,184,75,0.2); border-radius: var(--radius-xs);
-      padding: 14px 20px;
-    }
-    .verify-info { display: flex; align-items: center; gap: 12px; }
-    .verify-icon {
-      width: 36px; height: 36px; border-radius: 10px;
-      background: var(--gold-dim); display: flex; align-items: center; justify-content: center;
-      font-size: 1rem;
-    }
-    .verify-text h4 { font-family: 'Advercase'; font-size: 0.82rem; color: var(--gold); }
-    .verify-text p { font-size: 0.72rem; color: var(--text-secondary); margin-top: 1px; }
-    .verify-right { display: flex; align-items: center; gap: 14px; flex-shrink: 0; }
-    .verify-price { font-family: 'Advercase'; font-size: 1.3rem; font-weight: 700; color: var(--gold); }
-    .verify-boost { font-size: 0.65rem; color: var(--teal); font-weight: 600; }
-
-    /* Actions */
-    .result-actions {
-      padding: 12px 28px; display: flex; gap: 8px;
-      border-top: 1px solid var(--border);
-    }
-    .result-actions .btn { flex: 1; padding: 11px 20px; font-size: 0.78rem; }
-
-    /* ===================== DIRECTORY ===================== */
-    .dir-header {
-      display: flex; justify-content: space-between; align-items: center;
-      margin-bottom: 16px;
-    }
-    .dir-header h2 { font-family: 'Advercase'; font-size: 1.15rem; color: var(--cream); }
-    .dir-count {
-      font-family: 'Advercase'; font-size: 0.82rem; color: var(--text-dim);
-      background: var(--surface-2); padding: 4px 12px; border-radius: 100px;
-    }
-
-    .dir-list { display: flex; flex-direction: column; gap: 6px; }
-    .dir-item {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      padding: 16px 24px;
-      display: flex; justify-content: space-between; align-items: center;
-      cursor: pointer; transition: all 0.2s;
-    }
-    .dir-item:hover {
-      border-color: var(--border-hover);
-      background: var(--surface-2);
-      transform: translateX(4px);
-    }
-    .dir-item-left { display: flex; align-items: center; gap: 16px; }
-    .dir-rank {
-      font-family: 'Advercase'; font-size: 0.85rem; color: var(--text-dim);
-      width: 28px; text-align: center;
-    }
-    .dir-name { font-family: 'Advercase'; font-size: 0.95rem; color: var(--cream); }
-    .dir-wallet { font-size: 0.68rem; color: var(--text-dim); margin-top: 2px; font-family: 'DM Sans', monospace; }
-    .dir-tags { display: flex; gap: 5px; margin-top: 5px; }
-    .dir-tag {
-      font-size: 0.58rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em;
-      padding: 2px 8px; border-radius: 4px; background: rgba(255,255,255,0.05); color: var(--text-dim);
-    }
-    .dir-tag-verified { background: var(--gold-dim); color: var(--gold); }
-    .dir-score {
-      font-family: 'Advercase'; font-size: 2rem; font-weight: 700;
-      background: linear-gradient(180deg, var(--cream) 30%, var(--cream-dim) 100%);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    .empty-state {
-      text-align: center; padding: 60px 20px; color: var(--text-dim); font-size: 0.88rem;
-    }
-
-    /* ===================== SERVICES ===================== */
-    .svc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
-    .svc-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      padding: 20px;
-      transition: all 0.2s;
-    }
-    .svc-card:hover { border-color: var(--border-hover); }
-    .svc-name { font-family: 'Advercase'; color: var(--cream); font-size: 0.95rem; margin-bottom: 6px; }
-    .svc-desc { font-size: 0.78rem; color: var(--text-secondary); line-height: 1.5; margin-bottom: 14px; min-height: 36px; }
-    .svc-footer {
-      display: flex; justify-content: space-between; align-items: center;
-      padding-top: 12px; border-top: 1px solid var(--border);
-    }
-    .svc-cat { font-size: 0.62rem; font-weight: 600; padding: 3px 8px; background: rgba(255,255,255,0.05); border-radius: 4px; color: var(--text-dim); text-transform: uppercase; }
-    .svc-price { font-family: 'Advercase'; color: var(--teal); font-size: 0.88rem; }
-
-    /* ===================== CLI BLOCK ===================== */
-    .cli-block {
-      background: #000; border: 1px solid var(--border); border-radius: var(--radius-sm);
-      padding: 16px 20px; font-family: 'DM Sans', monospace; font-size: 0.78rem;
-      color: var(--teal); overflow-x: auto; margin-top: 12px; position: relative;
-    }
-    .cli-block::before {
-      content: '$ '; color: var(--text-dim);
-    }
-
-    /* ===================== MODAL ===================== */
-    .modal {
-      display: none; position: fixed; inset: 0;
-      background: rgba(0,0,0,0.85);
-      backdrop-filter: blur(8px);
-      z-index: 100; align-items: center; justify-content: center;
-    }
+    
+    .footer { margin-top: 40px; padding: 20px; border-top: 1px solid var(--border); text-align: center; }
+    .footer a { font-family: 'Advercase'; color: var(--dim); text-decoration: none; margin: 0 12px; font-size: 0.75rem; }
+    
+    .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 100; align-items: center; justify-content: center; }
     .modal.show { display: flex; }
-    .modal-box {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 36px;
-      max-width: 400px; width: 92%;
-      text-align: center;
-    }
-    .modal-box h3 { font-family: 'Advercase'; color: var(--gold); margin-bottom: 12px; font-size: 1.2rem; }
-    .modal-box p { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 16px; }
-    .modal-amt { font-family: 'Advercase'; font-size: 2.2rem; font-weight: 700; color: var(--gold); margin-bottom: 8px; }
-    .modal-addr {
-      background: #000; border: 1px solid var(--border); border-radius: var(--radius-sm);
-      padding: 14px; font-family: monospace; font-size: 0.68rem; color: var(--cream);
-      word-break: break-all; margin-bottom: 16px;
-    }
-    .modal-btns { display: flex; gap: 10px; margin-top: 20px; }
+    .modal-box { background: #111; border: 1px solid var(--border); border-radius: 12px; padding: 28px; max-width: 380px; width: 90%; text-align: center; }
+    .modal-box h3 { font-family: 'Advercase'; color: var(--gold); margin-bottom: 12px; }
+    .modal-box p { font-size: 0.8rem; color: var(--muted); margin-bottom: 12px; }
+    .modal-addr { background: #000; border: 1px solid var(--border); border-radius: 6px; padding: 12px; font-family: monospace; font-size: 0.65rem; color: var(--primary); word-break: break-all; margin-bottom: 12px; }
+    .modal-amt { font-family: 'Advercase'; font-size: 1.8rem; color: var(--gold); margin-bottom: 6px; }
+    .modal-btns { display: flex; gap: 8px; margin-top: 16px; }
     .modal-btns .btn { flex: 1; }
-    .modal-status { margin-top: 14px; padding: 10px; border-radius: var(--radius-xs); font-size: 0.82rem; display: none; }
+    .modal-status { margin-top: 12px; padding: 10px; border-radius: 6px; font-size: 0.8rem; display: none; }
     .modal-status.show { display: block; }
-    .modal-status.checking { background: rgba(20,241,149,0.06); color: var(--teal); }
-    .modal-status.success { background: rgba(20,241,149,0.1); color: var(--teal); }
-    .modal-status.error { background: rgba(255,107,107,0.08); color: var(--red); }
-
-    /* ===================== FOOTER ===================== */
-    .footer {
-      margin-top: 48px; padding: 24px 0;
-      border-top: 1px solid var(--border);
-      display: flex; justify-content: space-between; align-items: center;
-    }
-    .footer-left { font-size: 0.72rem; color: var(--text-dim); }
-    .footer-links { display: flex; gap: 6px; }
-    .footer-links a {
-      font-family: 'Advercase'; font-size: 0.72rem; color: var(--text-dim);
-      text-decoration: none; padding: 6px 12px; border-radius: 6px; transition: all 0.2s;
-    }
-    .footer-links a:hover { color: var(--text-secondary); background: rgba(255,255,255,0.04); }
-
-    /* ===================== RESPONSIVE ===================== */
-    @media (max-width: 768px) {
-      .header { padding: 0 20px; }
-      .main { padding: 20px 16px 60px; }
-      .result-top { grid-template-columns: 1fr; }
-      .result-score-hero { border-left: none; border-top: 1px solid var(--border); padding: 24px; }
-      .score-number { font-size: 3.5rem; }
-      .result-sub-scores { grid-template-columns: repeat(2, 1fr); }
-      .sub-score:nth-child(2) { border-right: none; }
-      .metric-grid { grid-template-columns: 1fr; }
-      .metric-grid { grid-template-columns: 1fr 1fr; }
-      .verify-row { flex-direction: column; text-align: center; }
-      .verify-info { flex-direction: column; }
-      .result-actions { flex-direction: column; }
-      .form-grid { grid-template-columns: 1fr; }
-      .input-group { flex-direction: column; }
-      .dir-item { padding: 14px 16px; }
-      .footer { flex-direction: column; gap: 12px; }
-      .result-identity { padding: 20px; }
-      .result-metrics { padding: 20px; }
-      .result-verify { padding: 20px; }
-      .result-actions { padding: 12px 20px; }
-      .header-tag { display: none; }
-    }
-
-    @media (max-width: 480px) {
-      .tabs { overflow-x: auto; width: 100%; }
-      .result-sub-scores { grid-template-columns: repeat(2, 1fr); }
+    .modal-status.checking { background: var(--secondary); }
+    .modal-status.success { background: #1a3020; color: var(--accent); }
+    .modal-status.error { background: #301a1a; color: #e07070; }
+    
+    pre { background: #000; padding: 14px; border-radius: 6px; font-size: 0.75rem; color: var(--accent); overflow-x: auto; margin-top: 10px; }
+    
+    @media (max-width: 600px) {
+      .input-row, .form-row { flex-direction: column; display: flex; }
+      .form-row { display: flex; flex-direction: column; }
+      .metric-grid, .info-row { grid-template-columns: 1fr 1fr; }
+      .dir-item { flex-direction: column; align-items: flex-start; gap: 8px; }
+      .dir-item .right { align-self: flex-end; }
+      .dir-controls { flex-direction: column; }
+      .dir-controls input, .dir-controls select { min-width: 100%; }
+      .svc-grid { grid-template-columns: 1fr; }
+      .modal-btns { flex-direction: column; }
+      .erc8004-detail { grid-template-columns: 1fr; }
+      .result-header { flex-direction: column; }
     }
   </style>
 </head>
 <body>
-  <div class="page-bg"></div>
-
   <header class="header">
-    <div class="header-left">
-      <a href="/"><img src="assets/logo.png" alt="FairScale" class="header-logo"></a>
-      <span class="header-tag">Agent Registry</span>
-    </div>
+    <a href="/"><img src="assets/logo.png" alt="FairScale"></a>
     <nav>
       <a href="https://fairscale.xyz" target="_blank">Website</a>
       <a href="https://docs.fairscale.xyz" target="_blank">Docs</a>
@@ -529,30 +261,29 @@
     </nav>
   </header>
 
-  <main class="main">
-    <!-- MODE TOGGLE -->
+  <div class="container">
     <div class="mode-toggle">
       <button class="mode-btn active" data-mode="agent">I'm an Agent</button>
       <button class="mode-btn" data-mode="human">I'm a Human</button>
     </div>
 
-    <!-- ==================== AGENT MODE ==================== -->
+    <!-- AGENT MODE -->
     <div id="mode-agent" class="mode-content active">
       <div class="tabs">
         <button class="tab active" data-tab="check">Check Score</button>
         <button class="tab" data-tab="register">Register</button>
         <button class="tab" data-tab="directory">Directory</button>
+        <button class="tab" data-tab="leaderboard">Leaderboards</button>
         <button class="tab" data-tab="services">x402 Services</button>
       </div>
 
-      <!-- CHECK SCORE -->
       <div id="tab-check" class="tab-content active">
         <div class="card">
-          <div class="card-title">Check Agent Score</div>
-          <div class="card-sub">Enter a wallet address to analyze on-chain reputation, trust metrics, and scoring.</div>
-          <div class="input-group">
-            <input type="text" id="walletInput" placeholder="Solana wallet address...">
-            <button class="btn btn-primary" id="checkBtn">Score</button>
+          <h2>Check Agent Score</h2>
+          <p class="sub">Enter a wallet address to analyze on-chain reputation, trust metrics, and scoring.</p>
+          <div class="input-row">
+            <input type="text" id="walletInput" placeholder="Wallet address">
+            <button class="btn" id="checkBtn">Score</button>
           </div>
           <div class="msg error" id="checkError"></div>
           <div class="loading" id="loading"><div class="spinner"></div><span>Analyzing on-chain data...</span></div>
@@ -560,110 +291,180 @@
         <div class="result" id="result"></div>
       </div>
 
-      <!-- REGISTER -->
       <div id="tab-register" class="tab-content">
         <div class="card">
-          <div class="card-title">Register Your Agent</div>
-          <div class="card-sub">Add your agent to the FairScale trust directory. CLI registration with signature verification is recommended.</div>
-          <div class="cli-block">npx fairscale-register --wallet YOUR_WALLET --name "Agent Name"</div>
-          <div style="margin-top:20px; padding-top: 20px; border-top: 1px solid var(--border);">
-            <div class="card-sub" style="margin-bottom:12px; font-size: 0.82rem; color: var(--text-dim);">Or register via the web (lower trust tier):</div>
-            <div class="input-group"><input type="text" id="regWallet" placeholder="Agent wallet address"></div>
-            <div class="form-grid">
-              <div><div class="form-label">Name</div><input type="text" id="regName" placeholder="My Agent"></div>
-              <div><div class="form-label">Website</div><input type="text" id="regWebsite" placeholder="https://..."></div>
-            </div>
-            <textarea id="regDesc" placeholder="What does your agent do?"></textarea>
-            <div class="form-grid">
-              <div><div class="form-label">MCP Endpoint</div><input type="text" id="regMcp" placeholder="https://mcp..."></div>
-              <div></div>
-            </div>
-            <button class="btn btn-primary btn-block" id="registerBtn">Register Agent</button>
+          <h2>Register Your Agent</h2>
+          <p class="sub">Add your agent to the registry. Registration via CLI with signature verification is recommended for security.</p>
+          <pre>npx fairscale-register --wallet YOUR_WALLET --name "Agent Name"</pre>
+          <p class="sub" style="margin-top:16px;">Or register without verification (lower trust):</p>
+          <div class="input-row"><input type="text" id="regWallet" placeholder="Agent wallet address"></div>
+          <div class="form-row">
+            <div><label>Name</label><input type="text" id="regName" placeholder="My Agent"></div>
+            <div><label>Website</label><input type="text" id="regWebsite" placeholder="https://..."></div>
           </div>
+          <textarea id="regDesc" placeholder="What does your agent do?"></textarea>
+          <div class="form-row">
+            <div><label>MCP Endpoint</label><input type="text" id="regMcp" placeholder="https://mcp..."></div>
+            <div></div>
+          </div>
+          <button class="btn btn-block" id="registerBtn">Register</button>
           <div class="msg error" id="regError"></div>
           <div class="msg success" id="regSuccess"></div>
         </div>
 
         <div class="card">
-          <div class="card-title">Register x402 Service</div>
-          <div class="card-sub">Expose a paid API endpoint for agent-to-agent commerce.</div>
-          <div class="cli-block">npx fairscale-register service --wallet WALLET --url URL --name "Service" --price "$0.01"</div>
+          <h2>Register x402 Service</h2>
+          <p class="sub">Expose a paid API endpoint. Requires CLI with signature for security.</p>
+          <pre>npx fairscale-register service --wallet WALLET --url URL --name "Service" --price "$0.01"</pre>
         </div>
       </div>
 
-      <!-- DIRECTORY -->
       <div id="tab-directory" class="tab-content">
-        <div class="dir-header">
-          <h2>Registered Agents</h2>
-          <span class="dir-count" id="dirCount">0</span>
+        <div class="card" style="padding:16px 20px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <h2 style="margin:0;">Agent Directory</h2>
+            <span style="color:var(--muted);font-size:0.8rem;" id="dirCount">0 agents</span>
+          </div>
+          <div class="dir-controls">
+            <input type="text" id="dirSearch" placeholder="Search by wallet or name...">
+            <select id="dirSource">
+              <option value="">All Sources</option>
+              <option value="said">SAID Protocol</option>
+              <option value="8004">ERC-8004</option>
+              <option value="both">Both Protocols</option>
+              <option value="fairscale">FairScale Registered</option>
+            </select>
+            <select id="dirSort">
+              <option value="agent_fairscore">FairScore</option>
+              <option value="activity">Activity</option>
+              <option value="holdings">Holdings</option>
+              <option value="reliability">Reliability</option>
+              <option value="history">History</option>
+            </select>
+            <select id="dirRec">
+              <option value="">All Tiers</option>
+              <option value="highly_recommended">Highly Recommended</option>
+              <option value="recommended">Recommended</option>
+              <option value="acceptable">Acceptable</option>
+              <option value="caution">Caution</option>
+            </select>
+          </div>
         </div>
-        <div class="dir-list" id="dirList"><div class="empty-state">No agents registered yet</div></div>
+        <div class="loading" id="dirLoading"><div class="spinner"></div><span>Loading directory...</span></div>
+        <div class="dir-list" id="dirList"><div class="empty">Loading...</div></div>
+        <div class="pagination" id="dirPagination"></div>
       </div>
 
-      <!-- SERVICES -->
-      <div id="tab-services" class="tab-content">
-        <div class="dir-header">
-          <h2>x402 Services</h2>
-          <span class="dir-count" id="svcCount">0</span>
+      <div id="tab-leaderboard" class="tab-content">
+        <div class="card" style="padding:16px 20px;">
+          <h2 style="margin:0 0 12px;">Leaderboards</h2>
+          <div class="lb-tabs" id="lbTabs">
+            <button class="lb-tab active" data-metric="agent_fairscore">FairScore</button>
+            <button class="lb-tab" data-metric="activity">Activity</button>
+            <button class="lb-tab" data-metric="holdings">Holdings</button>
+            <button class="lb-tab" data-metric="reliability">Reliability</button>
+            <button class="lb-tab" data-metric="history">History</button>
+          </div>
+          <div id="lbList"></div>
         </div>
-        <div class="loading" id="svcLoading"><div class="spinner"></div><span>Loading services...</span></div>
+      </div>
+
+      <div id="tab-services" class="tab-content">
+        <div class="card" style="padding:16px 20px;display:flex;justify-content:space-between;align-items:center;">
+          <h2 style="margin:0;">x402 Services</h2>
+          <span style="color:var(--muted);font-size:0.8rem;" id="svcCount">0</span>
+        </div>
+        <div class="loading" id="svcLoading"><div class="spinner"></div><span>Loading...</span></div>
         <div class="svc-grid" id="svcGrid"></div>
-        <div class="empty-state" id="svcEmpty" style="display:none;">No services registered yet. Use the CLI to add yours.</div>
+        <div class="empty" id="svcEmpty" style="display:none;">No services registered. Use CLI to add yours.</div>
       </div>
     </div>
 
-    <!-- ==================== HUMAN MODE ==================== -->
+    <!-- HUMAN MODE -->
     <div id="mode-human" class="mode-content">
       <div class="tabs">
         <button class="tab active" data-tab="h-check">Check Agent</button>
         <button class="tab" data-tab="h-directory">Browse Agents</button>
+        <button class="tab" data-tab="h-leaderboard">Leaderboards</button>
       </div>
 
       <div id="tab-h-check" class="tab-content active">
         <div class="card">
-          <div class="card-title">Verify Agent Reputation</div>
-          <div class="card-sub">Enter a wallet address to see on-chain behavior metrics and trust signals before interacting with any agent.</div>
-          <div class="input-group">
-            <input type="text" id="hWalletInput" placeholder="Agent wallet address...">
-            <button class="btn btn-primary" id="hCheckBtn">Verify</button>
+          <h2>Verify Agent Reputation</h2>
+          <p class="sub">Enter a wallet address to see on-chain behavior metrics and trust signals.</p>
+          <div class="input-row">
+            <input type="text" id="hWalletInput" placeholder="Agent wallet address">
+            <button class="btn" id="hCheckBtn">Check</button>
           </div>
           <div class="msg error" id="hCheckError"></div>
-          <div class="loading" id="hLoading"><div class="spinner"></div><span>Fetching reputation data...</span></div>
+          <div class="loading" id="hLoading"><div class="spinner"></div><span>Fetching...</span></div>
         </div>
         <div class="result" id="hResult"></div>
       </div>
 
       <div id="tab-h-directory" class="tab-content">
-        <div class="dir-header">
-          <h2>Agent Directory</h2>
-          <span class="dir-count" id="hDirCount">0</span>
+        <div class="card" style="padding:16px 20px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <h2 style="margin:0;">Agent Directory</h2>
+            <span style="color:var(--muted);font-size:0.8rem;" id="hDirCount">0 agents</span>
+          </div>
+          <div class="dir-controls">
+            <input type="text" id="hDirSearch" placeholder="Search by wallet or name...">
+            <select id="hDirSource">
+              <option value="">All Sources</option>
+              <option value="said">SAID Protocol</option>
+              <option value="8004">ERC-8004</option>
+              <option value="both">Both Protocols</option>
+            </select>
+            <select id="hDirSort">
+              <option value="agent_fairscore">FairScore</option>
+              <option value="activity">Activity</option>
+              <option value="holdings">Holdings</option>
+              <option value="reliability">Reliability</option>
+              <option value="history">History</option>
+            </select>
+            <select id="hDirRec">
+              <option value="">All Tiers</option>
+              <option value="highly_recommended">Highly Recommended</option>
+              <option value="recommended">Recommended</option>
+            </select>
+          </div>
         </div>
-        <div class="dir-list" id="hDirList"><div class="empty-state">No agents found</div></div>
+        <div class="dir-list" id="hDirList"><div class="empty">Loading...</div></div>
+        <div class="pagination" id="hDirPagination"></div>
+      </div>
+
+      <div id="tab-h-leaderboard" class="tab-content">
+        <div class="card" style="padding:16px 20px;">
+          <h2 style="margin:0 0 12px;">Leaderboards</h2>
+          <div class="lb-tabs" id="hLbTabs">
+            <button class="lb-tab active" data-metric="agent_fairscore">FairScore</button>
+            <button class="lb-tab" data-metric="activity">Activity</button>
+            <button class="lb-tab" data-metric="holdings">Holdings</button>
+            <button class="lb-tab" data-metric="reliability">Reliability</button>
+            <button class="lb-tab" data-metric="history">History</button>
+          </div>
+          <div id="hLbList"></div>
+        </div>
       </div>
     </div>
 
-    <!-- FOOTER -->
     <footer class="footer">
-      <div class="footer-left">Built on Solana</div>
-      <div class="footer-links">
-        <a href="https://fairscale.xyz">fairscale.xyz</a>
-        <a href="https://docs.fairscale.xyz">Docs</a>
-        <a href="https://twitter.com/fairscalexyz">Twitter</a>
-      </div>
+      <a href="https://fairscale.xyz">fairscale.xyz</a>
+      <a href="https://docs.fairscale.xyz">Docs</a>
+      <a href="https://twitter.com/fairscalexyz">Twitter</a>
     </footer>
-  </main>
+  </div>
 
-  <!-- VERIFY MODAL -->
   <div class="modal" id="verifyModal" onclick="if(event.target===this)this.classList.remove('show')">
     <div class="modal-box">
       <h3>Verify Agent</h3>
-      <p>Send USDC on Solana to verify and boost your agent's trust score</p>
+      <p>Send $5 USDC on Solana for +5 score boost</p>
       <div class="modal-amt">$5 USDC</div>
       <div class="modal-addr">fairAUEuR1SCcHL254Vb3F3XpUWLruJ2a11f6QfANEN</div>
-      <div style="font-size:0.78rem; color: var(--teal); margin-bottom: 8px;">+8 Score Boost</div>
       <div class="modal-btns">
-        <button class="btn btn-secondary" onclick="navigator.clipboard.writeText('fairAUEuR1SCcHL254Vb3F3XpUWLruJ2a11f6QfANEN');this.textContent='Copied!';setTimeout(()=>this.textContent='Copy Address',1500)">Copy Address</button>
-        <button class="btn btn-gold" onclick="verifyPayment()">I've Paid</button>
+        <button class="btn btn-secondary" onclick="navigator.clipboard.writeText('fairAUEuR1SCcHL254Vb3F3XpUWLruJ2a11f6QfANEN');alert('Copied!')">Copy</button>
+        <button class="btn btn-gold" onclick="verifyPayment()">Verify</button>
       </div>
       <div class="modal-status" id="verifyStatus"></div>
     </div>
@@ -672,6 +473,8 @@
   <script>
     const API = 'https://fairscale-reputation-api-production.up.railway.app';
     let current = null;
+    let dirPage = 1;
+    let hDirPage = 1;
 
     // Mode toggle
     document.querySelectorAll('.mode-btn').forEach(b => {
@@ -691,7 +494,10 @@
         p.querySelectorAll('.tab-content').forEach(x => x.classList.remove('active'));
         t.classList.add('active');
         p.querySelector('#tab-' + t.dataset.tab).classList.add('active');
-        if (t.dataset.tab === 'directory' || t.dataset.tab === 'h-directory') loadDir();
+        if (t.dataset.tab === 'directory') { dirPage = 1; loadDir(); }
+        if (t.dataset.tab === 'h-directory') { hDirPage = 1; loadDir('h'); }
+        if (t.dataset.tab === 'leaderboard') loadLB('lbTabs', 'lbList');
+        if (t.dataset.tab === 'h-leaderboard') loadLB('hLbTabs', 'hLbList');
         if (t.dataset.tab === 'services') loadSvc();
       };
     });
@@ -702,9 +508,9 @@
       const err = document.getElementById('regError');
       const ok = document.getElementById('regSuccess');
       err.classList.remove('show'); ok.classList.remove('show');
-      if (!w || w.length < 32) { err.textContent = 'Please enter a valid wallet address'; err.classList.add('show'); return; }
+      if (!w || w.length < 32) { err.textContent = 'Invalid wallet'; err.classList.add('show'); return; }
       const btn = document.getElementById('registerBtn');
-      btn.disabled = true; btn.textContent = 'Registering...';
+      btn.disabled = true;
       try {
         const r = await fetch(`${API}/register`, {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -717,12 +523,10 @@
           })
         });
         const d = await r.json();
-        if (d.success) {
-          ok.innerHTML = `Agent registered with score <strong>${d.agent?.agent_fairscore || '—'}</strong>`;
-          ok.classList.add('show');
-        } else { err.textContent = d.error || 'Registration failed'; err.classList.add('show'); }
-      } catch (e) { err.textContent = 'Network error — check connection'; err.classList.add('show'); }
-      btn.disabled = false; btn.textContent = 'Register Agent';
+        if (d.success) { ok.innerHTML = `✓ Registered. Score: <b>${d.agent?.agent_fairscore || '—'}</b>`; ok.classList.add('show'); }
+        else { err.textContent = d.error || 'Failed'; err.classList.add('show'); }
+      } catch (e) { err.textContent = 'Network error'; err.classList.add('show'); }
+      btn.disabled = false;
     };
 
     // Check score
@@ -732,7 +536,7 @@
       const ld = document.getElementById(lId);
       const res = document.getElementById(rId);
       err.classList.remove('show'); res.classList.remove('show');
-      if (!w || w.length < 32) { err.textContent = 'Please enter a valid wallet address'; err.classList.add('show'); return; }
+      if (!w || w.length < 32) { err.textContent = 'Invalid wallet'; err.classList.add('show'); return; }
       ld.classList.add('show');
       try {
         const r = await fetch(`${API}/score?wallet=${encodeURIComponent(w)}`);
@@ -750,142 +554,257 @@
     document.getElementById('walletInput').onkeypress = e => e.key === 'Enter' && check('walletInput', 'checkError', 'loading', 'result');
     document.getElementById('hWalletInput').onkeypress = e => e.key === 'Enter' && check('hWalletInput', 'hCheckError', 'hLoading', 'hResult');
 
-    function getColor(val) {
-      if (val >= 70) return 'var(--teal)';
-      if (val >= 40) return 'var(--cream)';
-      return 'var(--text-dim)';
+    function recBadge(rec) {
+      if (!rec) return '';
+      return `<div class="rec-badge ${rec.color}">${rec.label}</div>`;
+    }
+
+    function sourceTags(v) {
+      let html = '<div class="source-tags">';
+      if (v.isSaidAgent || v.verifications?.said_onchain) html += '<span class="source-tag said">SAID</span>';
+      if (v.verifications?.erc8004) html += '<span class="source-tag erc8004">ERC-8004</span>';
+      if (v.isRegistered) html += '<span class="source-tag fairscale">Registered</span>';
+      if (v.verifications?.clawkey?.verified) html += '<span class="source-tag clawkey">ClawKey ✓</span>';
+      if (v.isVerified) html += '<span class="source-tag" style="background:rgba(212,168,83,0.15);color:var(--gold);border:1px solid rgba(212,168,83,0.3);">Verified</span>';
+      html += '</div>';
+      return html;
+    }
+
+    function boostPills(d) {
+      const boosts = [];
+      if (d.isSaidAgent || d.verifications?.said_onchain) boosts.push({ label: 'SAID +3', gold: false });
+      if (d.verifications?.erc8004) boosts.push({ label: '8004 +5', gold: false });
+      if ((d.isSaidAgent || d.verifications?.said_onchain) && d.verifications?.erc8004) boosts.push({ label: 'Dual +3', gold: false });
+      if (d.verifications?.clawkey?.verified) boosts.push({ label: 'ClawKey +10', gold: true });
+      if (d.isVerified) boosts.push({ label: 'Verified +5', gold: true });
+      if (d.isRegistered) boosts.push({ label: 'Registered +2', gold: false });
+      if (d.said?.score > 0) boosts.push({ label: `SAID Rep +${Math.min((d.said?.feedbackCount || 0) * 3, 12)}`, gold: false });
+      if (d.said?.trustTier === 'high') boosts.push({ label: 'Trust +4', gold: false });
+      if (!boosts.length) return '';
+      return `<div class="boosts-section"><h4>Score Boosts</h4><div class="boost-pills">${boosts.map(b => `<span class="boost-pill${b.gold ? ' gold' : ''}">${b.label}</span>`).join('')}</div></div>`;
+    }
+
+    function erc8004Section(d) {
+      if (!d.verifications?.erc8004) return '';
+      // We get erc8004 data from the score endpoint — it may include name, skills, services
+      // For now show the tag; detailed data comes from the v1/score endpoint
+      return '';
     }
 
     function render(d, el) {
       const s = d.agent_fairscore || 0;
-      const tierClass = s >= 70 ? 'tier-gold' : s >= 40 ? 'tier-silver' : 'tier-bronze';
-      const tierLabel = s >= 70 ? 'Gold' : s >= 40 ? 'Silver' : 'Bronze';
+      const tier = s >= 70 ? 'gold' : s >= 40 ? 'silver' : 'bronze';
       const f = d.features || {};
       const desc = d.descriptions || {};
+      const rec = d.recommendation;
 
+      // Try v1/score for richer data if we don't have recommendation yet
       el.innerHTML = `
-        <div class="result-card">
-          <div class="result-top">
-            <div class="result-identity">
-              <div class="result-name">${d.name || 'Agent ' + d.wallet.slice(0, 8) + '...'}</div>
-              <div class="result-wallet">${d.wallet}</div>
-              ${d.description ? `
-              <div class="result-desc-wrap">
-                <div class="result-desc" id="descText">${d.description}</div>
-                <button class="result-desc-toggle" onclick="const el=document.getElementById('descText');const exp=el.classList.toggle('expanded');this.textContent=exp?'less':'more'">more</button>
-              </div>` : ''}
-              ${d.website ? `<a class="result-link" href="${d.website}" target="_blank">${d.website.replace(/^https?:\/\//, '')}</a>` : ''}
-              <div class="result-badges">
-                ${d.isRegistered ? '<span class="badge badge-registered">Registered</span>' : ''}
-                ${d.isVerified ? '<span class="badge badge-verified">Verified</span>' : ''}
+        <div class="result-header">
+          <div class="result-header-left">
+            <div class="result-name">${d.name || 'Agent ' + d.wallet.slice(0, 8) + '...'}</div>
+            <div class="result-wallet">${d.wallet}</div>
+            ${d.description ? `<div class="result-desc">${d.description}</div>` : ''}
+            ${d.website ? `<a class="result-link" href="${d.website}" target="_blank">${d.website.replace(/^https?:\/\//, '')}</a>` : ''}
+            ${sourceTags(d)}
+          </div>
+        </div>
+        <div class="score-hero">
+          <div class="value">${s}</div>
+          <div class="label">Agent FairScore</div>
+          <div class="tier ${tier}">${tier}</div>
+          ${rec ? recBadge(rec) : ''}
+        </div>
+        <div class="info-row">
+          <div class="info-box hl"><div class="k">SAID Score</div><div class="v">${d.said?.score ?? '—'}</div></div>
+          <div class="info-box"><div class="k">Trust Tier</div><div class="v">${d.said?.trustTier || '—'}</div></div>
+          <div class="info-box"><div class="k">Attestations</div><div class="v">${d.said?.feedbackCount || 0}</div></div>
+          <div class="info-box"><div class="k">Base Score</div><div class="v">${d.fairscore_base || '—'}</div></div>
+        </div>
+        ${boostPills(d)}
+        <div class="metrics">
+          <h4>Trust Metrics</h4>
+          <div class="metric-grid">
+            ${['activity', 'holdings', 'reliability', 'history'].map(k => `
+              <div class="metric">
+                <div class="metric-top"><span class="lbl">${k.charAt(0).toUpperCase() + k.slice(1)}</span><span class="val">${f[k] || 0}</span></div>
+                <div class="metric-bar"><div class="metric-bar-fill ${k}" style="width:${f[k] || 0}%"></div></div>
+                <div class="desc">${desc[k] || ''}</div>
               </div>
-            </div>
-            <div class="result-score-hero">
-              <div class="score-number">${s}</div>
-              <div class="score-label">Agent FairScore</div>
-              <div class="score-tier ${tierClass}">${tierLabel}</div>
-            </div>
+            `).join('')}
           </div>
-
-          <div class="result-sub-scores">
-            <div class="sub-score sub-score-hl">
-              <div class="sub-score-label">SAID Score</div>
-              <div class="sub-score-value">${d.said?.score ?? '—'}</div>
-            </div>
-            <div class="sub-score">
-              <div class="sub-score-label">Trust Tier</div>
-              <div class="sub-score-value">${d.said?.trustTier || '—'}</div>
-            </div>
-            <div class="sub-score">
-              <div class="sub-score-label">Attestations</div>
-              <div class="sub-score-value">${d.said?.feedbackCount || 0}</div>
-            </div>
-            <div class="sub-score">
-              <div class="sub-score-label">Base Score</div>
-              <div class="sub-score-value">${d.fairscore_base || '—'}</div>
-            </div>
+        </div>
+        ${!d.isVerified ? `
+        <div class="verify-cta">
+          <div class="verify-box">
+            <h4>Boost Your Score</h4>
+            <p>Pay to verify and increase visibility</p>
+            <div class="price">$5 USDC</div>
+            <div class="boost">+5 Score Boost</div>
+            <button class="btn btn-gold" onclick="document.getElementById('verifyModal').classList.add('show')">Verify</button>
           </div>
-
-          <div class="result-metrics">
-            <div class="metrics-title">Trust Metrics</div>
-            <div class="metric-grid">
-              ${['activity', 'holdings', 'reliability', 'history'].map(k => `
-                <div class="metric-card">
-                  <div class="metric-head">
-                    <span class="metric-label">${k}</span>
-                    <span class="metric-value" style="color:${getColor(f[k] || 0)}">${f[k] || 0}</span>
-                  </div>
-                  <div class="metric-bar"><div class="metric-bar-fill" style="width:${f[k] || 0}%"></div></div>
-                  <div class="metric-desc">${desc[k] || ''}</div>
-                </div>
-              `).join('')}
-            </div>
-          </div>
-
-          ${!d.isVerified ? `
-          <div class="result-verify">
-            <div class="verify-row">
-              <div class="verify-info">
-                <div class="verify-icon">⚡</div>
-                <div class="verify-text">
-                  <h4>Boost Your Score</h4>
-                  <p>Verify with USDC for increased trust and visibility</p>
-                </div>
-              </div>
-              <div class="verify-right">
-                <div>
-                  <div class="verify-price">$5</div>
-                  <div class="verify-boost">+8 boost</div>
-                </div>
-                <button class="btn btn-gold" onclick="document.getElementById('verifyModal').classList.add('show')">Verify</button>
-              </div>
-            </div>
-          </div>` : ''}
-
-          <div class="result-actions">
-            <button class="btn btn-secondary" onclick="window.open('https://solscan.io/account/${d.wallet}','_blank')">View on Solscan</button>
-            <button class="btn btn-secondary" onclick="navigator.clipboard.writeText(window.location.origin+'?wallet=${d.wallet}');this.textContent='Link Copied!';setTimeout(()=>this.textContent='Share',1500)">Share</button>
-          </div>
+        </div>` : ''}
+        <div class="actions">
+          <button class="btn btn-secondary" onclick="window.open('https://solscan.io/account/${d.wallet}','_blank')">Solscan</button>
         </div>
       `;
     }
 
-    async function loadDir() {
+    // Directory
+    let dirDebounce = null;
+    function setupDirControls(prefix) {
+      const searchEl = document.getElementById(prefix + 'DirSearch');
+      const sourceEl = document.getElementById(prefix + 'DirSource');
+      const sortEl = document.getElementById(prefix + 'DirSort');
+      const recEl = document.getElementById(prefix + 'DirRec');
+      const handler = () => {
+        if (prefix === 'h') hDirPage = 1; else dirPage = 1;
+        clearTimeout(dirDebounce);
+        dirDebounce = setTimeout(() => loadDir(prefix === 'h' ? 'h' : ''), 300);
+      };
+      searchEl.oninput = handler;
+      sourceEl.onchange = handler;
+      sortEl.onchange = handler;
+      recEl.onchange = handler;
+    }
+    setupDirControls('');
+    setupDirControls('h');
+
+    async function loadDir(prefix = '') {
+      const p = prefix === 'h' ? 'h' : '';
+      const page = p === 'h' ? hDirPage : dirPage;
+      const search = document.getElementById(p + (p ? 'D' : 'd') + 'irSearch').value.trim();
+      const source = document.getElementById(p + (p ? 'D' : 'd') + 'irSource').value;
+      const sort = document.getElementById(p + (p ? 'D' : 'd') + 'irSort').value;
+      const rec = document.getElementById(p + (p ? 'D' : 'd') + 'irRec').value;
+      
+      const params = new URLSearchParams({ page, limit: 25, sort });
+      if (search) params.set('search', search);
+      if (source) params.set('source', source);
+      if (rec) params.set('recommendation', rec);
+
+      const listEl = document.getElementById(p ? 'hDirList' : 'dirList');
+      const countEl = document.getElementById(p ? 'hDirCount' : 'dirCount');
+      const pagEl = document.getElementById(p ? 'hDirPagination' : 'dirPagination');
+      
       try {
-        const r = await fetch(`${API}/directory`);
+        const r = await fetch(`${API}/directory?${params}`);
         const d = await r.json();
         const agents = d.agents || [];
-        document.getElementById('dirCount').textContent = agents.length;
-        document.getElementById('hDirCount').textContent = agents.length;
-        const html = agents.length ? agents.map((a, i) => `
-          <div class="dir-item" onclick="quickCheck('${a.wallet}')">
-            <div class="dir-item-left">
-              <div class="dir-rank">${i + 1}</div>
-              <div>
-                <div class="dir-name">${a.name}</div>
-                <div class="dir-wallet">${a.wallet.slice(0, 6)}...${a.wallet.slice(-4)}</div>
-                <div class="dir-tags">
-                  ${a.isVerified ? '<span class="dir-tag dir-tag-verified">Verified</span>' : ''}
-                  ${a.services > 0 ? `<span class="dir-tag">${a.services} service${a.services > 1 ? 's' : ''}</span>` : ''}
+        countEl.textContent = `${d.total} agents`;
+
+        if (agents.length) {
+          listEl.innerHTML = agents.map(a => {
+            const recColor = a.recommendation?.color || '';
+            const recLabel = a.recommendation?.label || '';
+            const tagHtml = [
+              ...(a.sources || []).map(s => {
+                if (s === 'said') return '<span class="tag said">SAID</span>';
+                if (s === 'erc8004') return '<span class="tag erc8004">8004</span>';
+                if (s === 'fairscale') return '<span class="tag" style="background:rgba(232,212,196,0.15);color:var(--primary);">FS</span>';
+                return '';
+              }),
+              a.humanVerified ? '<span class="tag v">ClawKey ✓</span>' : '',
+              a.isVerified ? '<span class="tag v">Verified</span>' : '',
+              recLabel ? `<span class="tag rec rec-${recColor}">${recLabel}</span>` : '',
+            ].filter(Boolean).join('');
+
+            const subscore = sort !== 'agent_fairscore' ? `<div class="subscore">${sort}: ${a.features?.[sort] || '—'}</div>` : '';
+
+            return `
+              <div class="dir-item" onclick="quickCheck('${a.wallet}')">
+                <div class="info">
+                  <div class="rank">${a.rank}</div>
+                  <div style="min-width:0;">
+                    <div class="name">${a.name}</div>
+                    <div class="wallet">${a.wallet.slice(0, 6)}...${a.wallet.slice(-4)}</div>
+                    <div class="tags">${tagHtml}</div>
+                  </div>
+                </div>
+                <div class="right">
+                  ${subscore}
+                  <div class="score">${a.agent_fairscore}</div>
                 </div>
               </div>
-            </div>
-            <div class="dir-score">${a.agent_fairscore}</div>
-          </div>
-        `).join('') : '<div class="empty-state">No agents registered yet</div>';
-        document.getElementById('dirList').innerHTML = html;
-        document.getElementById('hDirList').innerHTML = html;
-      } catch (e) { console.error(e); }
+            `;
+          }).join('');
+        } else {
+          listEl.innerHTML = '<div class="empty">No agents found matching filters</div>';
+        }
+
+        // Pagination
+        if (d.totalPages > 1) {
+          pagEl.innerHTML = `
+            <button class="btn btn-secondary btn-sm" ${page <= 1 ? 'disabled' : ''} onclick="${p === 'h' ? 'hDirPage' : 'dirPage'}--;loadDir('${prefix}')">← Prev</button>
+            <span class="page-info">Page ${page} of ${d.totalPages}</span>
+            <button class="btn btn-secondary btn-sm" ${page >= d.totalPages ? 'disabled' : ''} onclick="${p === 'h' ? 'hDirPage' : 'dirPage'}++;loadDir('${prefix}')">Next →</button>
+          `;
+        } else {
+          pagEl.innerHTML = '';
+        }
+      } catch (e) {
+        listEl.innerHTML = '<div class="empty">Failed to load directory</div>';
+        console.error(e);
+      }
     }
 
     function quickCheck(w) {
       document.getElementById('walletInput').value = w;
       document.getElementById('hWalletInput').value = w;
-      document.querySelector('#mode-agent [data-tab="check"]')?.click();
-      document.querySelector('#mode-human [data-tab="h-check"]')?.click();
-      check('walletInput', 'checkError', 'loading', 'result');
+      const agentMode = document.getElementById('mode-agent').classList.contains('active');
+      if (agentMode) {
+        document.querySelector('#mode-agent [data-tab="check"]')?.click();
+      } else {
+        document.querySelector('#mode-human [data-tab="h-check"]')?.click();
+      }
+      check(agentMode ? 'walletInput' : 'hWalletInput', agentMode ? 'checkError' : 'hCheckError', agentMode ? 'loading' : 'hLoading', agentMode ? 'result' : 'hResult');
     }
 
+    // Leaderboards
+    async function loadLB(tabsId, listId) {
+      const active = document.querySelector(`#${tabsId} .lb-tab.active`);
+      const metric = active?.dataset.metric || 'agent_fairscore';
+      const el = document.getElementById(listId);
+      el.innerHTML = '<div class="loading show"><div class="spinner"></div><span>Loading...</span></div>';
+      try {
+        const r = await fetch(`${API}/leaderboard?metric=${metric}&limit=25`);
+        const d = await r.json();
+        const items = d.leaderboard || [];
+        if (items.length) {
+          el.innerHTML = items.map((a, i) => {
+            const rankClass = i === 0 ? 'top1' : i === 1 ? 'top2' : i === 2 ? 'top3' : '';
+            const srcTags = (a.sources || []).map(s => {
+              if (s === 'said') return '<span class="tag said" style="font-size:0.5rem;padding:1px 5px;">SAID</span>';
+              if (s === 'erc8004') return '<span class="tag erc8004" style="font-size:0.5rem;padding:1px 5px;">8004</span>';
+              return '';
+            }).join(' ');
+            return `
+              <div class="lb-item" style="cursor:pointer;" onclick="quickCheck('${a.wallet}')">
+                <div class="lb-rank ${rankClass}">#${a.rank}</div>
+                <div class="lb-name">${a.name} ${srcTags}</div>
+                <div class="lb-val ${metric}">${a.value}</div>
+              </div>
+            `;
+          }).join('');
+        } else {
+          el.innerHTML = '<div class="empty">No data</div>';
+        }
+      } catch (e) { el.innerHTML = '<div class="empty">Failed to load</div>'; }
+    }
+
+    // Setup leaderboard tabs
+    ['lbTabs', 'hLbTabs'].forEach(tabsId => {
+      const listId = tabsId === 'lbTabs' ? 'lbList' : 'hLbList';
+      document.querySelectorAll(`#${tabsId} .lb-tab`).forEach(t => {
+        t.onclick = () => {
+          document.querySelectorAll(`#${tabsId} .lb-tab`).forEach(x => x.classList.remove('active'));
+          t.classList.add('active');
+          loadLB(tabsId, listId);
+        };
+      });
+    });
+
+    // Services
     async function loadSvc() {
       const grid = document.getElementById('svcGrid');
       const ld = document.getElementById('svcLoading');
@@ -899,25 +818,26 @@
         if (svcs.length) {
           grid.innerHTML = svcs.map(s => `
             <div class="svc-card">
-              <div class="svc-name">${s.name}</div>
-              <div class="svc-desc">${s.description || 'x402 endpoint'}</div>
-              <div class="svc-footer">
-                <span class="svc-cat">${s.category}</span>
-                <span class="svc-price">${s.price}</span>
+              <div class="name">${s.name}</div>
+              <div class="desc">${s.description || 'x402 endpoint'}</div>
+              <div class="meta">
+                <span class="cat">${s.category}</span>
+                <span class="price">${s.price}</span>
               </div>
             </div>
           `).join('');
         } else {
           empty.style.display = 'block';
         }
-      } catch (e) { empty.style.display = 'block'; empty.textContent = 'Failed to load services'; }
+      } catch (e) { empty.style.display = 'block'; empty.textContent = 'Failed to load'; }
       ld.classList.remove('show');
     }
 
+    // Verify
     async function verifyPayment() {
       if (!current) return;
       const st = document.getElementById('verifyStatus');
-      st.className = 'modal-status show checking'; st.textContent = 'Checking for payment...';
+      st.className = 'modal-status show checking'; st.textContent = 'Checking...';
       try {
         const r = await fetch(`${API}/verify`, {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -925,27 +845,24 @@
         });
         const d = await r.json();
         if (d.success) {
-          st.className = 'modal-status show success'; st.textContent = 'Verified! Score boosted.';
-          setTimeout(() => {
-            document.getElementById('verifyModal').classList.remove('show');
-            check('walletInput', 'checkError', 'loading', 'result');
-          }, 1500);
+          st.className = 'modal-status show success'; st.textContent = '✓ Verified!';
+          setTimeout(() => { document.getElementById('verifyModal').classList.remove('show'); check('walletInput', 'checkError', 'loading', 'result'); }, 1200);
         } else {
-          st.className = 'modal-status show error'; st.textContent = d.error || 'Payment not found';
+          st.className = 'modal-status show error'; st.textContent = d.error || 'Not found';
         }
-      } catch (e) { st.className = 'modal-status show error'; st.textContent = 'Verification error'; }
+      } catch (e) { st.className = 'modal-status show error'; st.textContent = 'Error'; }
     }
 
     document.addEventListener('keydown', e => { if (e.key === 'Escape') document.getElementById('verifyModal').classList.remove('show'); });
 
-    // URL param handling
-    const p = new URLSearchParams(location.search);
-    if (p.get('wallet')) {
-      document.getElementById('walletInput').value = p.get('wallet');
-      document.querySelector('[data-tab="check"]')?.click();
-      setTimeout(() => check('walletInput', 'checkError', 'loading', 'result'), 200);
+    // URL params
+    const urlP = new URLSearchParams(location.search);
+    if (urlP.get('wallet')) {
+      document.getElementById('walletInput').value = urlP.get('wallet');
+      setTimeout(() => check('walletInput', 'checkError', 'loading', 'result'), 100);
     }
 
+    // Initial load
     loadDir();
   </script>
 </body>
