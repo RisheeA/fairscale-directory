@@ -3,395 +3,264 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FairScale — Agent Trust Directory</title>
+  <title>FairScale — Agent Trust Directory (Beta)</title>
   <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     @font-face{font-family:'Advercase';src:url('assets/Advercase-Regular.ttf') format('truetype')}
     @font-face{font-family:'Advercase';src:url('assets/Advercase-Bold.ttf') format('truetype');font-weight:700}
     *{margin:0;padding:0;box-sizing:border-box}
-    :root{--bg:#f5f0e8;--surface:#faf7f2;--card:#ffffff;--border:#e8e0d4;--primary:#1a1612;--accent:#3d7a62;--gold:#c8963a;--text:#2c2620;--muted:#8a8078;--dim:#b8b0a4;--blue:#4a68b8;--purple:#7a5aa0;--red:#c44a3a;--orange:#c87a3a;--vgreen:#2d8a4a;--pink:#b86878;--shadow:0 1px 3px rgba(26,22,18,.06),0 4px 12px rgba(26,22,18,.04);--shadow-lg:0 2px 8px rgba(26,22,18,.08),0 8px 24px rgba(26,22,18,.06)}
-    body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
-    /* Header */
-    .header{display:flex;justify-content:space-between;align-items:center;padding:14px 32px;border-bottom:1px solid var(--border);background:linear-gradient(135deg,var(--surface),#f8f4ec);position:sticky;top:0;z-index:80;backdrop-filter:blur(12px)}
-    .header img{height:26px}.header nav{display:flex;gap:4px}
-    .header nav a{color:var(--muted);text-decoration:none;font-size:.8rem;padding:6px 14px;border-radius:8px;transition:.2s}
-    .header nav a:hover{color:var(--text);background:rgba(0,0,0,.04)}.header nav a.act{color:var(--accent);font-weight:600;background:rgba(61,122,98,.08)}
-    .directory-view{display:none;flex:1;height:calc(100vh - 53px)}.directory-view.active{display:flex}
-    .page-view{display:none;flex:1;overflow-y:auto;padding:40px 32px}.page-view.active{display:block}
-    .directory-panel{flex:1;display:flex;flex-direction:column;min-width:0}
-    /* Hero */
-    .hero{padding:28px 32px 0;background:linear-gradient(180deg,rgba(61,122,98,.04),transparent);animation:fadeIn .5s ease}
-    .hero-title{font-family:'Advercase';font-size:1.6rem;color:var(--primary);background:linear-gradient(135deg,#1a1612,#3d7a62);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-    .hero-sub{font-size:.84rem;color:var(--muted);margin-top:4px}
-    .hero-row{display:flex;align-items:center;gap:12px;margin-top:14px;flex-wrap:wrap}
-    .hero-stat{font-size:.74rem;color:var(--muted);background:var(--card);border:1px solid var(--border);border-radius:8px;padding:5px 12px;box-shadow:var(--shadow)}
-    .hero-stat strong{color:var(--accent);font-weight:600}
-    .lookup-btn{background:linear-gradient(135deg,#3d7a62,#4a9878);color:#fff;border:none;font-family:'DM Sans';font-size:.8rem;padding:8px 22px;border-radius:8px;cursor:pointer;font-weight:500;transition:.2s;box-shadow:0 2px 8px rgba(61,122,98,.25)}
-    .lookup-btn:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(61,122,98,.35)}
-    .refresh-btn{background:var(--card);border:1px solid var(--border);color:var(--muted);width:36px;height:36px;border-radius:8px;cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center;transition:.2s;box-shadow:var(--shadow)}
-    .refresh-btn:hover{color:var(--accent);border-color:var(--accent);transform:rotate(180deg)}
-    /* Filters */
-    .filter-bar{display:flex;gap:8px;padding:14px 32px;align-items:center;flex-wrap:wrap}
-    .filter-bar input{flex:2;min-width:180px;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 16px;font-size:.84rem;color:var(--text);font-family:inherit;outline:none;box-shadow:var(--shadow);transition:.2s}
-    .filter-bar input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(61,122,98,.12)}
-    .filter-bar input::placeholder{color:var(--dim)}
-    .filter-bar select{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-size:.78rem;color:var(--text);font-family:inherit;cursor:pointer;outline:none;box-shadow:var(--shadow);min-width:110px}
-    .agent-count{font-size:.76rem;color:var(--muted);margin-left:auto}
-    /* Directory */
-    .dir-scroll{flex:1;overflow-y:auto;padding:0 32px 20px}.dir-scroll::-webkit-scrollbar{width:6px}.dir-scroll::-webkit-scrollbar-thumb{background:var(--dim);border-radius:6px}
-    .agent-row{display:flex;align-items:center;gap:14px;padding:14px 18px;margin-top:8px;background:var(--card);border:1px solid var(--border);border-radius:12px;cursor:pointer;transition:all .25s cubic-bezier(.4,0,.2,1);box-shadow:var(--shadow);animation:slideUp .35s ease both}
-    .agent-row:hover{border-color:var(--accent);box-shadow:var(--shadow-lg);transform:translateY(-2px)}
-    .agent-row.active{border-color:var(--accent);background:linear-gradient(135deg,#f0f8f4,#f5f8f2)}
-    .agent-rank{font-family:'Advercase';color:var(--dim);width:24px;font-size:.85rem;text-align:center;flex-shrink:0}
-    .agent-rank.top1{color:var(--gold);font-weight:700;text-shadow:0 0 8px rgba(200,150,58,.3)}.agent-rank.top2{color:#8a8078}.agent-rank.top3{color:#b0845a}
-    .agent-info{flex:1;min-width:0}
-    .agent-name{font-weight:600;font-size:.9rem;color:var(--primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .agent-wallet{font-family:monospace;font-size:.6rem;color:var(--dim);margin-top:2px}
-    .agent-tags{display:flex;gap:4px;margin-top:6px;flex-wrap:wrap}
-    .atag{font-size:.55rem;padding:2px 8px;border-radius:6px;font-weight:600;text-transform:uppercase}
-    .atag.said{background:linear-gradient(135deg,#e8f4ee,#dff0e8);color:var(--accent)}.atag.erc8004{background:linear-gradient(135deg,#e8ecf8,#dee4f0);color:var(--blue)}
-    .atag.clawkey{background:linear-gradient(135deg,#faf0e0,#f5e8d0);color:var(--gold)}
-    .atag.rec{border-radius:10px;padding:2px 10px}
-    .atag.rec-gold{background:linear-gradient(135deg,#faf0e0,#f5e8d0);color:#9a7420}.atag.rec-green{background:linear-gradient(135deg,#e8f4ee,#dff0e8);color:var(--accent)}
-    .atag.rec-yellow{background:#faf5e0;color:#8a7020}.atag.rec-orange{background:#faf0e0;color:#a06020}.atag.rec-red{background:#fae8e8;color:var(--red)}
-    .agent-bars{display:flex;gap:2px;align-items:flex-end;height:24px;flex-shrink:0}.agent-bars .mini-bar{width:5px;border-radius:3px 3px 0 0;transition:height .3s ease}
-    .agent-score{font-family:'Advercase';font-size:1.6rem;font-weight:700;color:var(--primary);flex-shrink:0;min-width:42px;text-align:right}
-    .agent-subscore{font-size:.58rem;color:var(--accent);text-align:right;font-weight:600;background:rgba(61,122,98,.08);padding:1px 6px;border-radius:4px;display:inline-block}
-    /* Pagination */
-    .pag{display:flex;justify-content:center;align-items:center;gap:8px;padding:10px 32px}
-    .pg-btn{background:var(--card);border:1px solid var(--border);color:var(--muted);padding:7px 16px;border-radius:8px;font-size:.76rem;cursor:pointer;font-family:inherit;box-shadow:var(--shadow);transition:.2s}
-    .pg-btn:hover:not(:disabled){border-color:var(--accent);color:var(--text);transform:translateY(-1px)}.pg-btn:disabled{opacity:.3;cursor:not-allowed}
-    .pg-info{font-size:.76rem;color:var(--muted)}
-    .empty{text-align:center;padding:60px 20px;color:var(--dim);font-size:.88rem}
-    /* Profile */
-    .profile-panel{width:0;overflow:hidden;background:var(--surface);border-left:1px solid var(--border);transition:width .3s cubic-bezier(.4,0,.2,1);flex-shrink:0;display:flex;flex-direction:column}
-    .profile-panel.open{width:560px}
-    .profile-scroll{flex:1;overflow-y:auto}.profile-scroll::-webkit-scrollbar{width:6px}.profile-scroll::-webkit-scrollbar-thumb{background:var(--dim);border-radius:6px}
-    .profile-header{display:flex;justify-content:space-between;align-items:flex-start;padding:22px 26px;border-bottom:1px solid var(--border);position:sticky;top:0;background:linear-gradient(180deg,var(--surface),rgba(250,247,242,.95));z-index:5;backdrop-filter:blur(8px)}
-    .profile-close{background:none;border:1px solid var(--border);color:var(--muted);width:30px;height:30px;border-radius:8px;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:.2s}
-    .profile-close:hover{color:var(--text);background:rgba(0,0,0,.04);transform:rotate(90deg)}
-    .profile-name{font-family:'Source Serif 4',serif;font-size:1.2rem;font-weight:700;color:var(--primary)}
-    .profile-wallet{font-family:monospace;font-size:.62rem;color:var(--dim);margin-top:3px;cursor:pointer;transition:.15s}.profile-wallet:hover{color:var(--accent)}
-    .profile-desc{font-size:.8rem;color:var(--muted);margin-top:8px;line-height:1.55}
-    .profile-tags{display:flex;gap:5px;margin-top:10px;flex-wrap:wrap}
-    .trust-summary{font-size:.82rem;color:var(--text);line-height:1.55;padding:16px 26px;background:linear-gradient(135deg,rgba(61,122,98,.06),rgba(200,150,58,.04));border-bottom:1px solid var(--border)}
-    /* Score */
-    .score-section{padding:28px 26px;background:linear-gradient(135deg,#1a1612,#2a2420,#1a2018);border-bottom:1px solid var(--border);text-align:center;position:relative;overflow:hidden}
-    .score-section::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle at 30% 50%,rgba(61,122,98,.15),transparent 50%);pointer-events:none}
-    .score-big{font-family:'Advercase';font-size:3.8rem;font-weight:700;color:#f5f0e8;line-height:1;position:relative}
-    .score-label{font-size:.65rem;color:#b8b0a4;text-transform:uppercase;letter-spacing:.12em;margin-top:6px}
-    .score-badges{display:flex;justify-content:center;gap:6px;margin-top:14px;flex-wrap:wrap}
-    .sbadge{font-size:.65rem;padding:4px 14px;border-radius:14px;font-weight:600}
-    .sbadge.tier-gold{background:linear-gradient(135deg,#c8963a,#daa84a);color:#fff;box-shadow:0 2px 8px rgba(200,150,58,.3)}
-    .sbadge.tier-silver{background:linear-gradient(135deg,#8a8078,#a09888);color:#fff}.sbadge.tier-bronze{background:linear-gradient(135deg,#b0845a,#c0946a);color:#fff}
-    .sbadge.rec{border:1.5px solid}
-    .sbadge.rec-gold{border-color:var(--gold);color:var(--gold);background:rgba(200,150,58,.1)}
-    .sbadge.rec-green{border-color:var(--accent);color:var(--accent);background:rgba(61,122,98,.1)}
-    .sbadge.rec-yellow{border-color:#8a7020;color:#8a7020;background:rgba(138,112,32,.1)}
-    .sbadge.rec-orange{border-color:var(--orange);color:var(--orange);background:rgba(200,122,58,.08)}
-    .sbadge.rec-red{border-color:var(--red);color:var(--red);background:rgba(196,74,58,.08)}
-    .sbadge.pct{background:rgba(61,122,98,.15);color:#c8dcc8;border:1px solid rgba(61,122,98,.3)}
-    /* Info grid */
-    .info-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:16px 26px;border-bottom:1px solid var(--border)}
-    .info-cell{background:var(--card);border-radius:10px;padding:12px 10px;text-align:center;box-shadow:var(--shadow);border:1px solid var(--border);transition:.2s}
-    .info-cell:hover{box-shadow:var(--shadow-lg);transform:translateY(-1px)}
-    .info-cell .ik{font-size:.52rem;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
-    .info-cell .iv{font-family:'Advercase';font-size:1rem;color:var(--primary);margin-top:4px}
-    .info-cell.hl{border-color:var(--accent);background:linear-gradient(135deg,#f0f8f4,#e8f4ee)}.info-cell.hl .iv{color:var(--accent)}
-    .info-cell.desc-good{border-color:var(--purple);background:linear-gradient(135deg,#f4f0f8,#ece8f4)}.info-cell.desc-good .iv{color:var(--purple)}
-    .info-cell.desc-q{border-color:var(--purple);background:linear-gradient(135deg,#f4f0f8,#ece4f4)}.info-cell.desc-q .iv{color:var(--purple)}
-    /* Sections */
-    .psection{padding:18px 26px;border-bottom:1px solid var(--border);animation:fadeIn .3s ease}
-    .psection-title{font-family:'Advercase';font-size:.74rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px}
-    .flags-bar{display:flex;flex-wrap:wrap;gap:5px}.flag{font-size:.66rem;padding:4px 12px;border-radius:8px;background:linear-gradient(135deg,#fae8e8,#f8e0e0);border:1px solid #f0d0d0;color:var(--red);text-transform:capitalize}
-    .v-pills{display:flex;flex-wrap:wrap;gap:6px}
-    .vpill{font-size:.66rem;padding:5px 12px;border-radius:8px;font-weight:500;transition:.2s}
-    .vpill.on{background:linear-gradient(135deg,#e8f4ee,#dff0e8);border:1px solid #c8e8d8;color:var(--vgreen)}
-    .vpill.off{background:#f8f6f2;border:1px solid var(--border);color:var(--dim);text-decoration:line-through}
-    /* Pillars */
-    .pillar-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-    .pillar{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;box-shadow:var(--shadow);transition:all .25s}
-    .pillar:hover{box-shadow:var(--shadow-lg);transform:translateY(-1px)}.pillar.inactive{opacity:.35}
-    .pillar-top{display:flex;justify-content:space-between;align-items:center}
-    .pillar .plbl{font-size:.64rem;color:var(--muted);text-transform:uppercase;font-weight:600}
-    .pillar .pweight{font-size:.56rem;color:var(--dim)}.pillar .pval{font-family:'Advercase';font-size:1.3rem;font-weight:700;color:var(--primary)}
-    .pillar .ppct{font-size:.56rem;color:var(--accent);margin-left:4px}
-    .pillar-bar{height:5px;background:var(--border);border-radius:4px;margin:8px 0 6px;overflow:hidden}
-    .pillar-bar-fill{height:100%;border-radius:4px;transition:width .8s cubic-bezier(.4,0,.2,1)}
-    .pillar-desc{font-size:.64rem;color:var(--muted);line-height:1.45}
-    .pb-reliability{background:linear-gradient(90deg,#3d7a62,#5aad8e)}.pb-track_record{background:linear-gradient(90deg,#4a68b8,#7088e8)}
-    .pb-economic_stake{background:linear-gradient(90deg,#c8963a,#e0b85c)}.pb-ecosystem{background:linear-gradient(90deg,#7a5aa0,#ab7ed0)}
-    .pb-verification{background:linear-gradient(90deg,#2d8a4a,#4abc6a)}.pb-social{background:linear-gradient(90deg,#b86878,#db7a90)}
-    /* Socials & Actions */
-    .social-row{display:flex;flex-wrap:wrap;gap:6px}
-    .slink{font-size:.72rem;padding:5px 14px;border-radius:8px;text-decoration:none;background:var(--card);border:1px solid var(--border);color:var(--text);box-shadow:var(--shadow);transition:.2s}
-    .slink:hover{border-color:var(--accent);transform:translateY(-1px)}.slink.tw{color:#1a8cd8}
-    .profile-actions{padding:18px 26px;display:flex;gap:8px}
-    .pact-btn{flex:1;padding:11px;border-radius:10px;font-family:'DM Sans';font-size:.8rem;font-weight:500;cursor:pointer;text-align:center;text-decoration:none;display:flex;align-items:center;justify-content:center;border:1px solid var(--border);background:var(--card);color:var(--text);box-shadow:var(--shadow);transition:all .2s}
-    .pact-btn:hover{border-color:var(--accent);transform:translateY(-1px);box-shadow:var(--shadow-lg)}
-    .pact-btn.primary{background:linear-gradient(135deg,#3d7a62,#4a9878);border-color:transparent;color:#fff;box-shadow:0 2px 8px rgba(61,122,98,.25)}
-    /* Modal */
-    .modal-overlay{display:none;position:fixed;inset:0;background:rgba(26,22,18,.5);z-index:100;align-items:center;justify-content:center;backdrop-filter:blur(6px)}.modal-overlay.show{display:flex}
-    .modal-box{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:32px;width:460px;max-width:92vw;box-shadow:var(--shadow-lg);animation:scaleIn .25s cubic-bezier(.4,0,.2,1)}
-    .modal-box h3{font-family:'Source Serif 4',serif;color:var(--primary);font-size:1.15rem;font-weight:700;margin-bottom:6px}
-    .modal-box p{font-size:.82rem;color:var(--muted);margin-bottom:16px}
-    .modal-input-row{display:flex;gap:8px}
-    .modal-input-row input{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 16px;font-size:.85rem;color:var(--text);font-family:monospace;outline:none;transition:.2s}
-    .modal-input-row input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(61,122,98,.1)}
-    .modal-input-row input::placeholder{color:var(--dim);font-family:'DM Sans'}
-    .modal-input-row button{background:linear-gradient(135deg,#3d7a62,#4a9878);border:none;color:#fff;padding:0 22px;border-radius:10px;font-family:'DM Sans';font-weight:600;font-size:.84rem;cursor:pointer;transition:.2s;box-shadow:0 2px 8px rgba(61,122,98,.2)}
-    .modal-input-row button:hover{transform:translateY(-1px)}
-    .modal-error{font-size:.78rem;color:var(--red);margin-top:8px;display:none}.modal-error.show{display:block}
-    .modal-loading{display:none;align-items:center;gap:8px;margin-top:10px;color:var(--muted);font-size:.82rem}.modal-loading.show{display:flex}
-    .spinner{width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
-    /* FAQ */
-    .faq{max-width:720px;margin:0 auto}
-    .faq h1{font-family:'Advercase';font-size:1.6rem;background:linear-gradient(135deg,#1a1612,#3d7a62);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:8px}
-    .faq h2{font-family:'Advercase';font-size:1rem;color:var(--primary);margin:28px 0 10px;padding-top:20px;border-top:1px solid var(--border)}
-    .faq h2:first-of-type{border-top:none;margin-top:16px}
-    .faq p{font-size:.88rem;color:var(--text);line-height:1.65;margin-bottom:12px}
-    .faq code{background:var(--card);border:1px solid var(--border);padding:2px 6px;border-radius:4px;font-size:.8rem;color:var(--accent)}
-    .faq pre{background:#1a1612;border-radius:10px;padding:16px 20px;margin:12px 0;overflow-x:auto;box-shadow:var(--shadow)}
-    .faq pre code{background:none;border:none;color:#e8e0d4;font-size:.76rem;line-height:1.6;padding:0;display:block;white-space:pre}
-    .fpill{font-size:.72rem;padding:4px 12px;border-radius:8px;background:var(--card);border:1px solid var(--border);color:var(--muted);display:inline-block;margin:2px}
-    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
-    @keyframes slideUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-    @keyframes scaleIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
-    @keyframes spin{to{transform:rotate(360deg)}}
-    @media(max-width:900px){.profile-panel.open{width:100%;position:fixed;inset:0;top:53px;z-index:90}}
-    @media(max-width:600px){.hero{padding:20px 18px 0}.filter-bar{padding:12px 18px}.dir-scroll{padding:0 18px 16px}.info-grid{grid-template-columns:repeat(2,1fr)}.pillar-grid{grid-template-columns:1fr}.agent-bars{display:none}}
+    :root{--bg:#f5f0e8;--surface:#faf7f2;--card:#ffffff;--border:#e8e0d4;--primary:#1a1612;--accent:#3d7a62;--gold:#c8963a;--text:#2c2620;--muted:#8a8078;--dim:#b8b0a4;--red:#c44a3a;--shadow:0 1px 3px rgba(26,22,18,.06),0 4px 12px rgba(26,22,18,.04);--shadow-lg:0 4px 16px rgba(26,22,18,.08),0 12px 32px rgba(26,22,18,.06)}
+    body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+
+    /* Gate overlay */
+    .gate{position:fixed;inset:0;z-index:200;background:var(--bg);display:flex;align-items:center;justify-content:center;transition:opacity .5s,visibility .5s}
+    .gate.hidden{opacity:0;visibility:hidden;pointer-events:none}
+
+    /* Background pattern */
+    .gate-bg{position:absolute;inset:0;overflow:hidden}
+    .gate-bg .orb{position:absolute;border-radius:50%;filter:blur(80px);opacity:.15;animation:orbFloat 20s ease-in-out infinite}
+    .orb-1{width:500px;height:500px;background:var(--accent);top:-10%;left:-5%;animation-delay:0s}
+    .orb-2{width:400px;height:400px;background:var(--gold);bottom:-10%;right:-5%;animation-delay:-7s}
+    .orb-3{width:300px;height:300px;background:#7a5aa0;top:50%;left:60%;animation-delay:-14s}
+    @keyframes orbFloat{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(30px,-40px) scale(1.1)}66%{transform:translate(-20px,30px) scale(.9)}}
+
+    /* Gate card */
+    .gate-card{position:relative;z-index:1;width:440px;max-width:92vw;text-align:center;animation:cardIn .6s cubic-bezier(.16,1,.3,1) both}
+    @keyframes cardIn{from{opacity:0;transform:translateY(24px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+
+    .gate-logo{height:32px;margin-bottom:32px;opacity:.8}
+    .gate-title{font-family:'Advercase';font-size:1.8rem;color:var(--primary);line-height:1.2}
+    .gate-title span{background:linear-gradient(135deg,var(--accent),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .gate-sub{font-size:.88rem;color:var(--muted);margin-top:8px;line-height:1.55}
+    .gate-badge{display:inline-block;font-size:.6rem;font-weight:600;text-transform:uppercase;letter-spacing:.1em;padding:4px 14px;border-radius:20px;background:linear-gradient(135deg,rgba(61,122,98,.1),rgba(200,150,58,.1));border:1px solid rgba(61,122,98,.2);color:var(--accent);margin-top:16px}
+
+    /* Tabs */
+    .gate-tabs{display:flex;gap:0;margin-top:28px;background:var(--card);border-radius:12px;border:1px solid var(--border);overflow:hidden;box-shadow:var(--shadow)}
+    .gate-tab{flex:1;padding:12px;font-size:.8rem;font-weight:500;color:var(--muted);cursor:pointer;border:none;background:none;font-family:inherit;transition:.2s}
+    .gate-tab.active{color:var(--accent);background:rgba(61,122,98,.06);font-weight:600}
+    .gate-tab:hover:not(.active){color:var(--text);background:rgba(0,0,0,.02)}
+
+    /* Forms */
+    .gate-form{margin-top:16px;display:none;animation:fadeUp .3s ease}
+    .gate-form.active{display:block}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+    .gate-input-group{margin-top:12px;text-align:left}
+    .gate-label{font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;display:block;font-weight:500}
+    .gate-input{width:100%;background:var(--card);border:1.5px solid var(--border);border-radius:10px;padding:13px 16px;font-size:.88rem;color:var(--text);font-family:inherit;outline:none;transition:.2s}
+    .gate-input:focus{border-color:var(--accent);box-shadow:0 0 0 4px rgba(61,122,98,.08)}
+    .gate-input::placeholder{color:var(--dim)}
+    .gate-input.mono{font-family:'SF Mono',SFMono-Regular,Consolas,monospace;letter-spacing:.05em}
+
+    .gate-btn{width:100%;margin-top:16px;padding:14px;background:linear-gradient(135deg,#3d7a62,#4a9878);color:#fff;border:none;border-radius:10px;font-family:'DM Sans';font-size:.88rem;font-weight:600;cursor:pointer;transition:.25s;box-shadow:0 2px 12px rgba(61,122,98,.25)}
+    .gate-btn:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(61,122,98,.35)}
+    .gate-btn:active{transform:translateY(0)}
+    .gate-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+
+    .gate-msg{margin-top:12px;font-size:.78rem;padding:10px 14px;border-radius:8px;display:none}
+    .gate-msg.error{display:block;background:#fae8e8;color:var(--red);border:1px solid #f0d0d0}
+    .gate-msg.success{display:block;background:#e8f4ee;color:var(--accent);border:1px solid #c8e8d8}
+
+    .gate-divider{margin-top:20px;font-size:.72rem;color:var(--dim);position:relative}
+    .gate-divider::before,.gate-divider::after{content:'';position:absolute;top:50%;width:calc(50% - 40px);height:1px;background:var(--border)}
+    .gate-divider::before{left:0}.gate-divider::after{right:0}
+
+    .gate-footer{margin-top:32px;font-size:.72rem;color:var(--dim);line-height:1.6}
+    .gate-footer a{color:var(--accent);text-decoration:none}
+    .gate-footer a:hover{text-decoration:underline}
+
+    /* Responsive */
+    @media(max-width:480px){.gate-title{font-size:1.4rem}.gate-card{padding:0 16px}}
   </style>
 </head>
 <body>
-  <header class="header">
-    <a href="#" onclick="showPage('directory');return false"><img src="assets/logo.png" alt="FairScale"></a>
-    <nav>
-      <a href="#" class="act" id="navDir" onclick="showPage('directory');return false">Directory</a>
-      <a href="#" id="navFaq" onclick="showPage('faq');return false">How It Works</a>
-      <a href="https://fairscale.xyz" target="_blank">App</a>
-      <a href="https://twitter.com/fairscalexyz" target="_blank">Twitter</a>
-    </nav>
-  </header>
-  <div class="directory-view active" id="dirPage">
-    <div class="directory-panel">
-      <div class="hero">
-        <div class="hero-title">Agent Trust Directory</div>
-        <div class="hero-sub">Solana agents ranked by on-chain behavior, verification, and reputation.</div>
-        <div class="hero-row"><span class="hero-stat" id="heroStats">Loading...</span><button class="lookup-btn" id="openLookup">Look up any wallet</button><button class="refresh-btn" id="refreshDir" onclick="loadDir();loadStats()" title="Refresh directory">↻</button></div>
+  <!-- BETA GATE -->
+  <div class="gate" id="gate">
+    <div class="gate-bg">
+      <div class="orb orb-1"></div>
+      <div class="orb orb-2"></div>
+      <div class="orb orb-3"></div>
+    </div>
+    <div class="gate-card">
+      <img src="assets/logo.png" alt="FairScale" class="gate-logo">
+      <div class="gate-title">Agent Trust <span>Directory</span></div>
+      <div class="gate-sub">The trust and discovery layer for Solana AI agents. Ranked by on-chain behavior, protocol verification, and reputation.</div>
+      <div class="gate-badge">Private Beta</div>
+
+      <div class="gate-tabs">
+        <button class="gate-tab active" onclick="switchTab('access')">Enter Access Code</button>
+        <button class="gate-tab" onclick="switchTab('login')">Sign In</button>
       </div>
-      <div class="pag" id="pagTop"></div>
-      <div class="filter-bar">
-        <input type="text" id="dirSearch" placeholder="Search by name or wallet...">
-        <select id="dirSource"><option value="">All Sources</option><option value="said">SAID</option><option value="8004">ERC-8004</option><option value="both">Both</option></select>
-        <select id="dirSort"><option value="agent_fairscore">FairScore</option><option value="verification">Verification</option><option value="reliability">Reliability</option><option value="track_record">Track Record</option><option value="economic_stake">Eco. Stake</option><option value="ecosystem">Ecosystem</option></select>
-        <select id="dirRec"><option value="">All Tiers</option><option value="highly_recommended">Highly Recommended</option><option value="recommended">Recommended</option><option value="acceptable">Acceptable</option><option value="caution">Caution</option></select>
-        <span class="agent-count" id="dirCount"></span>
+
+      <!-- Access Code Form -->
+      <div class="gate-form active" id="formAccess">
+        <div class="gate-input-group">
+          <label class="gate-label">Access Code</label>
+          <input class="gate-input mono" id="codeInput" type="text" placeholder="Enter your beta access code" autocomplete="off">
+        </div>
+        <div class="gate-input-group">
+          <label class="gate-label">Email Address</label>
+          <input class="gate-input" id="emailInput" type="email" placeholder="you@example.com">
+        </div>
+        <button class="gate-btn" id="codeBtn" onclick="submitCode()">Access Directory</button>
+        <div class="gate-msg" id="codeMsg"></div>
       </div>
-      <div class="dir-scroll" id="dirScroll"><div class="empty">Loading directory...</div></div>
-      <div class="pag" id="pagBottom"></div>
-    </div>
-    <div class="profile-panel" id="profilePanel"><div class="profile-scroll" id="profileContent"><div class="empty" style="color:var(--dim)">Select an agent</div></div></div>
-  </div>
-  <div class="page-view" id="faqPage">
-    <div class="faq">
-      <h1>How FairScale Agent Trust Works</h1>
-      <p>FairScale's Agent Trust Directory scores every AI agent on Solana by combining on-chain behavioral analysis with protocol verification and social reputation. The result is a single trust score — the Agent FairScore — that protocols can embed in their transaction flows to decide whether to interact with an agent.</p>
 
-      <h2>What is the Agent FairScore?</h2>
-      <p>A composite score from 0-100 blending FairScale's neural network wallet analysis (trained on 13M+ transactions, rescored every 24 hours) with our six-pillar trust interpretation layer. The formula:</p>
-      <p><strong>Score = (FairScale Base × 20%) + (Trust Composite × 80%) + Multi-Registry Bonus + Attestation Boost + Description Bonus − Red Flag Penalties</strong></p>
-      <p>The trust composite is weighted heavily because verification and behavioral analysis are the strongest trust indicators — a raw wallet score alone isn't enough to assess an AI agent.</p>
+      <!-- Login Form -->
+      <div class="gate-form" id="formLogin">
+        <div class="gate-input-group">
+          <label class="gate-label">Email Address</label>
+          <input class="gate-input" id="loginEmail" type="email" placeholder="you@example.com">
+        </div>
+        <button class="gate-btn" onclick="submitLogin()">Sign In</button>
+        <div class="gate-msg" id="loginMsg"></div>
+      </div>
 
-      <h2>The Six Trust Pillars</h2>
-      <p><strong>Verification (35-40%)</strong> — the dominant signal. Protocol registrations on SAID, ERC-8004, and SATI prove commitment. A single registry scores 40/100. Dual-registry scores 65/100. Triple: 75/100. ClawKey human verification adds +20. SAID reputation tier adds up to +12.</p>
-      <p><strong>Reliability (22-25%)</strong> — behavioral consistency: conviction ratio, transaction tempo, burst patterns, capital flow direction. Agents that dump tokens or drain SOL get penalized.</p>
-      <p><strong>Social & Reputation (0-12%)</strong> — FairScale social_score, SAID reputation score, SAID attestations/feedback, and linked social handles. If no social data is available, this pillar's weight redistributes to Verification and Reliability automatically.</p>
-      <p><strong>Track Record (13-16%)</strong> — wallet age, active days, activity consistency, median hold duration, and transaction cadence. FairScale Pro provides 1-year behavioral windows.</p>
-      <p><strong>Economic Stake (8-9%)</strong> — stablecoins, native SOL, liquid staking tokens, and major token positions.</p>
-      <p><strong>Ecosystem (10%)</strong> — cross-protocol diversity. An agent active across 8 protocols is more trustworthy than one locked to a single contract.</p>
-
-      <h2>Multi-Registry Bonus</h2>
-      <p>Agents verified on multiple protocols receive a direct score bonus outside the pillar system: +10 for dual registry (e.g. SAID + ERC-8004), +15 for triple. This is the single strongest trust signal — an agent that independently registered on multiple protocols demonstrates real commitment.</p>
-
-      <h2>Attestation Network</h2>
-      <p>SAID reputation feedback and SATI/SAS on-chain attestations are weighted by the attester's own trustworthiness (quadratic weighting). An endorsement from a 90-score agent is worth 9× more than one from a 30-score agent. High-quality attestation networks boost scores by up to +15 points.</p>
-
-      <h2>Description Quality</h2>
-      <p>Agents with detailed, specific descriptions about their capabilities earn a bonus (up to +5 points). The system analyzes for professional keywords, specific protocol mentions (Jupiter, Raydium, Meteora, etc.), and red-flag language.</p>
-
-      <h2>Red Flags & Penalties</h2>
-      <p>The scoring engine detects suspicious patterns (up to -10 points): brand new wallets with extreme transaction volume, single-protocol bots, spam-speed transactions, instant token dumps, and heavy SOL drains.</p>
-
-      <h2>Task-Specific Profiles</h2>
-      <p>Different tasks require different trust signals. Use the <code>task</code> parameter to score agents against optimized weight profiles:</p>
-      <p><span class="fpill">default</span> <span class="fpill">defi_execution</span> <span class="fpill">content_creation</span> <span class="fpill">social_management</span> <span class="fpill">trading</span> <span class="fpill">data_analysis</span> <span class="fpill">high_value</span></p>
-
-      <h2>Data Sources</h2>
-      <p>All data is live — no simulated or cached scores. Sources: FairScale API (Pro tier, 1-year behavioral window, daily rescoring), SAID Protocol (on-chain PDA discovery via Helius), ERC-8004 Solana Agent Registry (Helius DAS), SATI Token-2022 NFTs, ClawKey/VeryAI human verification.</p>
-
-      <h1 style="margin-top:48px">API Reference</h1>
-      <p>Base URL: <code>https://fairscale-reputation-api-production.up.railway.app</code></p>
-      <p>All endpoints return JSON. No authentication required for public endpoints. Rate limits apply.</p>
-
-      <h2>GET /v1/score</h2>
-      <p>Score any Solana wallet. Returns full breakdown with all six pillar scores, percentiles, red flags, attestation data, and trust summary.</p>
-      <pre><code>GET /v1/score?wallet=8oPy1bQ...&task=defi_execution</code></pre>
-      <p><strong>Parameters:</strong></p>
-      <p><code>wallet</code> (required) — Solana wallet address</p>
-      <p><code>task</code> (optional) — Task profile for custom weight distribution</p>
-      <p><strong>Example response:</strong></p>
-      <pre><code>{
-  "wallet": "8oPy1bQ...",
-  "name": "MetEngine",
-  "agent_fairscore": 68,
-  "fairscore_base": 55,
-  "trust_summary": "Verified on ERC-8004 with good trust...",
-  "recommendation": { "tier": "recommended", "label": "Recommended", "color": "green" },
-  "features": {
-    "verification": 65, "reliability": 72, "social": 0,
-    "track_record": 45, "economic_stake": 38, "ecosystem": 60
-  },
-  "breakdown": {
-    "fs_base_raw": 55, "fs_base_normalized": 69,
-    "trust_composite": 52, "multi_registry_bonus": 10,
-    "attestation_boost": 0, "desc_boost": 3,
-    "red_flag_penalty": 0, "time_decay": 1.0
-  },
-  "percentiles": { "agent_fairscore": 82, "verification": 95, "reliability": 68 },
-  "red_flags": [],
-  "verifications": { "said_onchain": true, "erc8004": true, "sati": false, "clawkey": null }
-}</code></pre>
-
-      <h2>POST /v1/score/batch</h2>
-      <p>Score up to 25 wallets in one call.</p>
-      <pre><code>POST /v1/score/batch
-Content-Type: application/json
-
-{ "wallets": ["8oPy1bQ...", "5G5HDv..."], "task": "trading" }</code></pre>
-
-      <h2>GET /v1/trust-gate</h2>
-      <p>Single-call allow/deny decision for protocols. Designed for embedding in transaction flows.</p>
-      <pre><code>GET /v1/trust-gate?wallet=8oPy1bQ...&min_score=50&task=defi_execution&require_verification=true</code></pre>
-      <p><strong>Parameters:</strong></p>
-      <p><code>wallet</code> (required) — Wallet to check</p>
-      <p><code>min_score</code> — Minimum score to allow (default: 40)</p>
-      <p><code>task</code> — Task-specific weight profile</p>
-      <p><code>require_verification</code> — Require at least one protocol registration (default: true)</p>
-      <p><code>require_no_flags</code> — Reject agents with red flags (default: false)</p>
-      <p><strong>Example response:</strong></p>
-      <pre><code>{
-  "decision": "allow",
-  "wallet": "8oPy1bQ...",
-  "fairscore": 68,
-  "recommendation": "Recommended",
-  "reasons": ["Score 68 >= minimum 50", "Verified on ERC-8004"],
-  "red_flags": [],
-  "verification": { "said": true, "erc8004": true, "sati": false, "clawkey": false }
-}</code></pre>
-
-      <h2>GET /v1/directory</h2>
-      <p>Query the full agent directory with filters, pagination, and sorting.</p>
-      <pre><code>GET /v1/directory?page=1&limit=25&sort=agent_fairscore&source=both&min_score=50</code></pre>
-      <p><strong>Parameters:</strong> <code>page</code>, <code>limit</code> (max 100), <code>sort</code> (any pillar name), <code>source</code> (said/8004/both), <code>search</code>, <code>recommendation</code>, <code>min_score</code>, <code>verified_only</code>, <code>has_flags</code></p>
-
-      <h2>GET /v1/agent/:wallet_or_name</h2>
-      <p>Look up an agent by wallet address (full profile) or name (fuzzy search, returns top results by score).</p>
-      <pre><code>GET /v1/agent/MetEngine
-GET /v1/agent/8oPy1bQ...</code></pre>
-
-      <h2>GET /v1/task-profiles</h2>
-      <p>List all available task-specific scoring profiles with their weight distributions.</p>
-      <pre><code>GET /v1/task-profiles</code></pre>
-      <p><strong>Example response:</strong></p>
-      <pre><code>{
-  "profiles": {
-    "defi_execution": {
-      "description": "DeFi trading, swaps, yield strategies",
-      "weights": { "verification": 0.25, "reliability": 0.30, "social": 0.05, "track_record": 0.15, "economic_stake": 0.20, "ecosystem": 0.05 }
-    }
-  }
-}</code></pre>
-
-      <h2>GET /v1/score-history</h2>
-      <p>Score trend and historical snapshots for a wallet.</p>
-      <pre><code>GET /v1/score-history?wallet=8oPy1bQ...</code></pre>
-
-      <h2>GET /v1/attestation-graph</h2>
-      <p>Attestation network data for a wallet — who attested, their scores, and weighted trust.</p>
-      <pre><code>GET /v1/attestation-graph?wallet=8oPy1bQ...</code></pre>
-
-      <h2>GET /v1/health</h2>
-      <p>Health check with sync status and registry counts.</p>
-
-      <h2>Integration Example</h2>
-      <p>Embed trust-gating in your protocol's transaction flow:</p>
-      <pre><code>// Before executing an agent's trade request:
-const res = await fetch(
-  'https://fairscale-reputation-api-production.up.railway.app' +
-  '/v1/trust-gate?wallet=' + agentWallet +
-  '&min_score=50&task=defi_execution&require_verification=true'
-);
-const { decision, fairscore, reasons } = await res.json();
-
-if (decision === 'allow') {
-  // Execute the agent's request
-  await executeAgentTrade(agentWallet, tradeParams);
-} else {
-  // Reject or require additional verification
-  console.log('Agent rejected:', reasons);
-}</code></pre>
+      <div class="gate-footer">
+        <a href="https://fairscale.xyz" target="_blank">fairscale.xyz</a> · <a href="https://twitter.com/fairscalexyz" target="_blank">@fairscalexyz</a>
+      </div>
     </div>
   </div>
-  <div class="modal-overlay" id="lookupModal">
-    <div class="modal-box">
-      <h3>Look Up Any Wallet</h3>
-      <p>Enter a Solana wallet address to see its trust score and breakdown.</p>
-      <div class="modal-input-row"><input type="text" id="lookupInput" placeholder="Wallet address..."><button id="lookupBtn">Score</button></div>
-      <div class="modal-error" id="lookupError"></div>
-      <div class="modal-loading" id="lookupLoading"><div class="spinner"></div><span>Scoring wallet...</span></div>
-    </div>
+
+  <!-- MAIN APP (hidden behind gate) -->
+  <div id="mainApp" style="display:none">
+    <!-- This is where the directory loads -->
   </div>
+
   <script>
-    const API='https://fairscale-reputation-api-production.up.railway.app';
-    let dirPage=1,activeWallet=null;
-    function showPage(p){document.getElementById('dirPage').classList.toggle('active',p==='directory');document.getElementById('faqPage').classList.toggle('active',p==='faq');document.getElementById('navDir').classList.toggle('act',p==='directory');document.getElementById('navFaq').classList.toggle('act',p==='faq')}
-    document.getElementById('openLookup').onclick=()=>document.getElementById('lookupModal').classList.add('show');
-    document.getElementById('lookupModal').onclick=e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove('show')};
-    document.getElementById('lookupBtn').onclick=doLookup;
-    document.getElementById('lookupInput').onkeypress=e=>e.key==='Enter'&&doLookup();
-    async function doLookup(){const w=document.getElementById('lookupInput').value.trim(),err=document.getElementById('lookupError'),ld=document.getElementById('lookupLoading');err.classList.remove('show');ld.classList.remove('show');if(!w||w.length<32){err.textContent='Enter a valid Solana wallet address';err.classList.add('show');return}ld.classList.add('show');try{const d=await(await fetch(`${API}/score?wallet=${encodeURIComponent(w)}`)).json();if(d.error)throw new Error(d.error);document.getElementById('lookupModal').classList.remove('show');ld.classList.remove('show');showPage('directory');renderProfile(d);document.getElementById('profilePanel').classList.add('open');activeWallet=w}catch(e){err.textContent=e.message;err.classList.add('show');ld.classList.remove('show')}}
-    let deb=null;['dirSearch','dirSource','dirSort','dirRec'].forEach(id=>{document.getElementById(id)[id==='dirSearch'?'oninput':'onchange']=()=>{dirPage=1;clearTimeout(deb);deb=setTimeout(loadDir,250)}});
-    function pagHTML(p,t){if(t<=1)return'';return`<button class="pg-btn" ${p<=1?'disabled':''} onclick="dirPage--;loadDir()">←</button><span class="pg-info">${p} / ${t}</span><button class="pg-btn" ${p>=t?'disabled':''} onclick="dirPage++;loadDir()">→</button>`}
-    async function loadDir(){const sort=document.getElementById('dirSort').value,params=new URLSearchParams({page:dirPage,limit:25,sort}),search=document.getElementById('dirSearch').value.trim(),source=document.getElementById('dirSource').value,rec=document.getElementById('dirRec').value;if(search)params.set('search',search);if(source)params.set('source',source);if(rec)params.set('recommendation',rec);const scroll=document.getElementById('dirScroll');try{const d=await(await fetch(`${API}/directory?${params}`)).json();document.getElementById('dirCount').textContent=`${d.total} agents`;const ph=pagHTML(dirPage,d.totalPages);document.getElementById('pagTop').innerHTML=ph;document.getElementById('pagBottom').innerHTML=ph;if((d.agents||[]).length){scroll.innerHTML=d.agents.map((a,i)=>{const rc=a.recommendation?.color||'',rl=a.recommendation?.label||'';const tags=[...(a.sources||[]).map(s=>s==='said'?'<span class="atag said">SAID</span>':s==='erc8004'?'<span class="atag erc8004">8004</span>':s==='sati'?'<span class="atag erc8004">SATI</span>':''),a.humanVerified?'<span class="atag clawkey">ClawKey ✓</span>':'',rl?`<span class="atag rec rec-${rc}">${rl}</span>`:''].filter(Boolean).join('');const f=a.features||{};const bars=[{v:f.verification||0,c:'#4abc6a'},{v:f.reliability||0,c:'#5aad8e'},{v:f.social||0,c:'#db7a90'},{v:f.track_record||0,c:'#7088e8'},{v:f.economic_stake||0,c:'#e0b85c'},{v:f.ecosystem||0,c:'#ab7ed0'}].map(b=>`<div class="mini-bar" style="height:${Math.max(b.v*.24,2)}px;background:${b.c}"></div>`).join('');const sub=sort!=='agent_fairscore'?`<div class="agent-subscore">${sort.replace(/_/g,' ')}: ${f[sort]||'—'}</div>`:'';return`<div class="agent-row${a.wallet===activeWallet?' active':''}" data-wallet="${a.wallet}" onclick="selectAgent('${a.wallet}')" style="animation-delay:${i*25}ms"><div class="agent-rank${a.rank<=3?' top'+a.rank:''}">${a.rank}</div><div class="agent-info"><div class="agent-name">${a.name}</div><div class="agent-wallet">${a.wallet.slice(0,6)}...${a.wallet.slice(-4)}</div><div class="agent-tags">${tags}</div></div><div class="agent-bars">${bars}</div><div style="text-align:right">${sub}<div class="agent-score">${a.agent_fairscore}</div></div></div>`}).join('')}else scroll.innerHTML='<div class="empty">No agents match your filters</div>'}catch(e){scroll.innerHTML='<div class="empty">Failed to load directory</div>'}}
-    async function loadStats(){try{const d=await(await fetch(`${API}/stats`)).json();document.getElementById('heroStats').innerHTML=`<strong>${d.agents||0}</strong> scored · <strong>${d.erc8004Agents||0}</strong> ERC-8004 · <strong>${d.saidAgents||0}</strong> SAID`}catch(e){document.getElementById('heroStats').textContent=''}}
-    async function selectAgent(w){activeWallet=w;document.querySelectorAll('.agent-row').forEach(el=>el.classList.toggle('active',el.dataset.wallet===w));document.getElementById('profilePanel').classList.add('open');document.getElementById('profileContent').innerHTML='<div class="empty"><div class="spinner"></div></div>';try{const d=await(await fetch(`${API}/score?wallet=${encodeURIComponent(w)}`)).json();if(d.error)throw new Error(d.error);renderProfile(d)}catch(e){document.getElementById('profileContent').innerHTML=`<div class="empty">${e.message}</div>`}}
-    function renderProfile(d){
-      const s=d.agent_fairscore||0,tier=s>=70?'gold':s>=40?'silver':'bronze';
-      const f=d.features||{},desc=d.descriptions||{},rec=d.recommendation,bd=d.breakdown||{},pct=d.percentiles||{},flags=d.red_flags||[],v=d.verifications||{},socials=d.socials||{};
-      const stags=[v.said_onchain||d.isSaidAgent?'<span class="atag said">SAID</span>':'',v.erc8004?'<span class="atag erc8004">ERC-8004</span>':'',v.sati?'<span class="atag erc8004">SATI</span>':'',v.clawkey?.verified?'<span class="atag clawkey">ClawKey ✓</span>':''].filter(Boolean).join('');
-      const vPills=[{l:'SAID',on:v.said_onchain||d.isSaidAgent},{l:'ERC-8004',on:v.erc8004},{l:'SATI',on:v.sati},{l:'ClawKey',on:v.clawkey?.verified},{l:'Payment',on:d.isVerified},{l:'Registered',on:d.isRegistered}].map(p=>`<span class="vpill ${p.on?'on':'off'}">${p.on?'✓ ':''}${p.l}</span>`).join('');
-      const pillars=[{key:'verification',label:'Verification',dw:30,color:'verification'},{key:'reliability',label:'Reliability',dw:25,color:'reliability'},{key:'social',label:'Social & Rep',dw:12,color:'social'},{key:'track_record',label:'Track Record',dw:15,color:'track_record'},{key:'economic_stake',label:'Eco. Stake',dw:9,color:'economic_stake'},{key:'ecosystem',label:'Ecosystem',dw:10,color:'ecosystem'}].map(p=>{
-        const w=bd.weights_used?Math.round((bd.weights_used[p.key]||0)*100):p.dw,inactive=w===0,val=inactive?0:(f[p.key]||0);
-        return`<div class="pillar${inactive?' inactive':''}"><div class="pillar-top"><div><span class="plbl">${p.label}</span> <span class="pweight">${w}%</span></div><div><span class="pval">${val}</span>${!inactive&&pct[p.key]!=null?`<span class="ppct">top ${100-pct[p.key]}%</span>`:''}</div></div><div class="pillar-bar"><div class="pillar-bar-fill pb-${p.color}" style="width:${inactive?0:val}%"></div></div><div class="pillar-desc">${inactive?'No data — weight redistributed':(desc[p.key]||'')}</div></div>`;
-      }).join('');
-      const socialLinks=[socials.twitter?`<a class="slink tw" href="https://x.com/${socials.twitter.replace('@','')}" target="_blank">𝕏 ${socials.twitter}</a>`:'',socials.github?`<a class="slink" href="https://github.com/${socials.github}" target="_blank">GitHub</a>`:'',socials.telegram?`<a class="slink" href="https://t.me/${socials.telegram}" target="_blank">Telegram</a>`:''].filter(Boolean).join('');
-      const dq=bd.desc_quality||0;
-      const ag=d.attestation_graph||{};
-      const agCount=ag.attester_count||0;
-      document.getElementById('profileContent').innerHTML=`
-        <div class="profile-header"><div><div class="profile-name">${d.name||'Agent '+d.wallet.slice(0,8)+'...'}</div><div class="profile-wallet" onclick="navigator.clipboard.writeText('${d.wallet}')" title="Click to copy">${d.wallet}</div>${d.description?`<div class="profile-desc">${d.description}</div>`:''}<div class="profile-tags">${stags}</div></div><button class="profile-close" onclick="document.getElementById('profilePanel').classList.remove('open');activeWallet=null;document.querySelectorAll('.agent-row').forEach(e=>e.classList.remove('active'))">✕</button></div>
-        ${d.trust_summary?`<div class="trust-summary">${d.trust_summary}</div>`:''}
-        <div class="score-section"><div class="score-big">${s}</div><div class="score-label">Agent FairScore</div><div class="score-badges"><span class="sbadge tier-${tier}">${tier}</span>${rec?`<span class="sbadge rec rec-${rec.color}">${rec.label}</span>`:''}${pct.agent_fairscore!=null?`<span class="sbadge pct">Top ${100-pct.agent_fairscore}%</span>`:''}</div></div>
-        <div class="info-grid"><div class="info-cell hl"><div class="ik">FairScale Base</div><div class="iv">${d.fairscore_base||bd.fs_base_raw||'—'}</div></div><div class="info-cell"><div class="ik">Social</div><div class="iv">${d.social_score||bd.fs_social_raw||'—'}</div></div><div class="info-cell"><div class="ik">SAID</div><div class="iv">${d.said?.score??'—'}</div></div><div class="info-cell${dq>30?' desc-good':''}"><div class="ik">Desc. Quality</div><div class="iv">${dq>0?dq+'/100':'—'}</div></div></div>
-        ${flags.length?`<div class="psection"><div class="psection-title">⚠ Flags (${bd.red_flag_penalty||0}pt penalty)</div><div class="flags-bar">${flags.map(fl=>`<span class="flag">${fl.replace(/_/g,' ')}</span>`).join('')}</div></div>`:''}
-        <div class="psection"><div class="psection-title">Verification</div><div class="v-pills">${vPills}</div></div>
-        <div class="psection"><div class="psection-title">Trust Pillars</div><div class="pillar-grid">${pillars}</div></div>
-        <div class="psection"><div class="psection-title">Attestation Network</div>${agCount>0?`<div style="display:flex;gap:10px;margin-bottom:8px"><div class="info-cell" style="flex:1"><div class="ik">Attesters</div><div class="iv">${agCount}</div></div><div class="info-cell" style="flex:1"><div class="ik">Weighted Score</div><div class="iv">${ag.weighted_score||0}</div></div>${ag.highest_attester?`<div class="info-cell" style="flex:1"><div class="ik">Top Attester Score</div><div class="iv">${ag.highest_attester}</div></div>`:''}</div><p style="font-size:.72rem;color:var(--muted)">Attestations are weighted by the attester's own FairScore. Higher-trust attesters carry more weight.</p>`:`<p style="font-size:.72rem;color:var(--dim);padding:8px 0">No attestations yet. Agents can build trust by receiving attestations from other verified agents via SATI or SAS.</p>`}</div>
-        ${d.score_trend?.snapshots>1?`<div class="psection"><div class="psection-title">Score Trend</div><div style="display:flex;gap:12px;align-items:center;font-size:.82rem"><span style="font-size:1.2rem">${d.score_trend.trend==='rising'?'📈':d.score_trend.trend==='falling'?'📉':'➡️'}</span><span style="font-weight:600;text-transform:capitalize">${d.score_trend.trend}</span><span style="color:${d.score_trend.change>=0?'var(--accent)':'var(--red)'};font-weight:600">${d.score_trend.change>=0?'+':''}${d.score_trend.change}</span><span style="color:var(--dim)">${d.score_trend.snapshots} snapshots</span></div></div>`:''}
-        ${socialLinks?`<div class="psection"><div class="psection-title">Socials</div><div class="social-row">${socialLinks}</div></div>`:''}
-        <div class="profile-actions"><a class="pact-btn" href="https://solscan.io/account/${d.wallet}" target="_blank">Solscan ↗</a>${d.website?`<a class="pact-btn" href="${d.website}" target="_blank">Website ↗</a>`:''}${!d.isVerified?`<button class="pact-btn primary" onclick="alert('Coming soon')">Verify Agent</button>`:''}</div>`;
+    // =========================================================================
+    // BETA GATE LOGIC
+    // =========================================================================
+
+    const CODES = {
+      'Ch@os123': { type: 'unlimited', maxUses: Infinity },
+      'fAIRgent123': { type: 'limited', maxUses: 20 },
+    };
+
+    // Storage keys
+    const STORAGE_USERS = 'fs_beta_users';      // { email: { code, accessedAt, ... } }
+    const STORAGE_CODE_USES = 'fs_beta_codes';   // { code: count }
+    const STORAGE_SESSION = 'fs_beta_session';   // current logged-in email
+
+    function getStore(key) {
+      try { return JSON.parse(localStorage.getItem(key)) || {}; } catch { return {}; }
     }
-    loadDir();loadStats();
+    function setStore(key, val) {
+      localStorage.setItem(key, JSON.stringify(val));
+    }
+
+    // Check if already logged in
+    function checkSession() {
+      const session = localStorage.getItem(STORAGE_SESSION);
+      if (session) {
+        const users = getStore(STORAGE_USERS);
+        if (users[session]) {
+          grantAccess();
+          return true;
+        }
+      }
+      return false;
+    }
+
+    function switchTab(tab) {
+      document.querySelectorAll('.gate-tab').forEach((t, i) => {
+        t.classList.toggle('active', (tab === 'access' && i === 0) || (tab === 'login' && i === 1));
+      });
+      document.getElementById('formAccess').classList.toggle('active', tab === 'access');
+      document.getElementById('formLogin').classList.toggle('active', tab === 'login');
+      clearMessages();
+    }
+
+    function clearMessages() {
+      ['codeMsg', 'loginMsg'].forEach(id => {
+        const el = document.getElementById(id);
+        el.className = 'gate-msg'; el.textContent = '';
+      });
+    }
+
+    function showMsg(id, text, type) {
+      const el = document.getElementById(id);
+      el.textContent = text;
+      el.className = 'gate-msg ' + type;
+    }
+
+    function submitCode() {
+      const code = document.getElementById('codeInput').value.trim();
+      const email = document.getElementById('emailInput').value.trim().toLowerCase();
+
+      if (!code) return showMsg('codeMsg', 'Please enter an access code.', 'error');
+      if (!email || !email.includes('@')) return showMsg('codeMsg', 'Please enter a valid email address.', 'error');
+
+      // Check code validity
+      const codeDef = CODES[code];
+      if (!codeDef) return showMsg('codeMsg', 'Invalid access code. Please check and try again.', 'error');
+
+      // Check usage limit
+      const codeUses = getStore(STORAGE_CODE_USES);
+      const currentUses = codeUses[code] || 0;
+      if (codeDef.type === 'limited' && currentUses >= codeDef.maxUses) {
+        return showMsg('codeMsg', 'This access code has reached its usage limit.', 'error');
+      }
+
+      // Check if email already registered with a different code
+      const users = getStore(STORAGE_USERS);
+      if (users[email] && users[email].code !== code) {
+        // Allow — they're using a different valid code, update it
+      }
+
+      // Register user
+      users[email] = { code, accessedAt: new Date().toISOString(), uses: (users[email]?.uses || 0) + 1 };
+      setStore(STORAGE_USERS, users);
+
+      // Increment code usage (only if not unlimited)
+      if (codeDef.type === 'limited') {
+        codeUses[code] = currentUses + 1;
+        setStore(STORAGE_CODE_USES, codeUses);
+      }
+
+      // Set session
+      localStorage.setItem(STORAGE_SESSION, email);
+
+      showMsg('codeMsg', 'Access granted. Loading directory...', 'success');
+      setTimeout(grantAccess, 800);
+    }
+
+    function submitLogin() {
+      const email = document.getElementById('loginEmail').value.trim().toLowerCase();
+      if (!email || !email.includes('@')) return showMsg('loginMsg', 'Please enter a valid email address.', 'error');
+
+      const users = getStore(STORAGE_USERS);
+      if (!users[email]) return showMsg('loginMsg', 'No account found with this email. Please use an access code first.', 'error');
+
+      localStorage.setItem(STORAGE_SESSION, email);
+      showMsg('loginMsg', 'Welcome back. Loading directory...', 'success');
+      setTimeout(grantAccess, 800);
+    }
+
+    function grantAccess() {
+      document.getElementById('gate').classList.add('hidden');
+      document.getElementById('mainApp').style.display = 'block';
+      loadDirectory();
+    }
+
+    function loadDirectory() {
+      // Load the actual directory app into mainApp
+      const app = document.getElementById('mainApp');
+      const iframe = document.createElement('iframe');
+      iframe.src = 'directory.html';
+      iframe.style.cssText = 'width:100%;height:100vh;border:none;display:block';
+      app.appendChild(iframe);
+    }
+
+    // Enter key handlers
+    document.getElementById('codeInput')?.addEventListener('keypress', e => { if (e.key === 'Enter') document.getElementById('emailInput').focus(); });
+    document.getElementById('emailInput')?.addEventListener('keypress', e => { if (e.key === 'Enter') submitCode(); });
+    document.getElementById('loginEmail')?.addEventListener('keypress', e => { if (e.key === 'Enter') submitLogin(); });
+
+    // Auto-check session on load
+    if (!checkSession()) {
+      document.getElementById('gate').style.display = 'flex';
+    }
   </script>
 </body>
 </html>
