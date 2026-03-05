@@ -10,12 +10,12 @@
     @font-face { font-family: 'Advercase'; src: url('assets/Advercase-Bold.ttf') format('truetype'); font-weight: 700; }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     :root {
-      --bg: #060608; --surface: #0e0f12; --card: #13141a; --border: #1e2028;
-      --primary: #e8d4c4; --accent: #4a9079; --gold: #d4a853;
-      --text: #e4e4e7; --muted: #71717a; --dim: #3f3f46;
-      --green: #4a9079; --blue: #6478dc; --purple: #9b6abc;
-      --yellow: #d4a853; --red: #c94232; --orange: #c97832;
-      --vgreen: #2ea043; --pink: #cf6679;
+      --bg: #080a0e; --surface: #111318; --card: #181b22; --border: #262a35;
+      --primary: #f0dcc8; --accent: #5aad8e; --gold: #e0b85c;
+      --text: #ededf0; --muted: #8a8a96; --dim: #52525e;
+      --green: #5aad8e; --blue: #7088e8; --purple: #ab7ed0;
+      --yellow: #e0b85c; --red: #d4493a; --orange: #d48a42;
+      --vgreen: #3ab858; --pink: #db7a90;
     }
     body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
     body::before { content: ''; position: fixed; inset: 0; background: url('assets/background.png') center/cover no-repeat; opacity: 0.04; z-index: -1; pointer-events: none; }
@@ -100,7 +100,7 @@
     .sbadge.rec-red { border-color: var(--red); color: var(--red); background: rgba(201,66,50,0.08); }
     .sbadge.pct { background: rgba(74,144,121,0.1); border: 1px solid rgba(74,144,121,0.25); color: var(--accent); }
     .info-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; padding: 14px 24px; border-bottom: 1px solid var(--border); }
-    .info-cell { background: rgba(0,0,0,0.25); border-radius: 6px; padding: 10px 8px; text-align: center; }
+    .info-cell { background: rgba(255,255,255,0.03); border-radius: 6px; padding: 10px 8px; text-align: center; border: 1px solid rgba(255,255,255,0.04); }
     .info-cell .ik { font-size: 0.5rem; color: var(--dim); text-transform: uppercase; letter-spacing: 0.04em; }
     .info-cell .iv { font-family: 'Advercase'; font-size: 0.95rem; color: var(--text); margin-top: 3px; }
     .info-cell.hl { border: 1px solid rgba(74,144,121,0.3); background: rgba(74,144,121,0.06); }
@@ -114,7 +114,7 @@
     .vpill.on { background: rgba(46,160,67,0.12); border: 1px solid rgba(46,160,67,0.25); color: #56d364; }
     .vpill.off { background: rgba(255,255,255,0.02); border: 1px solid var(--border); color: var(--dim); text-decoration: line-through; }
     .pillar-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    .pillar { background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: 8px; padding: 12px; }
+    .pillar { background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 8px; padding: 12px; }
     .pillar.inactive { opacity: 0.4; }
     .pillar-top { display: flex; justify-content: space-between; align-items: center; }
     .pillar .plbl { font-size: 0.62rem; color: var(--muted); text-transform: uppercase; }
@@ -178,7 +178,6 @@
         <a href="https://docs.fairscale.xyz" target="_blank">Docs</a>
         <a href="https://twitter.com/fairscalexyz" target="_blank">Twitter</a>
       </nav>
-      <button class="lookup-btn" id="openLookup">Check Wallet</button>
     </div>
   </header>
   <div class="main">
@@ -187,6 +186,7 @@
         <div class="hero-title">Agent Trust Directory</div>
         <div class="hero-sub">Ranked by on-chain behavior, verification status, and social reputation.</div>
         <div class="hero-stats" id="heroStats"></div>
+        <button class="lookup-btn" id="openLookup" style="margin-top:14px;padding:10px 24px;font-size:0.85rem;">🔍 Look up any Solana wallet</button>
       </div>
       <div class="filter-bar">
         <input type="text" id="dirSearch" placeholder="Search by name or wallet...">
@@ -347,7 +347,6 @@
         const inactive = w === 0, val = f[p.key]||0;
         return `<div class="pillar${inactive?' inactive':''}"><div class="pillar-top"><div><span class="plbl">${p.label}</span> <span class="pweight">${w}%</span></div><div><span class="pval">${val}</span>${pct[p.key]!=null?`<span class="ppct">top ${100-pct[p.key]}%</span>`:''}</div></div><div class="pillar-bar"><div class="pillar-bar-fill pb-${p.color}" style="width:${inactive?0:val}%"></div></div><div class="pillar-desc">${inactive?'No data — weight redistributed':(desc[p.key]||'')}</div></div>`;
       }).join('');
-      const badges = (d.badges||[]).map(b => { const n = typeof b==='string' ? b : (b?.name||b?.type||b?.label||b?.title||JSON.stringify(b)); return `<span class="fbadge">${n}</span>`; }).join('');
       const socialLinks = [
         socials.twitter ? `<a class="slink tw" href="https://x.com/${socials.twitter.replace('@','')}" target="_blank">𝕏 ${socials.twitter}</a>` : '',
         socials.github ? `<a class="slink" href="https://github.com/${socials.github}" target="_blank">GitHub</a>` : '',
@@ -358,11 +357,10 @@
         <div class="profile-header"><div><div class="profile-name">${d.name||'Agent '+d.wallet.slice(0,8)+'...'}</div><div class="profile-wallet" onclick="navigator.clipboard.writeText('${d.wallet}')" title="Click to copy">${d.wallet}</div>${d.description?`<div class="profile-desc">${d.description}</div>`:''}<div class="profile-tags">${stags}</div></div><button class="profile-close" onclick="document.getElementById('profilePanel').classList.remove('open');activeWallet=null;document.querySelectorAll('.agent-row').forEach(e=>e.classList.remove('active'));">✕</button></div>
         <div class="score-section"><div class="score-big">${s}</div><div class="score-label">Agent FairScore</div><div class="score-badges"><span class="sbadge tier-${tier}">${tier}</span>${rec?`<span class="sbadge rec rec-${rec.color}">${rec.label}</span>`:''}${pct.agent_fairscore!=null?`<span class="sbadge pct">Top ${100-pct.agent_fairscore}%</span>`:''}</div></div>
         <div class="info-grid"><div class="info-cell hl"><div class="ik">FairScale Base</div><div class="iv">${d.fairscore_base||bd.fs_base_raw||'—'}</div></div><div class="info-cell"><div class="ik">Social Score</div><div class="iv">${d.social_score||bd.fs_social_raw||'—'}</div></div><div class="info-cell"><div class="ik">SAID Score</div><div class="iv">${d.said?.score??'—'}</div></div><div class="info-cell"><div class="ik">Attestations</div><div class="iv">${d.said?.feedbackCount||0}</div></div></div>
-        ${flags.length?`<div class="psection"><div class="psection-title">⚠ Red Flags</div><div class="flags-bar">${flags.map(fl=>`<span class="flag">${fl.replace(/_/g,' ')}</span>`).join('')}</div></div>`:''}
+        ${flags.length?`<div class="psection"><div class="psection-title">⚠ Flags (${bd.red_flag_penalty || 0} point penalty)</div><div class="flags-bar">${flags.map(fl=>`<span class="flag">${fl.replace(/_/g,' ')}</span>`).join('')}</div></div>`:''}
         ${bd.time_decay&&bd.time_decay<1?`<div class="psection" style="padding:10px 24px;"><span style="font-size:0.7rem;color:var(--dim);">Time decay: ${Math.round(bd.time_decay*100)}%</span></div>`:''}
         <div class="psection"><div class="psection-title">Verification Status</div><div class="v-pills">${vPills}</div></div>
         <div class="psection"><div class="psection-title">Trust Pillars</div><div class="pillar-grid">${pillars}</div></div>
-        ${badges?`<div class="psection"><div class="psection-title">Badges</div><div class="badge-row">${badges}</div></div>`:''}
         ${socialLinks?`<div class="psection"><div class="psection-title">Linked Socials</div><div class="social-row">${socialLinks}</div></div>`:''}
         ${d.attestation_graph?.attester_count > 0 ? `<div class="psection"><div class="psection-title">Attestation Network</div><div style="display:flex;gap:16px;flex-wrap:wrap;"><div class="info-cell" style="flex:1;min-width:80px;"><div class="ik">Attesters</div><div class="iv">${d.attestation_graph.attester_count}</div></div><div class="info-cell" style="flex:1;min-width:80px;"><div class="ik">Weighted Score</div><div class="iv">${d.attestation_graph.weighted_score}</div></div>${d.attestation_graph.highest_attester?`<div class="info-cell" style="flex:1;min-width:80px;"><div class="ik">Top Attester</div><div class="iv">${d.attestation_graph.highest_attester}</div></div>`:''}</div></div>` : ''}
         ${d.score_trend?.snapshots > 1 ? `<div class="psection"><div class="psection-title">Score Trend</div><div style="display:flex;gap:12px;align-items:center;"><span style="font-size:1.2rem;">${d.score_trend.trend==='rising'?'📈':d.score_trend.trend==='falling'?'📉':'➡️'}</span><span style="font-size:0.78rem;color:var(--text);">${d.score_trend.trend.charAt(0).toUpperCase()+d.score_trend.trend.slice(1)}</span><span style="font-size:0.7rem;color:${d.score_trend.change>=0?'var(--accent)':'var(--red)'};">${d.score_trend.change>=0?'+':''}${d.score_trend.change} last change</span><span style="font-size:0.65rem;color:var(--dim);">${d.score_trend.snapshots} snapshots</span></div></div>` : ''}        <div class="profile-actions"><a class="pact-btn" href="https://solscan.io/account/${d.wallet}" target="_blank">Solscan</a>${d.website?`<a class="pact-btn" href="${d.website}" target="_blank">Website</a>`:''}${!d.isVerified?`<button class="pact-btn primary" onclick="alert('Payment verification coming soon')">Verify ($5)</button>`:''}</div>`;
