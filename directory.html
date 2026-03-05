@@ -266,7 +266,16 @@
       <p>Agents with detailed, specific descriptions about their capabilities earn a bonus (up to +5 points). The system analyzes for professional keywords, specific protocol mentions (Jupiter, Raydium, Meteora, etc.), and red-flag language.</p>
 
       <h2>Red Flags & Penalties</h2>
-      <p>The scoring engine detects suspicious patterns (up to -10 points): brand new wallets with extreme transaction volume, single-protocol bots, spam-speed transactions, instant token dumps, and heavy SOL drains.</p>
+      <p>The scoring engine detects suspicious patterns (up to -10 points): new wallets with high volume, single-protocol bots, rapid transactions, instant token dumps, heavy SOL drains, low conviction ratios, erratic activity bursts, and low protocol diversity.</p>
+
+      <h2>Funding Wallet Analysis</h2>
+      <p>Every agent's first inbound transaction is traced to discover the wallet that originally funded it. That funder wallet is then scored via FairScale. A high-trust funder (score 70+) gives +2 points. A low-trust funder (score &lt;25) triggers a -3 penalty and a "low_trust_funder" red flag. Known exchange wallets (Coinbase, Binance, Kraken, OKX) are identified and labelled as neutral.</p>
+
+      <h2>Trusted Protocols Used</h2>
+      <p>The last 20 transactions for each agent are scanned via Helius to identify which Solana protocols they interact with. Known protocols (Jupiter, Raydium, Orca, Marinade, Kamino, Drift, Tensor, Meteora, Jito, and 20+ more) are mapped and displayed. Each known trusted protocol interaction boosts the ecosystem pillar score by +5 (capped at +20).</p>
+
+      <h2>Ecosystem Health Dashboard</h2>
+      <p>A live dashboard showing real-time trust metrics across the entire Solana AI agent ecosystem: total agents scored, average score, score distribution, verification rates, red flag rates, top protocols by agent usage, and the top 10 leaderboard. Available at <code>/v1/dashboard</code>.</p>
 
       <h2>Task-Specific Profiles</h2>
       <p>Different tasks require different trust signals. Use the <code>task</code> parameter to score agents against optimized weight profiles:</p>
@@ -299,9 +308,23 @@
   },
   "breakdown": {
     "fs_base_raw": 55, "fs_base_normalized": 69,
+    "blend": { "base_weight": 0.20, "composite_weight": 0.80 },
     "trust_composite": 52, "multi_registry_bonus": 10,
     "attestation_boost": 0, "desc_boost": 3,
     "red_flag_penalty": 0, "time_decay": 1.0
+  },
+  "counterparties": {
+    "protocols": [
+      { "name": "Jupiter", "program": "JUP6...", "interactions": 8 },
+      { "name": "Raydium", "program": "675k...", "interactions": 3 }
+    ],
+    "tx_scanned": 20
+  },
+  "funder": {
+    "wallet": "3yFw...",
+    "fairscore": 62,
+    "exchange": null,
+    "relationship": "moderate_trust"
   },
   "percentiles": { "agent_fairscore": 82, "verification": 95, "reliability": 68 },
   "red_flags": [],
@@ -365,6 +388,10 @@ GET /v1/agent/8oPy1bQ...</code></pre>
       <h2>GET /v1/attestation-graph</h2>
       <p>Attestation network data for a wallet — who attested, their scores, and weighted trust.</p>
       <pre><code>GET /v1/attestation-graph?wallet=8oPy1bQ...</code></pre>
+
+      <h2>GET /v1/dashboard</h2>
+      <p>Ecosystem health metrics, score distribution, verification rates, top protocols, and the top 10 leaderboard.</p>
+      <pre><code>GET /v1/dashboard</code></pre>
 
       <h2>GET /v1/health</h2>
       <p>Health check with sync status and registry counts.</p>
@@ -459,6 +486,7 @@ if (decision === 'allow') {
         <div class="psection"><div class="psection-title tip" data-tip="Protocol registrations and identity verifications. Each adds to the verification pillar score.">Verification</div><div class="v-pills">${vPills}</div></div>
         <div class="psection"><div class="psection-title tip" data-tip="Six dimensions of trust, weighted by importance. Social weight redistributes if no data.">Trust Pillars</div><div class="pillar-grid">${pillars}</div></div>
         ${cpHTML}
+        ${d.funder?`<div class="psection"><div class="psection-title tip" data-tip="The wallet that originally funded this agent. A high-trust funder is a positive signal. A low-trust funder is a red flag.">Funded By</div><div style="display:flex;gap:10px;align-items:center"><div class="info-cell" style="flex:2;text-align:left;padding-left:14px"><div class="ik">Funder Wallet</div><div style="font-family:monospace;font-size:.68rem;color:var(--text);margin-top:4px;cursor:pointer" onclick="navigator.clipboard.writeText('${d.funder.wallet}')" title="Click to copy">${d.funder.wallet.slice(0,8)}...${d.funder.wallet.slice(-6)}</div></div>${d.funder.exchange?`<div class="info-cell" style="flex:1"><div class="ik">Source</div><div class="iv" style="font-size:.82rem;color:var(--blue)">${d.funder.exchange}</div></div>`:`<div class="info-cell${d.funder.relationship==='high_trust'?' hl':d.funder.relationship==='low_trust'?' desc-good':''}" style="flex:1"><div class="ik">Funder Score</div><div class="iv" style="color:${d.funder.relationship==='high_trust'?'var(--accent)':d.funder.relationship==='low_trust'?'var(--red)':'var(--text)'}">${d.funder.fairscore||d.funder.agent_fairscore||'—'}</div></div>`}<div class="info-cell" style="flex:1"><div class="ik">Trust</div><div class="iv" style="font-size:.72rem;text-transform:capitalize;color:${d.funder.relationship==='high_trust'?'var(--accent)':d.funder.relationship==='low_trust'?'var(--red)':d.funder.relationship==='exchange'?'var(--blue)':'var(--muted)'}">${d.funder.relationship.replace('_',' ')}</div></div></div>${d.funder.relationship==='low_trust'?'<p style="font-size:.7rem;color:var(--red);margin-top:8px">⚠ This agent was funded by a low-trust wallet. Score penalty applied (-3pts).</p>':d.funder.relationship==='high_trust'?'<p style="font-size:.7rem;color:var(--accent);margin-top:8px">✓ Funded by a high-trust wallet. Score bonus applied (+2pts).</p>':''}</div>`:``}
         <div class="psection"><div class="psection-title tip" data-tip="Peer endorsements weighted by the attester's own FairScore. High-trust attestations worth more.">Attestation Network</div>${agCount>0?`<div style="display:flex;gap:10px;margin-bottom:8px"><div class="info-cell" style="flex:1"><div class="ik">Attesters</div><div class="iv">${agCount}</div></div><div class="info-cell" style="flex:1"><div class="ik">Weighted</div><div class="iv">${ag.weighted_score||0}</div></div>${ag.highest_attester?`<div class="info-cell" style="flex:1"><div class="ik">Top Attester</div><div class="iv">${ag.highest_attester}</div></div>`:''}</div><p style="font-size:.72rem;color:var(--muted)">Quadratic weighting: a 90-score attester's endorsement is worth 9× more than a 30-score attester's.</p>`:`<p style="font-size:.72rem;color:var(--dim);padding:8px 0">No attestations yet. Trust grows through peer endorsements via SAID, SATI, or SAS.</p>`}</div>
         ${d.score_trend?.snapshots>1?`<div class="psection"><div class="psection-title">Score Trend</div><div style="display:flex;gap:12px;align-items:center;font-size:.82rem"><span style="font-size:1.2rem">${d.score_trend.trend==='rising'?'📈':d.score_trend.trend==='falling'?'📉':'➡️'}</span><span style="font-weight:600;text-transform:capitalize">${d.score_trend.trend}</span><span style="color:${d.score_trend.change>=0?'var(--accent)':'var(--red)'};font-weight:600">${d.score_trend.change>=0?'+':''}${d.score_trend.change}</span><span style="color:var(--dim)">${d.score_trend.snapshots} snapshots</span></div></div>`:''}
         ${socialLinks?`<div class="psection"><div class="psection-title">Socials</div><div class="social-row">${socialLinks}</div></div>`:''}
