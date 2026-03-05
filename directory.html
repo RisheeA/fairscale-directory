@@ -155,6 +155,49 @@
     .faq pre{background:#1a1612;border-radius:10px;padding:16px 20px;margin:12px 0;overflow-x:auto;box-shadow:var(--shadow)}
     .faq pre code{background:none;border:none;color:#e8e0d4;font-size:.76rem;line-height:1.6;padding:0;display:block;white-space:pre}
     .fpill{font-size:.72rem;padding:4px 12px;border-radius:8px;background:var(--card);border:1px solid var(--border);color:var(--muted);display:inline-block;margin:2px}
+    /* Tooltips */
+    .tip{position:relative;cursor:help;border-bottom:1px dotted var(--dim)}
+    .tip::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:#1a1612;color:#f5f0e8;font-size:.68rem;padding:6px 12px;border-radius:8px;white-space:nowrap;opacity:0;pointer-events:none;transition:.2s;z-index:50;font-weight:400;max-width:260px;white-space:normal;text-align:center;line-height:1.4;box-shadow:0 4px 12px rgba(0,0,0,.2)}
+    .tip:hover::after{opacity:1}
+    /* Leaderboard banner */
+    .lb-banner{padding:16px 32px;border-bottom:1px solid var(--border);background:linear-gradient(135deg,rgba(200,150,58,.04),rgba(61,122,98,.04))}
+    .lb-title{font-family:'Advercase';font-size:.8rem;color:var(--gold);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px}
+    .lb-row{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px}
+    .lb-row::-webkit-scrollbar{height:4px}.lb-row::-webkit-scrollbar-thumb{background:var(--dim);border-radius:4px}
+    .lb-card{flex-shrink:0;display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--card);border:1px solid var(--border);border-radius:10px;cursor:pointer;transition:.2s;box-shadow:var(--shadow);min-width:180px}
+    .lb-card:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:var(--shadow-lg)}
+    .lb-card.gold{border-color:var(--gold);background:linear-gradient(135deg,#faf6ee,#faf0e0)}
+    .lb-card.silver{border-color:#a0968a}
+    .lb-card.bronze{border-color:#b0845a}
+    .lb-rank{font-family:'Advercase';font-size:1.1rem;color:var(--dim);width:20px;text-align:center}
+    .lb-card.gold .lb-rank{color:var(--gold)}.lb-card.silver .lb-rank{color:#8a8078}.lb-card.bronze .lb-rank{color:#b0845a}
+    .lb-name{font-weight:600;font-size:.78rem;color:var(--primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100px}
+    .lb-score{font-family:'Advercase';font-size:1rem;font-weight:700;color:var(--primary);margin-left:auto}
+    /* Dashboard */
+    .dash{max-width:900px;margin:0 auto}
+    .dash h1{font-family:'Advercase';font-size:1.6rem;color:var(--primary);margin-bottom:4px}
+    .dash-sub{font-size:.84rem;color:var(--muted);margin-bottom:24px}
+    .dash-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+    .dash-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px;box-shadow:var(--shadow);text-align:center}
+    .dash-card .dc-val{font-family:'Advercase';font-size:1.8rem;color:var(--primary);margin-top:4px}
+    .dash-card .dc-label{font-size:.64rem;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+    .dash-card.accent .dc-val{color:var(--accent)}.dash-card.gold .dc-val{color:var(--gold)}.dash-card.red .dc-val{color:var(--red)}
+    .dash-section{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;box-shadow:var(--shadow);margin-bottom:20px}
+    .dash-section h2{font-family:'Advercase';font-size:.82rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:14px}
+    .dist-bar-row{display:flex;align-items:center;gap:10px;margin:6px 0;font-size:.78rem}
+    .dist-bar-row .dl{width:50px;text-align:right;color:var(--muted);font-size:.7rem}
+    .dist-bar-row .db{flex:1;height:22px;background:var(--border);border-radius:6px;overflow:hidden}
+    .dist-bar-row .db-fill{height:100%;border-radius:6px;transition:width .6s ease}
+    .dist-bar-row .dv{width:30px;font-weight:600;font-size:.76rem;color:var(--text)}
+    .tier-row{display:flex;gap:8px;flex-wrap:wrap}
+    .tier-pill{font-size:.72rem;padding:6px 14px;border-radius:8px;font-weight:500;border:1px solid var(--border);background:var(--card)}
+    .proto-grid{display:flex;flex-wrap:wrap;gap:6px}
+    .proto-pill{font-size:.72rem;padding:5px 12px;border-radius:8px;background:linear-gradient(135deg,#e8f4ee,#f0f8f4);border:1px solid #c8e8d8;color:var(--accent);font-weight:500}
+    .proto-pill .pc{color:var(--muted);font-weight:400;margin-left:4px}
+    /* Counterparties in profile */
+    .cp-grid{display:flex;flex-wrap:wrap;gap:6px}
+    .cp-pill{font-size:.7rem;padding:5px 12px;border-radius:8px;background:linear-gradient(135deg,#e8ecf8,#f0f4ff);border:1px solid #c8d8f0;color:var(--blue);font-weight:500}
+    @media(max-width:600px){.dash-grid{grid-template-columns:repeat(2,1fr)}.lb-banner{padding:12px 18px}}
     @keyframes fadeIn{from{opacity:0}to{opacity:1}}
     @keyframes slideUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
     @keyframes scaleIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
@@ -168,7 +211,8 @@
     <a href="#" onclick="showPage('directory');return false"><img src="assets/logo.png" alt="FairScale"></a>
     <nav>
       <a href="#" class="act" id="navDir" onclick="showPage('directory');return false">Directory</a>
-      <a href="#" id="navFaq" onclick="showPage('faq');return false">How It Works</a>
+      <a href="#" id="navDash" onclick="showPage('dash');return false">Dashboard</a>
+      <a href="#" id="navFaq" onclick="showPage('faq');return false">API Docs</a>
       <a href="https://fairscale.xyz" target="_blank">App</a>
       <a href="https://twitter.com/fairscalexyz" target="_blank">Twitter</a>
     </nav>
@@ -180,6 +224,7 @@
         <div class="hero-sub">Solana agents ranked by on-chain behavior, verification, and reputation.</div>
         <div class="hero-row"><span class="hero-stat" id="heroStats">Loading...</span><button class="lookup-btn" id="openLookup">Look up any wallet</button><button class="refresh-btn" id="refreshDir" onclick="loadDir();loadStats()" title="Refresh directory">↻</button></div>
       </div>
+      <div class="lb-banner" id="lbBanner"></div>
       <div class="pag" id="pagTop"></div>
       <div class="filter-bar">
         <input type="text" id="dirSearch" placeholder="Search by name or wallet...">
@@ -343,6 +388,20 @@ if (decision === 'allow') {
 }</code></pre>
     </div>
   </div>
+  <div class="page-view" id="dashPage">
+    <div class="dash">
+      <h1>Ecosystem Health</h1>
+      <div class="dash-sub">Real-time trust metrics across the Solana AI agent ecosystem.</div>
+      <div class="dash-grid" id="dashOverview"></div>
+      <div class="dash-section"><h2>Score Distribution</h2><div id="dashDist"></div></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+        <div class="dash-section"><h2>Recommendation Tiers</h2><div id="dashTiers"></div></div>
+        <div class="dash-section"><h2>Verification Rates</h2><div id="dashVerify"></div></div>
+      </div>
+      <div class="dash-section"><h2>Top Protocols by Agent Usage</h2><div id="dashProto"></div></div>
+      <div class="dash-section"><h2>Top 10 Agents</h2><div id="dashLeaderboard"></div></div>
+    </div>
+  </div>
   <div class="modal-overlay" id="lookupModal">
     <div class="modal-box">
       <h3>Look Up Any Wallet</h3>
@@ -355,7 +414,15 @@ if (decision === 'allow') {
   <script>
     const API='https://fairscale-reputation-api-production.up.railway.app';
     let dirPage=1,activeWallet=null;
-    function showPage(p){document.getElementById('dirPage').classList.toggle('active',p==='directory');document.getElementById('faqPage').classList.toggle('active',p==='faq');document.getElementById('navDir').classList.toggle('act',p==='directory');document.getElementById('navFaq').classList.toggle('act',p==='faq')}
+    function showPage(p){
+      document.getElementById('dirPage').classList.toggle('active',p==='directory');
+      document.getElementById('faqPage').classList.toggle('active',p==='faq');
+      document.getElementById('dashPage').classList.toggle('active',p==='dash');
+      document.getElementById('navDir').classList.toggle('act',p==='directory');
+      document.getElementById('navFaq').classList.toggle('act',p==='faq');
+      document.getElementById('navDash').classList.toggle('act',p==='dash');
+      if(p==='dash')loadDashboard();
+    }
     document.getElementById('openLookup').onclick=()=>document.getElementById('lookupModal').classList.add('show');
     document.getElementById('lookupModal').onclick=e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove('show')};
     document.getElementById('lookupBtn').onclick=doLookup;
@@ -370,29 +437,96 @@ if (decision === 'allow') {
       const s=d.agent_fairscore||0,tier=s>=70?'gold':s>=40?'silver':'bronze';
       const f=d.features||{},desc=d.descriptions||{},rec=d.recommendation,bd=d.breakdown||{},pct=d.percentiles||{},flags=d.red_flags||[],v=d.verifications||{},socials=d.socials||{};
       const stags=[v.said_onchain||d.isSaidAgent?'<span class="atag said">SAID</span>':'',v.erc8004?'<span class="atag erc8004">ERC-8004</span>':'',v.sati?'<span class="atag erc8004">SATI</span>':'',v.clawkey?.verified?'<span class="atag clawkey">ClawKey ✓</span>':''].filter(Boolean).join('');
-      const vPills=[{l:'SAID',on:v.said_onchain||d.isSaidAgent},{l:'ERC-8004',on:v.erc8004},{l:'SATI',on:v.sati},{l:'ClawKey',on:v.clawkey?.verified},{l:'Payment',on:d.isVerified},{l:'Registered',on:d.isRegistered}].map(p=>`<span class="vpill ${p.on?'on':'off'}">${p.on?'✓ ':''}${p.l}</span>`).join('');
-      const pillars=[{key:'verification',label:'Verification',dw:30,color:'verification'},{key:'reliability',label:'Reliability',dw:25,color:'reliability'},{key:'social',label:'Social & Rep',dw:12,color:'social'},{key:'track_record',label:'Track Record',dw:15,color:'track_record'},{key:'economic_stake',label:'Eco. Stake',dw:9,color:'economic_stake'},{key:'ecosystem',label:'Ecosystem',dw:10,color:'ecosystem'}].map(p=>{
+      const vTips={SAID:'On-chain PDA registration via SAID Protocol','ERC-8004':'Registered in the Solana Agent Registry (ERC-8004)',SATI:'Token-2022 NFT identity via SATI',ClawKey:'Human identity verified via ClawKey/VeryAI',Payment:'Paid 10 USDC verification fee',Registered:'Self-registered on FairScale'};
+      const vPills=[{l:'SAID',on:v.said_onchain||d.isSaidAgent},{l:'ERC-8004',on:v.erc8004},{l:'SATI',on:v.sati},{l:'ClawKey',on:v.clawkey?.verified},{l:'Payment',on:d.isVerified},{l:'Registered',on:d.isRegistered}].map(p=>`<span class="vpill ${p.on?'on':'off'} tip" data-tip="${vTips[p.l]||''}">${p.on?'✓ ':''}${p.l}</span>`).join('');
+      const pillarTips={verification:'Protocol registrations and identity verification. Dual-registry agents score much higher.',reliability:'On-chain behavioral patterns: conviction, tempo, dumps, capital flow.',social:'Social reputation from FairScale, SAID attestations, and linked accounts.',track_record:'Wallet age, activity consistency, hold duration.',economic_stake:'Value at risk: SOL, stablecoins, LSTs, major tokens.',ecosystem:'Cross-protocol diversity. More protocols = more trustworthy.'};
+      const pillars=[{key:'verification',label:'Verification',dw:35,color:'verification'},{key:'reliability',label:'Reliability',dw:22,color:'reliability'},{key:'social',label:'Social & Rep',dw:12,color:'social'},{key:'track_record',label:'Track Record',dw:13,color:'track_record'},{key:'economic_stake',label:'Eco. Stake',dw:8,color:'economic_stake'},{key:'ecosystem',label:'Ecosystem',dw:10,color:'ecosystem'}].map(p=>{
         const w=bd.weights_used?Math.round((bd.weights_used[p.key]||0)*100):p.dw,inactive=w===0,val=inactive?0:(f[p.key]||0);
-        return`<div class="pillar${inactive?' inactive':''}"><div class="pillar-top"><div><span class="plbl">${p.label}</span> <span class="pweight">${w}%</span></div><div><span class="pval">${val}</span>${!inactive&&pct[p.key]!=null?`<span class="ppct">top ${100-pct[p.key]}%</span>`:''}</div></div><div class="pillar-bar"><div class="pillar-bar-fill pb-${p.color}" style="width:${inactive?0:val}%"></div></div><div class="pillar-desc">${inactive?'No data — weight redistributed':(desc[p.key]||'')}</div></div>`;
+        return`<div class="pillar${inactive?' inactive':''}"><div class="pillar-top"><div><span class="plbl tip" data-tip="${pillarTips[p.key]}">${p.label}</span> <span class="pweight">${w}%</span></div><div><span class="pval">${val}</span>${!inactive&&pct[p.key]!=null?`<span class="ppct tip" data-tip="Scores higher than ${pct[p.key]}% of agents">top ${100-pct[p.key]}%</span>`:''}</div></div><div class="pillar-bar"><div class="pillar-bar-fill pb-${p.color}" style="width:${inactive?0:val}%"></div></div><div class="pillar-desc">${inactive?'No data — weight redistributed':(desc[p.key]||'')}</div></div>`;
       }).join('');
       const socialLinks=[socials.twitter?`<a class="slink tw" href="https://x.com/${socials.twitter.replace('@','')}" target="_blank">𝕏 ${socials.twitter}</a>`:'',socials.github?`<a class="slink" href="https://github.com/${socials.github}" target="_blank">GitHub</a>`:'',socials.telegram?`<a class="slink" href="https://t.me/${socials.telegram}" target="_blank">Telegram</a>`:''].filter(Boolean).join('');
       const dq=bd.desc_quality||0;
       const ag=d.attestation_graph||{};
       const agCount=ag.attester_count||0;
+      const cp=d.counterparties;
+      const cpHTML=cp?.protocols?.length?`<div class="psection"><div class="psection-title tip" data-tip="Protocols this agent has interacted with in recent transactions">Protocols Used</div><div class="cp-grid">${cp.protocols.map(p=>`<div class="cp-pill">${p.name}</div>`).join('')}</div></div>`:'';
       document.getElementById('profileContent').innerHTML=`
         <div class="profile-header"><div><div class="profile-name">${d.name||'Agent '+d.wallet.slice(0,8)+'...'}</div><div class="profile-wallet" onclick="navigator.clipboard.writeText('${d.wallet}')" title="Click to copy">${d.wallet}</div>${d.description?`<div class="profile-desc">${d.description}</div>`:''}<div class="profile-tags">${stags}</div></div><button class="profile-close" onclick="document.getElementById('profilePanel').classList.remove('open');activeWallet=null;document.querySelectorAll('.agent-row').forEach(e=>e.classList.remove('active'))">✕</button></div>
         ${d.trust_summary?`<div class="trust-summary">${d.trust_summary}</div>`:''}
-        <div class="score-section"><div class="score-big">${s}</div><div class="score-label">Agent FairScore</div><div class="score-badges"><span class="sbadge tier-${tier}">${tier}</span>${rec?`<span class="sbadge rec rec-${rec.color}">${rec.label}</span>`:''}${pct.agent_fairscore!=null?`<span class="sbadge pct">Top ${100-pct.agent_fairscore}%</span>`:''}</div></div>
-        <div class="info-grid"><div class="info-cell hl"><div class="ik">FairScale Base</div><div class="iv">${d.fairscore_base||bd.fs_base_raw||'—'}</div></div><div class="info-cell"><div class="ik">Social</div><div class="iv">${d.social_score||bd.fs_social_raw||'—'}</div></div><div class="info-cell"><div class="ik">SAID</div><div class="iv">${d.said?.score??'—'}</div></div><div class="info-cell${dq>30?' desc-good':''}"><div class="ik">Desc. Quality</div><div class="iv">${dq>0?dq+'/100':'—'}</div></div></div>
-        ${flags.length?`<div class="psection"><div class="psection-title">⚠ Flags (${bd.red_flag_penalty||0}pt penalty)</div><div class="flags-bar">${flags.map(fl=>`<span class="flag">${fl.replace(/_/g,' ')}</span>`).join('')}</div></div>`:''}
-        <div class="psection"><div class="psection-title">Verification</div><div class="v-pills">${vPills}</div></div>
-        <div class="psection"><div class="psection-title">Trust Pillars</div><div class="pillar-grid">${pillars}</div></div>
-        <div class="psection"><div class="psection-title">Attestation Network</div>${agCount>0?`<div style="display:flex;gap:10px;margin-bottom:8px"><div class="info-cell" style="flex:1"><div class="ik">Attesters</div><div class="iv">${agCount}</div></div><div class="info-cell" style="flex:1"><div class="ik">Weighted Score</div><div class="iv">${ag.weighted_score||0}</div></div>${ag.highest_attester?`<div class="info-cell" style="flex:1"><div class="ik">Top Attester Score</div><div class="iv">${ag.highest_attester}</div></div>`:''}</div><p style="font-size:.72rem;color:var(--muted)">Attestations are weighted by the attester's own FairScore. Higher-trust attesters carry more weight.</p>`:`<p style="font-size:.72rem;color:var(--dim);padding:8px 0">No attestations yet. Agents can build trust by receiving attestations from other verified agents via SATI or SAS.</p>`}</div>
+        <div class="score-section"><div class="score-big">${s}</div><div class="score-label tip" data-tip="Composite of FairScale base (20%) + trust pillars (80%) + verification bonuses" style="color:#b8b0a4;cursor:help">Agent FairScore</div><div class="score-badges"><span class="sbadge tier-${tier} tip" data-tip="${tier==='gold'?'Score 70+':tier==='silver'?'Score 40-69':'Score below 40'}">${tier}</span>${rec?`<span class="sbadge rec rec-${rec.color} tip" data-tip="Based on score, verification status, and red flags">${rec.label}</span>`:''}${pct.agent_fairscore!=null?`<span class="sbadge pct tip" data-tip="Scores higher than ${pct.agent_fairscore}% of all agents in the directory">Top ${100-pct.agent_fairscore}%</span>`:''}</div></div>
+        <div class="info-grid"><div class="info-cell hl tip" data-tip="Raw wallet score from FairScale's neural network (rescored daily)"><div class="ik">FairScale Base</div><div class="iv">${d.fairscore_base||bd.fs_base_raw||'—'}</div></div><div class="info-cell tip" data-tip="Social reputation score from linked accounts"><div class="ik">Social</div><div class="iv">${d.social_score||bd.fs_social_raw||'—'}</div></div><div class="info-cell tip" data-tip="SAID Protocol reputation score and trust tier"><div class="ik">SAID</div><div class="iv">${d.said?.score??'—'}</div></div><div class="info-cell${dq>30?' desc-good':''} tip" data-tip="Score based on description quality: professional keywords, protocol mentions, specificity"><div class="ik">Desc. Quality</div><div class="iv">${dq>0?dq+'/100':'—'}</div></div></div>
+        ${flags.length?`<div class="psection"><div class="psection-title tip" data-tip="Suspicious patterns detected in on-chain behavior. Each flag carries a point penalty.">⚠ Flags (${bd.red_flag_penalty||0}pt penalty)</div><div class="flags-bar">${flags.map(fl=>`<span class="flag">${fl.replace(/_/g,' ')}</span>`).join('')}</div></div>`:''}
+        <div class="psection"><div class="psection-title tip" data-tip="Protocol registrations and identity verifications. Each adds to the verification pillar score.">Verification</div><div class="v-pills">${vPills}</div></div>
+        <div class="psection"><div class="psection-title tip" data-tip="Six dimensions of trust, weighted by importance. Social weight redistributes if no data.">Trust Pillars</div><div class="pillar-grid">${pillars}</div></div>
+        ${cpHTML}
+        <div class="psection"><div class="psection-title tip" data-tip="Peer endorsements weighted by the attester's own FairScore. High-trust attestations worth more.">Attestation Network</div>${agCount>0?`<div style="display:flex;gap:10px;margin-bottom:8px"><div class="info-cell" style="flex:1"><div class="ik">Attesters</div><div class="iv">${agCount}</div></div><div class="info-cell" style="flex:1"><div class="ik">Weighted</div><div class="iv">${ag.weighted_score||0}</div></div>${ag.highest_attester?`<div class="info-cell" style="flex:1"><div class="ik">Top Attester</div><div class="iv">${ag.highest_attester}</div></div>`:''}</div><p style="font-size:.72rem;color:var(--muted)">Quadratic weighting: a 90-score attester's endorsement is worth 9× more than a 30-score attester's.</p>`:`<p style="font-size:.72rem;color:var(--dim);padding:8px 0">No attestations yet. Trust grows through peer endorsements via SAID, SATI, or SAS.</p>`}</div>
         ${d.score_trend?.snapshots>1?`<div class="psection"><div class="psection-title">Score Trend</div><div style="display:flex;gap:12px;align-items:center;font-size:.82rem"><span style="font-size:1.2rem">${d.score_trend.trend==='rising'?'📈':d.score_trend.trend==='falling'?'📉':'➡️'}</span><span style="font-weight:600;text-transform:capitalize">${d.score_trend.trend}</span><span style="color:${d.score_trend.change>=0?'var(--accent)':'var(--red)'};font-weight:600">${d.score_trend.change>=0?'+':''}${d.score_trend.change}</span><span style="color:var(--dim)">${d.score_trend.snapshots} snapshots</span></div></div>`:''}
         ${socialLinks?`<div class="psection"><div class="psection-title">Socials</div><div class="social-row">${socialLinks}</div></div>`:''}
         <div class="profile-actions"><a class="pact-btn" href="https://solscan.io/account/${d.wallet}" target="_blank">Solscan ↗</a>${d.website?`<a class="pact-btn" href="${d.website}" target="_blank">Website ↗</a>`:''}${!d.isVerified?`<button class="pact-btn primary" onclick="alert('Coming soon')">Verify Agent</button>`:''}</div>`;
     }
-    loadDir();loadStats();
+    // Leaderboard banner
+    async function loadLeaderboard(){
+      try{
+        const d=await(await fetch(`${API}/v1/dashboard`)).json();
+        const lb=d.leaderboard||[];
+        if(!lb.length)return;
+        document.getElementById('lbBanner').innerHTML=`<div class="lb-title">Top 10 Agents</div><div class="lb-row">${lb.map((a,i)=>{
+          const cls=i===0?'gold':i===1?'silver':i===2?'bronze':'';
+          return`<div class="lb-card ${cls}" onclick="selectAgent('${a.wallet}')"><div class="lb-rank">${a.rank}</div><div class="lb-name">${a.name||a.wallet.slice(0,8)+'...'}</div><div class="lb-score">${a.agent_fairscore}</div></div>`;
+        }).join('')}</div>`;
+      }catch(e){}
+    }
+
+    // Dashboard
+    async function loadDashboard(){
+      try{
+        const d=await(await fetch(`${API}/v1/dashboard`)).json();
+        const o=d.overview||{},v=d.verification||{},h=d.health||{};
+        document.getElementById('dashOverview').innerHTML=`
+          <div class="dash-card accent"><div class="dc-label">Agents Scored</div><div class="dc-val">${o.total_scored||0}</div></div>
+          <div class="dash-card"><div class="dc-label">Average Score</div><div class="dc-val">${o.average_score||0}</div></div>
+          <div class="dash-card gold"><div class="dc-label">Verification Rate</div><div class="dc-val">${v.verified_rate||0}%</div></div>
+          <div class="dash-card red"><div class="dc-label">Flagged Agents</div><div class="dc-val">${h.flag_rate||0}%</div></div>
+          <div class="dash-card"><div class="dc-label">SAID Agents</div><div class="dc-val">${o.said_agents||0}</div></div>
+          <div class="dash-card"><div class="dc-label">ERC-8004</div><div class="dc-val">${o.erc8004_agents||0}</div></div>
+          <div class="dash-card accent"><div class="dc-label">Dual Verified</div><div class="dc-val">${v.dual_verified||0}</div></div>
+          <div class="dash-card"><div class="dc-label">Highest Score</div><div class="dc-val">${o.highest_score||0}</div></div>`;
+
+        const dist=d.score_distribution||{};
+        const maxD=Math.max(...Object.values(dist),1);
+        const colors=['var(--red)','var(--orange)','var(--gold)','var(--accent)','#2d8a4a'];
+        document.getElementById('dashDist').innerHTML=Object.entries(dist).map(([k,v],i)=>
+          `<div class="dist-bar-row"><div class="dl">${k}</div><div class="db"><div class="db-fill" style="width:${(v/maxD)*100}%;background:${colors[i]}"></div></div><div class="dv">${v}</div></div>`
+        ).join('');
+
+        const tiers=d.recommendation_tiers||{};
+        const tierColors={highly_recommended:'var(--gold)',recommended:'var(--accent)',acceptable:'var(--gold)',caution:'var(--orange)',unverified:'var(--red)'};
+        document.getElementById('dashTiers').innerHTML=`<div class="tier-row">${Object.entries(tiers).map(([k,v])=>
+          `<div class="tier-pill" style="border-color:${tierColors[k]||'var(--border)'};color:${tierColors[k]||'var(--muted)'}"><strong>${v}</strong> ${k.replace(/_/g,' ')}</div>`
+        ).join('')}</div>`;
+
+        document.getElementById('dashVerify').innerHTML=`
+          <div class="dist-bar-row"><div class="dl">Verified</div><div class="db"><div class="db-fill" style="width:${v.verified_rate}%;background:var(--accent)"></div></div><div class="dv">${v.verified_rate}%</div></div>
+          <div class="dist-bar-row"><div class="dl">Dual</div><div class="db"><div class="db-fill" style="width:${v.dual_rate}%;background:var(--gold)"></div></div><div class="dv">${v.dual_rate}%</div></div>
+          <div class="dist-bar-row"><div class="dl">Flagged</div><div class="db"><div class="db-fill" style="width:${h.flag_rate}%;background:var(--red)"></div></div><div class="dv">${h.flag_rate}%</div></div>`;
+
+        const proto=d.top_protocols||[];
+        document.getElementById('dashProto').innerHTML=proto.length?`<div class="proto-grid">${proto.map(p=>
+          `<div class="proto-pill">${p.name}<span class="pc">${p.agents} agents</span></div>`).join('')}</div>`:'<p style="color:var(--dim);font-size:.82rem">Protocol data still loading. Check back in a few minutes.</p>';
+
+        const lb=d.leaderboard||[];
+        document.getElementById('dashLeaderboard').innerHTML=lb.map((a,i)=>
+          `<div style="display:flex;align-items:center;gap:12px;padding:10px 0;${i<lb.length-1?'border-bottom:1px solid var(--border)':''}">
+            <div style="font-family:Advercase;font-size:1rem;width:24px;text-align:center;color:${i<3?'var(--gold)':'var(--dim)'}">${a.rank}</div>
+            <div style="flex:1"><div style="font-weight:600;font-size:.84rem">${a.name||a.wallet.slice(0,8)+'...'}</div><div style="font-size:.6rem;color:var(--dim);font-family:monospace">${a.wallet.slice(0,8)}...${a.wallet.slice(-4)}</div></div>
+            <div>${(a.sources||[]).map(s=>s==='said'?'<span class="atag said" style="font-size:.5rem">SAID</span>':s==='erc8004'?'<span class="atag erc8004" style="font-size:.5rem">8004</span>':'').join('')}</div>
+            <div style="font-family:Advercase;font-size:1.2rem;font-weight:700">${a.agent_fairscore}</div>
+          </div>`
+        ).join('');
+      }catch(e){console.error('Dashboard error:',e)}
+    }
+
+    loadDir();loadStats();loadLeaderboard();
   </script>
 </body>
 </html>
