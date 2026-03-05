@@ -128,37 +128,12 @@
   </div>
 
   <script>
-    // =========================================================================
-    // BETA GATE LOGIC
-    // =========================================================================
+    const API = 'https://fairscale-reputation-api-production.up.railway.app';
+    const SESSION_KEY = 'fs_beta_session';
 
-    const CODES = {
-      'Ch@os123': { type: 'unlimited', maxUses: Infinity },
-      'fAIRgent123': { type: 'limited', maxUses: 20 },
-    };
-
-    // Storage keys
-    const STORAGE_USERS = 'fs_beta_users';      // { email: { code, accessedAt, ... } }
-    const STORAGE_CODE_USES = 'fs_beta_codes';   // { code: count }
-    const STORAGE_SESSION = 'fs_beta_session';   // current logged-in email
-
-    function getStore(key) {
-      try { return JSON.parse(localStorage.getItem(key)) || {}; } catch { return {}; }
-    }
-    function setStore(key, val) {
-      localStorage.setItem(key, JSON.stringify(val));
-    }
-
-    // Check if already logged in
     function checkSession() {
-      const session = localStorage.getItem(STORAGE_SESSION);
-      if (session) {
-        const users = getStore(STORAGE_USERS);
-        if (users[session]) {
-          grantAccess();
-          return true;
-        }
-      }
+      const email = localStorage.getItem(SESSION_KEY);
+      if (email) { grantAccess(); return true; }
       return false;
     }
 
@@ -184,83 +159,64 @@
       el.className = 'gate-msg ' + type;
     }
 
-    function submitCode() {
+    async function submitCode() {
       const code = document.getElementById('codeInput').value.trim();
-      const email = document.getElementById('emailInput').value.trim().toLowerCase();
-
+      const email = document.getElementById('emailInput').value.trim();
       if (!code) return showMsg('codeMsg', 'Please enter an access code.', 'error');
       if (!email || !email.includes('@')) return showMsg('codeMsg', 'Please enter a valid email address.', 'error');
 
-      // Check code validity
-      const codeDef = CODES[code];
-      if (!codeDef) return showMsg('codeMsg', 'Invalid access code. Please check and try again.', 'error');
+      const btn = document.getElementById('codeBtn');
+      btn.disabled = true; btn.textContent = 'Validating...';
 
-      // Check usage limit
-      const codeUses = getStore(STORAGE_CODE_USES);
-      const currentUses = codeUses[code] || 0;
-      if (codeDef.type === 'limited' && currentUses >= codeDef.maxUses) {
-        return showMsg('codeMsg', 'This access code has reached its usage limit.', 'error');
+      try {
+        const r = await fetch(`${API}/beta/validate`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ code, email })
+        });
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.error || 'Validation failed');
+        localStorage.setItem(SESSION_KEY, d.email);
+        showMsg('codeMsg', 'Access granted. Loading directory...', 'success');
+        setTimeout(grantAccess, 600);
+      } catch (e) {
+        showMsg('codeMsg', e.message, 'error');
+        btn.disabled = false; btn.textContent = 'Access Directory';
       }
-
-      // Check if email already registered with a different code
-      const users = getStore(STORAGE_USERS);
-      if (users[email] && users[email].code !== code) {
-        // Allow — they're using a different valid code, update it
-      }
-
-      // Register user
-      users[email] = { code, accessedAt: new Date().toISOString(), uses: (users[email]?.uses || 0) + 1 };
-      setStore(STORAGE_USERS, users);
-
-      // Increment code usage (only if not unlimited)
-      if (codeDef.type === 'limited') {
-        codeUses[code] = currentUses + 1;
-        setStore(STORAGE_CODE_USES, codeUses);
-      }
-
-      // Set session
-      localStorage.setItem(STORAGE_SESSION, email);
-
-      showMsg('codeMsg', 'Access granted. Loading directory...', 'success');
-      setTimeout(grantAccess, 800);
     }
 
-    function submitLogin() {
-      const email = document.getElementById('loginEmail').value.trim().toLowerCase();
+    async function submitLogin() {
+      const email = document.getElementById('loginEmail').value.trim();
       if (!email || !email.includes('@')) return showMsg('loginMsg', 'Please enter a valid email address.', 'error');
 
-      const users = getStore(STORAGE_USERS);
-      if (!users[email]) return showMsg('loginMsg', 'No account found with this email. Please use an access code first.', 'error');
-
-      localStorage.setItem(STORAGE_SESSION, email);
-      showMsg('loginMsg', 'Welcome back. Loading directory...', 'success');
-      setTimeout(grantAccess, 800);
+      try {
+        const r = await fetch(`${API}/beta/login`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email })
+        });
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.error || 'Login failed');
+        localStorage.setItem(SESSION_KEY, d.email);
+        showMsg('loginMsg', 'Welcome back. Loading...', 'success');
+        setTimeout(grantAccess, 600);
+      } catch (e) {
+        showMsg('loginMsg', e.message, 'error');
+      }
     }
 
     function grantAccess() {
       document.getElementById('gate').classList.add('hidden');
       document.getElementById('mainApp').style.display = 'block';
-      loadDirectory();
-    }
-
-    function loadDirectory() {
-      // Load the actual directory app into mainApp
-      const app = document.getElementById('mainApp');
       const iframe = document.createElement('iframe');
       iframe.src = 'directory.html';
       iframe.style.cssText = 'width:100%;height:100vh;border:none;display:block';
-      app.appendChild(iframe);
+      document.getElementById('mainApp').appendChild(iframe);
     }
 
-    // Enter key handlers
     document.getElementById('codeInput')?.addEventListener('keypress', e => { if (e.key === 'Enter') document.getElementById('emailInput').focus(); });
     document.getElementById('emailInput')?.addEventListener('keypress', e => { if (e.key === 'Enter') submitCode(); });
     document.getElementById('loginEmail')?.addEventListener('keypress', e => { if (e.key === 'Enter') submitLogin(); });
 
-    // Auto-check session on load
-    if (!checkSession()) {
-      document.getElementById('gate').style.display = 'flex';
-    }
+    if (!checkSession()) document.getElementById('gate').style.display = 'flex';
   </script>
 </body>
 </html>
