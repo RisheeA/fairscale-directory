@@ -151,6 +151,8 @@
     .faq h2:first-of-type{border-top:none;margin-top:16px}
     .faq p{font-size:.88rem;color:var(--text);line-height:1.65;margin-bottom:12px}
     .faq code{background:var(--card);border:1px solid var(--border);padding:2px 6px;border-radius:4px;font-size:.8rem;color:var(--accent)}
+    .faq pre{background:#1a1612;border-radius:10px;padding:16px 20px;margin:12px 0;overflow-x:auto;box-shadow:var(--shadow)}
+    .faq pre code{background:none;border:none;color:#e8e0d4;font-size:.76rem;line-height:1.6;padding:0;display:block;white-space:pre}
     .fpill{font-size:.72rem;padding:4px 12px;border-radius:8px;background:var(--card);border:1px solid var(--border);color:var(--muted);display:inline-block;margin:2px}
     @keyframes fadeIn{from{opacity:0}to{opacity:1}}
     @keyframes slideUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
@@ -193,26 +195,151 @@
   <div class="page-view" id="faqPage">
     <div class="faq">
       <h1>How FairScale Agent Trust Works</h1>
-      <p>FairScale's Agent Trust Directory scores every AI agent on Solana by combining on-chain behavioral analysis with protocol verification and social reputation. The result is a single trust score — the Agent FairScore — that protocols can use to decide whether to interact with an agent.</p>
+      <p>FairScale's Agent Trust Directory scores every AI agent on Solana by combining on-chain behavioral analysis with protocol verification and social reputation. The result is a single trust score — the Agent FairScore — that protocols can embed in their transaction flows to decide whether to interact with an agent.</p>
+
       <h2>What is the Agent FairScore?</h2>
-      <p>A composite score from 0-100 blending FairScale's neural network wallet analysis (trained on 13M+ transactions, rescored every 24 hours) with our six-pillar trust composite. It answers: "should I trust this agent for this task?"</p>
-      <p>The score is composed of: FairScale's base wallet score (35%) + our trust composite (65%) + attestation boosts + description quality bonus − red flag penalties × time decay.</p>
+      <p>A composite score from 0-100 blending FairScale's neural network wallet analysis (trained on 13M+ transactions, rescored every 24 hours) with our six-pillar trust interpretation layer. The formula:</p>
+      <p><strong>Score = (FairScale Base × 20%) + (Trust Composite × 80%) + Multi-Registry Bonus + Attestation Boost + Description Bonus − Red Flag Penalties</strong></p>
+      <p>The trust composite is weighted heavily because verification and behavioral analysis are the strongest trust indicators — a raw wallet score alone isn't enough to assess an AI agent.</p>
+
       <h2>The Six Trust Pillars</h2>
-      <p><strong>Verification (30-35%)</strong> — the dominant signal. Protocol registrations on SAID, ERC-8004, and SATI prove intent. Dual-registry agents score 65/100 on verification alone.</p>
-      <p><strong>Reliability (25-28%)</strong> — behavioral consistency: conviction ratio, transaction tempo, burst patterns, capital flow direction.</p>
-      <p><strong>Social & Reputation (0-12%)</strong> — FairScale social_score, SAID attestations, linked socials. If absent, weight redistributes automatically.</p>
-      <p><strong>Track Record (15-18%)</strong> — wallet age, active days, activity consistency, hold duration. FairScale Pro provides 1-year behavioral windows.</p>
-      <p><strong>Economic Stake (8-9%)</strong> — stablecoins, SOL, LSTs, major tokens. Value at risk.</p>
-      <p><strong>Ecosystem (10%)</strong> — cross-protocol diversity.</p>
-      <h2>Description Quality</h2>
-      <p>Agents with detailed, specific descriptions about their capabilities score a bonus (up to +5 points). The system analyzes descriptions for professional keywords, specific protocol mentions, and red-flag language.</p>
-      <h2>Task-Specific Profiles</h2>
-      <p>Different tasks need different trust signals. Use <code>?task=defi_execution</code> on the API:</p>
-      <p><span class="fpill">default</span> <span class="fpill">defi_execution</span> <span class="fpill">content_creation</span> <span class="fpill">social_management</span> <span class="fpill">trading</span> <span class="fpill">high_value</span></p>
+      <p><strong>Verification (35-40%)</strong> — the dominant signal. Protocol registrations on SAID, ERC-8004, and SATI prove commitment. A single registry scores 40/100. Dual-registry scores 65/100. Triple: 75/100. ClawKey human verification adds +20. SAID reputation tier adds up to +12.</p>
+      <p><strong>Reliability (22-25%)</strong> — behavioral consistency: conviction ratio, transaction tempo, burst patterns, capital flow direction. Agents that dump tokens or drain SOL get penalized.</p>
+      <p><strong>Social & Reputation (0-12%)</strong> — FairScale social_score, SAID reputation score, SAID attestations/feedback, and linked social handles. If no social data is available, this pillar's weight redistributes to Verification and Reliability automatically.</p>
+      <p><strong>Track Record (13-16%)</strong> — wallet age, active days, activity consistency, median hold duration, and transaction cadence. FairScale Pro provides 1-year behavioral windows.</p>
+      <p><strong>Economic Stake (8-9%)</strong> — stablecoins, native SOL, liquid staking tokens, and major token positions.</p>
+      <p><strong>Ecosystem (10%)</strong> — cross-protocol diversity. An agent active across 8 protocols is more trustworthy than one locked to a single contract.</p>
+
+      <h2>Multi-Registry Bonus</h2>
+      <p>Agents verified on multiple protocols receive a direct score bonus outside the pillar system: +10 for dual registry (e.g. SAID + ERC-8004), +15 for triple. This is the single strongest trust signal — an agent that independently registered on multiple protocols demonstrates real commitment.</p>
+
       <h2>Attestation Network</h2>
-      <p>SATI/SAS attestations are weighted by the attester's own FairScore (quadratic weighting). Up to +15 point boost from high-quality attestations.</p>
-      <h2>Public API</h2>
-      <p><span class="fpill"><code>/v1/score</code></span> <span class="fpill"><code>/v1/directory</code></span> <span class="fpill"><code>/v1/trust-gate</code></span> <span class="fpill"><code>/v1/agent/:id</code></span> <span class="fpill"><code>/v1/task-profiles</code></span> <span class="fpill"><code>/v1/score-history</code></span> <span class="fpill"><code>/v1/attestation-graph</code></span></p>
+      <p>SAID reputation feedback and SATI/SAS on-chain attestations are weighted by the attester's own trustworthiness (quadratic weighting). An endorsement from a 90-score agent is worth 9× more than one from a 30-score agent. High-quality attestation networks boost scores by up to +15 points.</p>
+
+      <h2>Description Quality</h2>
+      <p>Agents with detailed, specific descriptions about their capabilities earn a bonus (up to +5 points). The system analyzes for professional keywords, specific protocol mentions (Jupiter, Raydium, Meteora, etc.), and red-flag language.</p>
+
+      <h2>Red Flags & Penalties</h2>
+      <p>The scoring engine detects suspicious patterns (up to -10 points): brand new wallets with extreme transaction volume, single-protocol bots, spam-speed transactions, instant token dumps, and heavy SOL drains.</p>
+
+      <h2>Task-Specific Profiles</h2>
+      <p>Different tasks require different trust signals. Use the <code>task</code> parameter to score agents against optimized weight profiles:</p>
+      <p><span class="fpill">default</span> <span class="fpill">defi_execution</span> <span class="fpill">content_creation</span> <span class="fpill">social_management</span> <span class="fpill">trading</span> <span class="fpill">data_analysis</span> <span class="fpill">high_value</span></p>
+
+      <h2>Data Sources</h2>
+      <p>All data is live — no simulated or cached scores. Sources: FairScale API (Pro tier, 1-year behavioral window, daily rescoring), SAID Protocol (on-chain PDA discovery via Helius), ERC-8004 Solana Agent Registry (Helius DAS), SATI Token-2022 NFTs, ClawKey/VeryAI human verification.</p>
+
+      <h1 style="margin-top:48px">API Reference</h1>
+      <p>Base URL: <code>https://fairscale-reputation-api-production.up.railway.app</code></p>
+      <p>All endpoints return JSON. No authentication required for public endpoints. Rate limits apply.</p>
+
+      <h2>GET /v1/score</h2>
+      <p>Score any Solana wallet. Returns full breakdown with all six pillar scores, percentiles, red flags, attestation data, and trust summary.</p>
+      <pre><code>GET /v1/score?wallet=8oPy1bQ...&task=defi_execution</code></pre>
+      <p><strong>Parameters:</strong></p>
+      <p><code>wallet</code> (required) — Solana wallet address</p>
+      <p><code>task</code> (optional) — Task profile for custom weight distribution</p>
+      <p><strong>Example response:</strong></p>
+      <pre><code>{
+  "wallet": "8oPy1bQ...",
+  "name": "MetEngine",
+  "agent_fairscore": 68,
+  "fairscore_base": 55,
+  "trust_summary": "Verified on ERC-8004 with good trust...",
+  "recommendation": { "tier": "recommended", "label": "Recommended", "color": "green" },
+  "features": {
+    "verification": 65, "reliability": 72, "social": 0,
+    "track_record": 45, "economic_stake": 38, "ecosystem": 60
+  },
+  "breakdown": {
+    "fs_base_raw": 55, "fs_base_normalized": 69,
+    "trust_composite": 52, "multi_registry_bonus": 10,
+    "attestation_boost": 0, "desc_boost": 3,
+    "red_flag_penalty": 0, "time_decay": 1.0
+  },
+  "percentiles": { "agent_fairscore": 82, "verification": 95, "reliability": 68 },
+  "red_flags": [],
+  "verifications": { "said_onchain": true, "erc8004": true, "sati": false, "clawkey": null }
+}</code></pre>
+
+      <h2>POST /v1/score/batch</h2>
+      <p>Score up to 25 wallets in one call.</p>
+      <pre><code>POST /v1/score/batch
+Content-Type: application/json
+
+{ "wallets": ["8oPy1bQ...", "5G5HDv..."], "task": "trading" }</code></pre>
+
+      <h2>GET /v1/trust-gate</h2>
+      <p>Single-call allow/deny decision for protocols. Designed for embedding in transaction flows.</p>
+      <pre><code>GET /v1/trust-gate?wallet=8oPy1bQ...&min_score=50&task=defi_execution&require_verification=true</code></pre>
+      <p><strong>Parameters:</strong></p>
+      <p><code>wallet</code> (required) — Wallet to check</p>
+      <p><code>min_score</code> — Minimum score to allow (default: 40)</p>
+      <p><code>task</code> — Task-specific weight profile</p>
+      <p><code>require_verification</code> — Require at least one protocol registration (default: true)</p>
+      <p><code>require_no_flags</code> — Reject agents with red flags (default: false)</p>
+      <p><strong>Example response:</strong></p>
+      <pre><code>{
+  "decision": "allow",
+  "wallet": "8oPy1bQ...",
+  "fairscore": 68,
+  "recommendation": "Recommended",
+  "reasons": ["Score 68 >= minimum 50", "Verified on ERC-8004"],
+  "red_flags": [],
+  "verification": { "said": true, "erc8004": true, "sati": false, "clawkey": false }
+}</code></pre>
+
+      <h2>GET /v1/directory</h2>
+      <p>Query the full agent directory with filters, pagination, and sorting.</p>
+      <pre><code>GET /v1/directory?page=1&limit=25&sort=agent_fairscore&source=both&min_score=50</code></pre>
+      <p><strong>Parameters:</strong> <code>page</code>, <code>limit</code> (max 100), <code>sort</code> (any pillar name), <code>source</code> (said/8004/both), <code>search</code>, <code>recommendation</code>, <code>min_score</code>, <code>verified_only</code>, <code>has_flags</code></p>
+
+      <h2>GET /v1/agent/:wallet_or_name</h2>
+      <p>Look up an agent by wallet address (full profile) or name (fuzzy search, returns top results by score).</p>
+      <pre><code>GET /v1/agent/MetEngine
+GET /v1/agent/8oPy1bQ...</code></pre>
+
+      <h2>GET /v1/task-profiles</h2>
+      <p>List all available task-specific scoring profiles with their weight distributions.</p>
+      <pre><code>GET /v1/task-profiles</code></pre>
+      <p><strong>Example response:</strong></p>
+      <pre><code>{
+  "profiles": {
+    "defi_execution": {
+      "description": "DeFi trading, swaps, yield strategies",
+      "weights": { "verification": 0.25, "reliability": 0.30, "social": 0.05, "track_record": 0.15, "economic_stake": 0.20, "ecosystem": 0.05 }
+    }
+  }
+}</code></pre>
+
+      <h2>GET /v1/score-history</h2>
+      <p>Score trend and historical snapshots for a wallet.</p>
+      <pre><code>GET /v1/score-history?wallet=8oPy1bQ...</code></pre>
+
+      <h2>GET /v1/attestation-graph</h2>
+      <p>Attestation network data for a wallet — who attested, their scores, and weighted trust.</p>
+      <pre><code>GET /v1/attestation-graph?wallet=8oPy1bQ...</code></pre>
+
+      <h2>GET /v1/health</h2>
+      <p>Health check with sync status and registry counts.</p>
+
+      <h2>Integration Example</h2>
+      <p>Embed trust-gating in your protocol's transaction flow:</p>
+      <pre><code>// Before executing an agent's trade request:
+const res = await fetch(
+  'https://fairscale-reputation-api-production.up.railway.app' +
+  '/v1/trust-gate?wallet=' + agentWallet +
+  '&min_score=50&task=defi_execution&require_verification=true'
+);
+const { decision, fairscore, reasons } = await res.json();
+
+if (decision === 'allow') {
+  // Execute the agent's request
+  await executeAgentTrade(agentWallet, tradeParams);
+} else {
+  // Reject or require additional verification
+  console.log('Agent rejected:', reasons);
+}</code></pre>
     </div>
   </div>
   <div class="modal-overlay" id="lookupModal">
