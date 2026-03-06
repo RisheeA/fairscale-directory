@@ -254,7 +254,7 @@
       <a href="#" class="sb-link act" id="navDir" onclick="showPage('directory');document.getElementById('sidebar').classList.remove('open');return false"><span class="sb-icon">📋</span> Directory</a>
       <a href="#" class="sb-link" id="navDash" onclick="showPage('dash');document.getElementById('sidebar').classList.remove('open');return false"><span class="sb-icon">📊</span> Dashboard</a>
       <a href="#" class="sb-link" id="navLookup" onclick="document.getElementById('lookupModal').classList.add('show');document.getElementById('sidebar').classList.remove('open');return false"><span class="sb-icon">🔍</span> Check Any Wallet</a>
-      <a href="#" class="sb-link" id="navFaq" onclick="showPage('faq');document.getElementById('sidebar').classList.remove('open');return false"><span class="sb-icon">📖</span> API Docs</a>
+      <a href="#" class="sb-link" id="navFaq" onclick="showPage('faq');document.getElementById('sidebar').classList.remove('open');return false"><span class="sb-icon">📖</span> API Docs & Pricing</a>
       <div class="sb-divider"></div>
       <a href="https://fairscale.xyz" target="_blank" class="sb-link"><span class="sb-icon">🌐</span> FairScale App</a>
       <a href="https://twitter.com/fairscalexyz" target="_blank" class="sb-link"><span class="sb-icon">𝕏</span> Twitter</a>
@@ -449,6 +449,48 @@ GET /v1/agent/8oPy1bQ...</code></pre>
 
       <h2>GET /v1/health</h2>
       <p>Health check with sync status and registry counts.</p>
+
+      <h1 style="margin-top:48px">x402 Micropayments</h1>
+      <p>FairScale uses the <strong>x402 protocol</strong> for pay-per-call API access. The first ${X402?.FREE_TIER_DAILY || 50} calls per day are free. After that, include a USDC micropayment to continue.</p>
+
+      <h2>How It Works</h2>
+      <p>1. Send USDC on Solana mainnet to: <code>fairAUEuR1SCcHL254Vb3F3XpUWLruJ2a11f6QfANEN</code></p>
+      <p>2. Include the transaction signature in your API call header: <code>X-Payment-Tx: &lt;signature&gt;</code></p>
+      <p>3. We verify the payment on-chain and return the data. Each signature can only be used once.</p>
+
+      <h2>Pricing</h2>
+      <p><code>/v1/score</code> — <strong>0.005 USDC</strong> per call (full score breakdown)</p>
+      <p><code>/v1/trust-gate</code> — <strong>0.002 USDC</strong> per call (pass/fail trust decision)</p>
+      <p><code>/v1/batch</code> — <strong>0.003 USDC</strong> per wallet (batch scoring)</p>
+      <p><code>/v1/attestation-graph</code> — <strong>0.002 USDC</strong> per call</p>
+
+      <h2>Free Tier</h2>
+      <p>50 calls per day per IP address — no payment required. Perfect for testing, small integrations, and the directory frontend.</p>
+
+      <h2>402 Response</h2>
+      <p>When the free tier is exhausted, paid endpoints return <code>HTTP 402 Payment Required</code> with payment instructions:</p>
+      <pre><code>{
+  "error": "payment_required",
+  "payment": {
+    "protocol": "x402",
+    "network": "solana",
+    "token": "USDC",
+    "amount": 0.005,
+    "recipient": "fairAUEuR1SCcHL254Vb3F3XpUWLruJ2a11f6QfANEN"
+  }
+}</code></pre>
+
+      <h2>Example: Paid API Call</h2>
+      <pre><code>curl -H "X-Payment-Tx: 5Kj8D3..." \
+  "https://fairscale-reputation-api-production.up.railway.app/v1/score?wallet=8oPy1bQ..."</code></pre>
+
+      <h2>Check Your Usage</h2>
+      <pre><code>GET /v1/usage</code></pre>
+      <p>Returns your current usage count, free tier remaining, and whether payment is required.</p>
+
+      <h2>Pricing Endpoint</h2>
+      <pre><code>GET /v1/pricing</code></pre>
+      <p>Returns all endpoint prices, payment address, and integration instructions.</p>
 
       <h2>Integration Example</h2>
       <p>Embed trust-gating in your protocol's transaction flow:</p>
