@@ -13,7 +13,7 @@
     :root{--bg:#f5f0e8;--surface:#faf7f2;--card:#ffffff;--border:#e8e0d4;--primary:#1a1612;--accent:#3d7a62;--gold:#c8963a;--text:#2c2620;--muted:#8a8078;--dim:#b8b0a4;--blue:#4a68b8;--purple:#7a5aa0;--red:#c44a3a;--orange:#c87a3a;--vgreen:#2d8a4a;--pink:#b86878;--shadow:0 1px 3px rgba(26,22,18,.06),0 4px 12px rgba(26,22,18,.04);--shadow-lg:0 2px 8px rgba(26,22,18,.08),0 8px 24px rgba(26,22,18,.06)}
     body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
     /* Header */
-    .header{display:flex;justify-content:space-between;align-items:center;padding:14px 32px;border-bottom:1px solid var(--border);background:linear-gradient(135deg,var(--surface),#f8f4ec);position:sticky;top:0;z-index:80;backdrop-filter:blur(12px)}
+    .header{display:flex;justify-content:space-between;align-items:center;padding:14px 32px;border-bottom:1px solid var(--border);background:linear-gradient(135deg,var(--surface),#f8f4ec,#f5f2ea);position:sticky;top:0;z-index:80;backdrop-filter:blur(16px)}
     .header img{height:26px}.header nav{display:flex;gap:4px}
     .header nav a{color:var(--muted);text-decoration:none;font-size:.8rem;padding:6px 14px;border-radius:8px;transition:.2s}
     .header nav a:hover{color:var(--text);background:rgba(0,0,0,.04)}.header nav a.act{color:var(--accent);font-weight:600;background:rgba(61,122,98,.08)}
@@ -33,9 +33,10 @@
     .refresh-btn:hover{color:var(--accent);border-color:var(--accent);transform:rotate(180deg)}
     /* Filters */
     .filter-bar{display:flex;gap:8px;padding:14px 32px;align-items:center;flex-wrap:wrap}
-    .filter-check{display:flex;align-items:center;gap:4px;font-size:.72rem;color:var(--dim);cursor:pointer;white-space:nowrap;padding:6px 10px;background:var(--card);border:1px solid var(--border);border-radius:8px;transition:.2s}
-    .filter-check:has(input:checked){border-color:var(--accent);color:var(--accent);background:rgba(61,122,98,.06)}
-    .filter-check input{accent-color:var(--accent);margin:0}
+    .filter-check{display:flex;align-items:center;gap:5px;font-size:.78rem;color:var(--text);cursor:pointer;white-space:nowrap;padding:10px 14px;background:var(--card);border:1px solid var(--border);border-radius:10px;transition:.2s;box-shadow:var(--shadow);font-family:inherit}
+    .filter-check:hover{border-color:var(--accent)}
+    .filter-check:has(input:checked){border-color:var(--accent);color:var(--accent);background:linear-gradient(135deg,rgba(61,122,98,.06),rgba(61,122,98,.02))}
+    .filter-check input{accent-color:var(--accent);margin:0;width:14px;height:14px}
     .filter-bar input{flex:2;min-width:180px;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 16px;font-size:.84rem;color:var(--text);font-family:inherit;outline:none;box-shadow:var(--shadow);transition:.2s}
     .filter-bar input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(61,122,98,.12)}
     .filter-bar input::placeholder{color:var(--dim)}
@@ -44,8 +45,8 @@
     /* Directory */
     .dir-scroll{flex:1;overflow-y:auto;padding:0 32px 20px}.dir-scroll::-webkit-scrollbar{width:6px}.dir-scroll::-webkit-scrollbar-thumb{background:var(--dim);border-radius:6px}
     .agent-row{display:flex;align-items:center;gap:14px;padding:14px 18px;margin-top:8px;background:var(--card);border:1px solid var(--border);border-radius:12px;cursor:pointer;transition:all .25s cubic-bezier(.4,0,.2,1);box-shadow:var(--shadow);animation:slideUp .35s ease both}
-    .agent-row:hover{border-color:var(--accent);box-shadow:var(--shadow-lg);transform:translateY(-2px)}
-    .agent-row.active{border-color:var(--accent);background:linear-gradient(135deg,#f0f8f4,#f5f8f2)}
+    .agent-row:hover{border-color:var(--accent);box-shadow:var(--shadow-lg);transform:translateY(-2px);background:linear-gradient(135deg,#fff,#f8f6f2)}
+    .agent-row.active{border-color:var(--accent);background:linear-gradient(135deg,#eef6f0,#f2f7f0);box-shadow:inset 0 0 0 1px rgba(61,122,98,.1),var(--shadow)}
     .agent-rank{font-family:'Advercase';color:var(--dim);width:24px;font-size:.85rem;text-align:center;flex-shrink:0}
     .agent-rank.top1{color:var(--gold);font-weight:700;text-shadow:0 0 8px rgba(200,150,58,.3)}.agent-rank.top2{color:#8a8078}.agent-rank.top3{color:#b0845a}
     .agent-info{flex:1;min-width:0}
@@ -80,8 +81,8 @@
     .profile-tags{display:flex;gap:5px;margin-top:10px;flex-wrap:wrap}
     .trust-summary{font-size:.82rem;color:var(--text);line-height:1.55;padding:16px 26px;background:linear-gradient(135deg,rgba(61,122,98,.06),rgba(200,150,58,.04));border-bottom:1px solid var(--border)}
     /* Score */
-    .score-section{padding:28px 26px;background:linear-gradient(135deg,#1a1612,#2a2420,#1a2018);border-bottom:1px solid var(--border);text-align:center;position:relative;overflow:hidden}
-    .score-section::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle at 30% 50%,rgba(61,122,98,.15),transparent 50%);pointer-events:none}
+    .score-section{padding:28px 26px;background:linear-gradient(135deg,#1a1612,#2a2420,#1a2018,#182018);border-bottom:1px solid var(--border);text-align:center;position:relative;overflow:hidden}
+    .score-section::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle at 30% 50%,rgba(61,122,98,.18),transparent 50%),radial-gradient(circle at 70% 60%,rgba(200,150,58,.1),transparent 50%);pointer-events:none}
     .score-big{font-family:'Advercase';font-size:3.8rem;font-weight:700;color:#f5f0e8;line-height:1;position:relative}
     .score-label{font-size:.65rem;color:#b8b0a4;text-transform:uppercase;letter-spacing:.12em;margin-top:6px}
     .score-badges{display:flex;justify-content:center;gap:6px;margin-top:14px;flex-wrap:wrap}
@@ -105,7 +106,7 @@
     .info-cell.desc-good{border-color:var(--purple);background:linear-gradient(135deg,#f4f0f8,#ece8f4)}.info-cell.desc-good .iv{color:var(--purple)}
     .info-cell.desc-q{border-color:var(--purple);background:linear-gradient(135deg,#f4f0f8,#ece4f4)}.info-cell.desc-q .iv{color:var(--purple)}
     /* Sections */
-    .psection{padding:18px 26px;border-bottom:1px solid var(--border);animation:fadeIn .3s ease}
+    .psection{padding:18px 26px;border-bottom:1px solid var(--border);animation:fadeIn .3s ease;background:linear-gradient(180deg,transparent,rgba(245,240,232,.3))}
     .psection-title{font-family:'Advercase';font-size:.74rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px}
     .flags-bar{display:flex;flex-wrap:wrap;gap:5px}.flag{font-size:.66rem;padding:4px 12px;border-radius:8px;background:linear-gradient(135deg,#fae8e8,#f8e0e0);border:1px solid #f0d0d0;color:var(--red);text-transform:capitalize}
     .v-pills{display:flex;flex-wrap:wrap;gap:6px}
@@ -163,7 +164,8 @@
     .tip::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:#1a1612;color:#f5f0e8;font-size:.68rem;padding:6px 12px;border-radius:8px;white-space:nowrap;opacity:0;pointer-events:none;transition:.2s;z-index:50;font-weight:400;max-width:260px;white-space:normal;text-align:center;line-height:1.4;box-shadow:0 4px 12px rgba(0,0,0,.2)}
     .tip:hover::after{opacity:1}
     /* Leaderboard banner */
-    .lb-banner{padding:16px 32px;border-bottom:1px solid var(--border);background:linear-gradient(135deg,rgba(200,150,58,.04),rgba(61,122,98,.04))}
+    .lb-banner{padding:16px 32px;border-bottom:1px solid var(--border);background:linear-gradient(135deg,rgba(200,150,58,.06),rgba(61,122,98,.05),rgba(122,90,160,.03));position:relative;overflow:hidden}
+    .lb-banner::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),var(--accent),#8b5cf6);opacity:.4}
     .lb-title{font-family:'Advercase';font-size:.8rem;color:var(--gold);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px}
     .lb-row{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px}
     .lb-row::-webkit-scrollbar{height:4px}.lb-row::-webkit-scrollbar-thumb{background:var(--dim);border-radius:4px}
@@ -180,12 +182,23 @@
     .dash{max-width:900px;margin:0 auto}
     .dash h1{font-family:'Advercase';font-size:1.6rem;color:var(--primary);margin-bottom:4px}
     .dash-sub{font-size:.84rem;color:var(--muted);margin-bottom:24px}
-    .dash-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
-    .dash-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px;box-shadow:var(--shadow);text-align:center}
-    .dash-card .dc-val{font-family:'Advercase';font-size:1.8rem;color:var(--primary);margin-top:4px}
+    .dash-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:14px;margin-bottom:24px}
+    .dash-card{background:linear-gradient(135deg,var(--card),#faf8f4);border:1px solid var(--border);border-radius:14px;padding:20px 16px;box-shadow:var(--shadow);text-align:center;transition:.25s;position:relative;overflow:hidden}
+    .dash-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,var(--border),transparent)}
+    .dash-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}
+    .dash-card .dc-val{font-family:'Advercase';font-size:1.8rem;color:var(--primary);margin-top:6px}
     .dash-card .dc-label{font-size:.64rem;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
-    .dash-card.accent .dc-val{color:var(--accent)}.dash-card.gold .dc-val{color:var(--gold)}.dash-card.red .dc-val{color:var(--red)}
-    .dash-section{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;box-shadow:var(--shadow);margin-bottom:20px}
+    .dash-card.accent{background:linear-gradient(135deg,rgba(61,122,98,.08),rgba(61,122,98,.02));border-color:rgba(61,122,98,.2)}
+    .dash-card.accent::before{background:linear-gradient(90deg,transparent,var(--accent),transparent)}
+    .dash-card.accent .dc-val{color:var(--accent)}
+    .dash-card.gold{background:linear-gradient(135deg,rgba(200,150,58,.08),rgba(200,150,58,.02));border-color:rgba(200,150,58,.2)}
+    .dash-card.gold::before{background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+    .dash-card.gold .dc-val{color:var(--gold)}
+    .dash-card.red{background:linear-gradient(135deg,rgba(196,74,58,.06),rgba(196,74,58,.02));border-color:rgba(196,74,58,.15)}
+    .dash-card.red::before{background:linear-gradient(90deg,transparent,var(--red),transparent)}
+    .dash-card.red .dc-val{color:var(--red)}
+    .dash-section{background:linear-gradient(135deg,var(--card),#faf8f4);border:1px solid var(--border);border-radius:16px;padding:24px;box-shadow:var(--shadow);margin-bottom:20px;position:relative;overflow:hidden}
+    .dash-section::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),var(--gold),var(--accent));opacity:.3}
     .dash-section h2{font-family:'Advercase';font-size:.82rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:14px}
     .dist-bar-row{display:flex;align-items:center;gap:10px;margin:6px 0;font-size:.78rem}
     .dist-bar-row .dl{width:50px;text-align:right;color:var(--muted);font-size:.7rem}
@@ -470,10 +483,10 @@ if (decision === 'allow') {
     ['dirAttestations'].forEach(id=>{document.getElementById(id).onchange=()=>{dirPage=1;loadDir()}});
     function pagHTML(p,t){if(t<=1)return'';return`<button class="pg-btn" ${p<=1?'disabled':''} onclick="dirPage--;loadDir()">←</button><span class="pg-info">${p} / ${t}</span><button class="pg-btn" ${p>=t?'disabled':''} onclick="dirPage++;loadDir()">→</button>`}
     async function loadDir(){const sort=document.getElementById('dirSort').value,params=new URLSearchParams({page:dirPage,limit:25,sort}),search=document.getElementById('dirSearch').value.trim(),source=document.getElementById('dirSource').value,rec=document.getElementById('dirRec').value;if(search)params.set('search',search);if(source)params.set('source',source);if(rec)params.set('recommendation',rec);if(document.getElementById('dirAttestations').checked)params.set('has_attestations','1');const scroll=document.getElementById('dirScroll');try{const d=await(await fetch(`${API}/directory?${params}`)).json();document.getElementById('dirCount').textContent=`${d.total} agents`;const ph=pagHTML(dirPage,d.totalPages);document.getElementById('pagTop').innerHTML=ph;document.getElementById('pagBottom').innerHTML=ph;if((d.agents||[]).length){scroll.innerHTML=d.agents.map((a,i)=>{const rc=a.recommendation?.color||'',rl=a.recommendation?.label||'';const tags=[...(a.sources||[]).map(s=>s==='said'?'<span class="atag said">SAID</span>':s==='erc8004'?'<span class="atag erc8004">8004</span>':s==='sati'?'<span class="atag sati">SATI</span>':s==='kamiyo'?'<span class="atag kamiyo">Kamiyo</span>':''),a.humanVerified?'<span class="atag clawkey">ClawKey ✓</span>':'',rl?`<span class="atag rec rec-${rc}">${rl}</span>`:''].filter(Boolean).join('');const f=a.features||{};const bars=[{v:f.verification||0,c:'#4abc6a'},{v:f.reliability||0,c:'#5aad8e'},{v:f.social||0,c:'#db7a90'},{v:f.track_record||0,c:'#7088e8'},{v:f.economic_stake||0,c:'#e0b85c'},{v:f.ecosystem||0,c:'#ab7ed0'}].map(b=>`<div class="mini-bar" style="height:${Math.max(b.v*.24,2)}px;background:${b.c}"></div>`).join('');const sub=sort!=='agent_fairscore'?`<div class="agent-subscore">${sort.replace(/_/g,' ')}: ${f[sort]||'—'}</div>`:'';return`<div class="agent-row${a.wallet===activeWallet?' active':''}" data-wallet="${a.wallet}" onclick="selectAgent('${a.wallet}')" style="animation-delay:${i*25}ms"><div class="agent-rank${a.global_rank<=3?' top'+a.global_rank:''}">${a.global_rank||a.rank}<span style="display:block;font-size:.45rem;color:var(--dim);font-family:DM Sans">/${a.total_ranked||'?'}</span></div><div class="agent-info"><div class="agent-name">${a.name}</div><div class="agent-wallet">${a.wallet.slice(0,6)}...${a.wallet.slice(-4)}</div><div class="agent-tags">${tags}</div></div><div class="agent-bars">${bars}</div><div style="text-align:right">${sub}<div class="agent-score">${a.agent_fairscore}</div></div></div>`}).join('')}else scroll.innerHTML='<div class="empty">No agents match your filters</div>'}catch(e){scroll.innerHTML='<div class="empty">Failed to load directory</div>'}}
-    async function loadStats(){try{const d=await(await fetch(`${API}/stats`)).json();document.getElementById('heroStats').innerHTML=`<strong>${d.agents||0}</strong> scored · <strong>${d.saidAgents||0}</strong> SAID · <strong>${d.erc8004Agents||0}</strong> ERC-8004 · <strong>${d.satiAgents||0}</strong> SATI${d.kamiyoAgents?` · <strong>${d.kamiyoAgents}</strong> Kamiyo`:''}`}catch(e){document.getElementById('heroStats').textContent=''}}
+    async function loadStats(){try{const d=await(await fetch(`${API}/stats`)).json();document.getElementById('heroStats').innerHTML=`<strong>${d.agents||0}</strong> scored · <strong>${d.saidAgents||0}</strong> SAID · <strong>${d.erc8004Agents||0}</strong> ERC-8004 · <strong>${d.satiAgents||0}</strong> SATI · <strong>${d.kamiyoAgents||0}</strong> Kamiyo`}catch(e){document.getElementById('heroStats').textContent=''}}
     async function selectAgent(w){activeWallet=w;document.querySelectorAll('.agent-row').forEach(el=>el.classList.toggle('active',el.dataset.wallet===w));document.getElementById('profilePanel').classList.add('open');document.getElementById('profileContent').innerHTML='<div class="empty"><div class="spinner"></div></div>';try{const d=await(await fetch(`${API}/score?wallet=${encodeURIComponent(w)}`)).json();if(d.error)throw new Error(d.error);renderProfile(d)}catch(e){document.getElementById('profileContent').innerHTML=`<div class="empty">${e.message}</div>`}}
     function renderProfile(d){
-      const s=d.agent_fairscore||0,tier=s>=70?'gold':s>=40?'silver':'bronze';
+      const s=d.agent_fairscore||0,tier=s>=70?'Gold':s>=40?'Silver':'Bronze',tierClass=tier.toLowerCase();
       const f=d.features||{},desc=d.descriptions||{},rec=d.recommendation,bd=d.breakdown||{},pct=d.percentiles||{},flags=d.red_flags||[],v=d.verifications||{},socials=d.socials||{};
       const stags=[v.said_onchain||d.isSaidAgent?'<span class="atag said">SAID</span>':'',v.erc8004?'<span class="atag erc8004">ERC-8004</span>':'',v.sati?'<span class="atag sati">SATI</span>':'',v.kamiyo?'<span class="atag kamiyo">Kamiyo</span>':'',v.clawkey?.verified?'<span class="atag clawkey">ClawKey ✓</span>':''].filter(Boolean).join('');
       const vTips={SAID:'On-chain PDA registration via SAID Protocol','ERC-8004':'Registered in the Solana Agent Registry (ERC-8004)',SATI:'Token-2022 NFT identity via SATI',Kamiyo:'Job quality and reliability data from Kamiyo marketplace',ClawKey:'Human identity verified via ClawKey/VeryAI',Payment:'Paid 10 USDC verification fee',Registered:'Self-registered on FairScale'};
@@ -492,7 +505,7 @@ if (decision === 'allow') {
       document.getElementById('profileContent').innerHTML=`
         <div class="profile-header"><div><div class="profile-name">${d.name||'Agent '+d.wallet.slice(0,8)+'...'}</div><div class="profile-wallet" onclick="navigator.clipboard.writeText('${d.wallet}')" title="Click to copy">${d.wallet}</div>${d.description?`<div class="profile-desc">${d.description}</div>`:''}<div class="profile-tags">${stags}</div></div><button class="profile-close" onclick="document.getElementById('profilePanel').classList.remove('open');activeWallet=null;document.querySelectorAll('.agent-row').forEach(e=>e.classList.remove('active'))">✕</button></div>
         ${d.trust_summary?`<div class="trust-summary">${d.trust_summary}</div>`:''}
-        <div class="score-section"><div class="score-big">${s}</div><div class="score-label tip" data-tip="Composite of FairScale base (20%) + trust pillars (80%) + verification bonuses" style="color:#b8b0a4;cursor:help">Agent FairScore</div><div class="score-badges"><span class="sbadge tier-${tier} tip" data-tip="${tier==='gold'?'Score 70+':tier==='silver'?'Score 40-69':'Score below 40'}">${tier}</span>${rec?`<span class="sbadge rec rec-${rec.color} tip" data-tip="Based on score, verification status, and red flags">${rec.label}</span>`:''}${pct.agent_fairscore!=null?`<span class="sbadge pct tip" data-tip="Scores higher than ${pct.agent_fairscore}% of all agents in the directory">Top ${100-pct.agent_fairscore}%</span>`:''}</div></div>
+        <div class="score-section"><div class="score-big">${s}</div><div class="score-label tip" data-tip="Composite of FairScale base (20%) + trust pillars (80%) + verification bonuses" style="color:#b8b0a4;cursor:help">Agent FairScore</div><div class="score-badges"><span class="sbadge tier-${tierClass} tip" data-tip="${tierClass==='gold'?'Score 70+':tierClass==='silver'?'Score 40-69':'Score below 40'}">${tier}</span>${rec?`<span class="sbadge rec rec-${rec.color} tip" data-tip="Based on score, verification status, and red flags">${rec.label}</span>`:''}${pct.agent_fairscore!=null?`<span class="sbadge pct tip" data-tip="Scores higher than ${pct.agent_fairscore}% of all agents in the directory">Top ${100-pct.agent_fairscore}%</span>`:''}</div></div>
         <div class="info-grid"><div class="info-cell hl tip" data-tip="Raw wallet score from FairScale's neural network (rescored daily)"><div class="ik">FairScale Base</div><div class="iv">${d.fairscore_base||bd.fs_base_raw||'—'}</div></div><div class="info-cell tip" data-tip="Social reputation score from linked accounts"><div class="ik">Social</div><div class="iv">${d.social_score||bd.fs_social_raw||'—'}</div></div><div class="info-cell tip" data-tip="SAID Protocol reputation score and trust tier"><div class="ik">SAID</div><div class="iv">${d.said?.score??'—'}</div></div><div class="info-cell tip" data-tip="SATI on-chain reputation: feedback count and average score from verified reviewers"><div class="ik">SATI Rep.</div><div class="iv">${d.scores?.sati_reputation?d.scores.sati_reputation.value+' ('+d.scores.sati_reputation.count+')':'—'}</div></div></div>
         ${flags.length?`<div class="psection"><div class="psection-title tip" data-tip="Suspicious patterns detected in on-chain behavior. Each flag carries a point penalty.">⚠ Flags (${bd.red_flag_penalty||0}pt penalty)</div><div class="flags-bar">${flags.map(fl=>`<span class="flag">${fl.replace(/_/g,' ')}</span>`).join('')}</div></div>`:''}
         <div class="psection"><div class="psection-title tip" data-tip="Protocol registrations and identity verifications. Each adds to the verification pillar score.">Verification</div><div class="v-pills">${vPills}</div></div>
@@ -531,8 +544,9 @@ if (decision === 'allow') {
           <div class="dash-card"><div class="dc-label">SAID Agents</div><div class="dc-val">${o.said_agents||0}</div></div>
           <div class="dash-card"><div class="dc-label">ERC-8004</div><div class="dc-val">${o.erc8004_agents||0}</div></div>
           <div class="dash-card" style="border-left:3px solid #8b5cf6"><div class="dc-label">SATI Agents</div><div class="dc-val">${o.sati_agents||0}</div></div>
+          <div class="dash-card" style="border-left:3px solid #d97706"><div class="dc-label">Kamiyo</div><div class="dc-val">${h.kamiyo_agents||0}</div></div>
           <div class="dash-card accent"><div class="dc-label">Dual Verified</div><div class="dc-val">${v.dual_verified||0}</div></div>
-          <div class="dash-card"><div class="dc-label">Attestations</div><div class="dc-val">${o.attestation_coverage||0}</div></div>`;
+          <div class="dash-card"><div class="dc-label">With Attestations</div><div class="dc-val">${h.attestation_coverage||0}</div></div>`;
 
         const dist=d.score_distribution||{};
         const maxD=Math.max(...Object.values(dist),1);
