@@ -182,7 +182,7 @@
     .lb-title{font-family:'Advercase';font-size:.8rem;color:var(--gold);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px}
     .lb-row{display:flex;gap:6px;flex-wrap:wrap}
     .lb-row::-webkit-scrollbar{height:4px}.lb-row::-webkit-scrollbar-thumb{background:var(--dim);border-radius:4px}
-    .lb-card{flex-shrink:0;display:flex;align-items:center;gap:6px;padding:5px 10px;background:var(--card);border:1px solid var(--border);border-radius:8px;cursor:pointer;transition:.2s;box-shadow:var(--shadow);min-width:0;flex:1}
+    .lb-card{display:flex;align-items:center;gap:6px;padding:5px 10px;background:var(--card);border:1px solid var(--border);border-radius:8px;cursor:pointer;transition:.2s;box-shadow:var(--shadow);white-space:nowrap}
     .lb-card:hover{border-color:var(--accent);transform:translateY(-1px);box-shadow:var(--shadow-lg)}
     .lb-card.gold{border-color:var(--gold);background:linear-gradient(135deg,#faf6ee,#faf0e0)}
     .lb-card.silver{border-color:#a0968a}
@@ -226,24 +226,55 @@
     /* Counterparties in profile */
     .cp-grid{display:flex;flex-wrap:wrap;gap:6px}
     .cp-pill{font-size:.7rem;padding:5px 12px;border-radius:8px;background:linear-gradient(135deg,#e8ecf8,#f0f4ff);border:1px solid #c8d8f0;color:var(--blue);font-weight:500}
-    @media(max-width:600px){.dash-grid{grid-template-columns:repeat(2,1fr)}.lb-banner{padding:12px 18px}}
+    @media(max-width:768px){.dash-grid{grid-template-columns:repeat(2,1fr)}.lb-banner{padding:10px 16px}.lb-row{flex-wrap:wrap}}
     @keyframes fadeIn{from{opacity:0}to{opacity:1}}
     @keyframes slideUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
     @keyframes scaleIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
     @keyframes spin{to{transform:rotate(360deg)}}
-    @media(max-width:900px){.profile-panel.open{width:100%;position:fixed;inset:0;top:53px;z-index:90}}
-    @media(max-width:600px){.hero{padding:20px 18px 0}.filter-bar{padding:12px 18px}.dir-scroll{padding:0 18px 16px}.info-grid{grid-template-columns:repeat(2,1fr)}.pillar-grid{grid-template-columns:1fr}.agent-bars{display:none}}
+    @media(max-width:900px){.profile-panel.open{width:100%;position:fixed;inset:0;top:49px;z-index:90}}
+    @media(max-width:768px){
+      .header{padding:10px 14px}
+      .header .hero-stat{font-size:.58rem;padding:4px 8px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+      .hero{padding:16px 16px 0}
+      .hero-title{font-size:1.2rem}
+      .hero-sub{font-size:.76rem}
+      .lb-banner{padding:10px 16px}
+      .lb-title{font-size:.68rem;margin-bottom:6px}
+      .lb-row{gap:4px}
+      .lb-card{padding:4px 6px;gap:4px;border-radius:6px}
+      .lb-rank{font-size:.65rem;width:12px}
+      .lb-name{display:none}
+      .lb-score{font-size:.65rem}
+      .filter-bar{padding:10px 16px;gap:6px}
+      .filter-bar input{min-width:0;flex:1;padding:8px 12px;font-size:.78rem}
+      .filter-bar select{min-width:0;padding:8px 10px;font-size:.72rem;flex:1}
+      .filter-check{padding:8px 10px;font-size:.72rem;flex:none;white-space:nowrap}
+      .agent-count{font-size:.68rem}
+      .dir-scroll{padding:0 16px 16px}
+      .agent-row{padding:10px 12px;gap:10px}
+      .agent-name{font-size:.82rem}
+      .agent-score{font-size:1.3rem}
+      .agent-bars{display:none}
+      .pag{padding:8px 16px}
+      .info-grid{grid-template-columns:repeat(2,1fr);padding:12px 18px}
+      .pillar-grid{grid-template-columns:1fr}
+      .profile-panel.open{width:100%}
+      .score-big{font-size:2.8rem}
+      .psection{padding:14px 18px}
+      .profile-header{padding:16px 18px}
+      .profile-actions{padding:14px 18px}
+      .dash-grid{grid-template-columns:repeat(2,1fr)}
+      .dash-section{padding:16px}
+    }
   </style>
 </head>
 <body>
   <header class="header">
-    <div style="display:flex;align-items:center;gap:12px">
+    <div style="display:flex;align-items:center;gap:10px">
       <button class="burger" id="burgerBtn" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
       <a href="#" onclick="showPage('directory');return false"><img src="assets/logo.png" alt="FairScale"></a>
     </div>
-    <div style="display:flex;align-items:center;gap:8px">
-      <span class="hero-stat" id="heroStats" style="margin:0">Loading...</span>
-    </div>
+    <span class="hero-stat" id="heroStats">Loading...</span>
   </header>
   <aside class="sidebar" id="sidebar">
     <div class="sb-header">
