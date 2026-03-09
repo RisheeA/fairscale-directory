@@ -812,6 +812,8 @@ if (decision === 'allow') {
     }
 
     loadDir();loadStats();loadLeaderboard();loadFeaturedMerchants();
+    setInterval(loadStats, 60000);
+    setInterval(loadDir, 120000);
     setInterval(loadLeaderboard, 60000);
     setInterval(loadFeaturedMerchants, 120000);
 
