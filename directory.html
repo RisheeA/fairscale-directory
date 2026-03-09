@@ -233,8 +233,10 @@
     .merch-hero h1{font-family:'Advercase';font-size:1.6rem;background:linear-gradient(135deg,#1a1612,var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
     .merch-sub{font-size:.86rem;color:var(--muted);margin:6px 0 18px;line-height:1.55}
     .merch-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:18px}
-    .merch-card{background:linear-gradient(135deg,var(--card),#faf8f4);border:1px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:var(--shadow);transition:all .25s;cursor:default;position:relative}
+    .merch-card{background:linear-gradient(135deg,var(--card),#faf8f4);border:1px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:var(--shadow);transition:all .25s;cursor:pointer;position:relative}
     .merch-card:hover{box-shadow:var(--shadow-lg);transform:translateY(-2px)}
+    .merch-card.expanded{cursor:default;grid-column:1/-1}
+    .merch-card.expanded .merch-desc{-webkit-line-clamp:unset}
     .merch-banner{height:110px;background:linear-gradient(135deg,rgba(61,122,98,.15),rgba(200,150,58,.1));background-size:cover;background-position:center;position:relative}
     .merch-banner::after{content:'';position:absolute;bottom:0;left:0;right:0;height:40px;background:linear-gradient(transparent,var(--card))}
     .merch-avatar{width:56px;height:56px;border-radius:14px;border:3px solid var(--card);background:var(--surface);position:absolute;bottom:-28px;left:20px;z-index:2;box-shadow:var(--shadow);object-fit:cover;display:flex;align-items:center;justify-content:center;font-size:1.6rem}
@@ -247,6 +249,19 @@
     .merch-meta a:hover{border-color:var(--accent);color:var(--accent)}
     .merch-score{position:absolute;top:12px;right:12px;font-family:'Advercase';font-size:1.1rem;font-weight:700;color:#fff;background:linear-gradient(135deg,rgba(26,22,18,.7),rgba(26,22,18,.5));backdrop-filter:blur(6px);padding:4px 12px;border-radius:10px;border:1px solid rgba(255,255,255,.15)}
     .merch-verified{display:inline-flex;align-items:center;gap:4px;font-size:.6rem;font-weight:600;color:var(--accent);background:rgba(61,122,98,.08);padding:3px 8px;border-radius:6px;margin-top:10px}
+    .merch-detail{display:none;padding:16px 20px 20px;border-top:1px solid var(--border);animation:fadeUp .25s ease}
+    .merch-card.expanded .merch-detail{display:block}
+    .merch-detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+    .merch-detail-cell{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 14px}
+    .merch-detail-cell .mdk{font-size:.58rem;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+    .merch-detail-cell .mdv{font-size:.82rem;color:var(--primary);margin-top:3px;font-weight:500;word-break:break-all}
+    .merch-detail-cell .mdv.mono{font-family:monospace;font-size:.72rem}
+    .merch-detail-cell.x402{border-color:rgba(61,122,98,.25);background:linear-gradient(135deg,rgba(61,122,98,.06),rgba(61,122,98,.02))}
+    .merch-detail-cell.x402 .mdv{color:var(--accent)}
+    .merch-services-list{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+    .merch-svc-pill{font-size:.66rem;padding:4px 10px;border-radius:6px;background:linear-gradient(135deg,rgba(200,150,58,.08),rgba(200,150,58,.03));border:1px solid rgba(200,150,58,.15);color:var(--gold);font-weight:500;text-transform:capitalize}
+    .merch-close-hint{font-size:.62rem;color:var(--dim);text-align:center;margin-top:10px}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
     .merch-empty{text-align:center;padding:60px 20px;color:var(--dim)}
     .merch-empty h3{font-family:'Source Serif 4',serif;color:var(--primary);margin-bottom:8px}
     @media(max-width:768px){.merch-grid{grid-template-columns:1fr}.merch-page{padding:0}}
@@ -723,28 +738,52 @@ if (decision === 'allow') {
           grid.innerHTML=`<div class="merch-empty" style="grid-column:1/-1"><h3>No verified merchants yet</h3><p style="font-size:.84rem;color:var(--muted);margin-top:4px">Be the first — apply for verification above.</p></div>`;
           return;
         }
-        grid.innerHTML=merchants.map(m=>{
+        grid.innerHTML=merchants.map((m,i)=>{
           const catLabels={defi:'DeFi',payments:'Payments',nft:'NFT',saas:'SaaS',exchange:'Exchange',gaming:'Gaming',social:'Social',infrastructure:'Infra',general:'General',other:'Other'};
           const catEmoji={defi:'💱',payments:'💳',nft:'🖼️',saas:'🔧',exchange:'📊',gaming:'🎮',social:'💬',infrastructure:'⚙️',general:'🏢',other:'📦'};
-          return`<div class="merch-card">
+          const services=(m.services_offered||[]);
+          const hasX402=!!m.x402_endpoint;
+          return`<div class="merch-card" id="mcard-${i}" onclick="toggleMerchCard(${i})">
             <div class="merch-banner" style="${m.banner_url?`background-image:url(${m.banner_url})`:''}">${m.fairscore?`<div class="merch-score">${m.fairscore}</div>`:''}</div>
             <div style="position:relative">
               ${m.profile_image_url?`<img class="merch-avatar" src="${m.profile_image_url}" alt="${m.business_name}">`:`<div class="merch-avatar">${catEmoji[m.category]||'🏢'}</div>`}
             </div>
             <div class="merch-body">
               <div class="merch-name">${m.business_name}</div>
-              <div class="merch-cat">${catLabels[m.category]||m.category}</div>
+              <div class="merch-cat">${catLabels[m.category]||m.category}${hasX402?' · <span style="color:var(--accent)">x402 Enabled</span>':''}</div>
               ${m.description?`<div class="merch-desc">${m.description}</div>`:''}
               <div class="merch-verified">✓ Verified by FairScale</div>
               <div class="merch-meta">
-                ${m.website?`<a href="${m.website}" target="_blank">🌐 Website</a>`:''}
-                ${m.x_handle?`<a href="https://twitter.com/${m.x_handle.replace('@','')}" target="_blank">𝕏 ${m.x_handle}</a>`:''}
+                ${m.website?`<a href="${m.website}" target="_blank" onclick="event.stopPropagation()">🌐 Website</a>`:''}
+                ${m.x_handle?`<a href="https://twitter.com/${m.x_handle.replace('@','')}" target="_blank" onclick="event.stopPropagation()">𝕏 ${m.x_handle}</a>`:''}
+                ${hasX402?`<span style="color:var(--accent);border-color:rgba(61,122,98,.25);background:rgba(61,122,98,.06)">⚡ x402</span>`:''}
                 <span style="color:var(--dim)">${m.wallet.slice(0,6)}...${m.wallet.slice(-4)}</span>
               </div>
+            </div>
+            <div class="merch-detail">
+              <div class="merch-detail-grid">
+                <div class="merch-detail-cell"><div class="mdk">Wallet Address</div><div class="mdv mono" style="cursor:pointer" onclick="event.stopPropagation();navigator.clipboard.writeText('${m.wallet}')" title="Click to copy">${m.wallet}</div></div>
+                <div class="merch-detail-cell"><div class="mdk">Verified Since</div><div class="mdv">${new Date(m.verified_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}</div></div>
+                ${hasX402?`<div class="merch-detail-cell x402" style="grid-column:span 2"><div class="mdk">x402 Payment Endpoint</div><div class="mdv mono" style="cursor:pointer" onclick="event.stopPropagation();navigator.clipboard.writeText('${m.x402_endpoint}')" title="Click to copy">${m.x402_endpoint}</div></div>`:''}
+                ${m.fairscore?`<div class="merch-detail-cell"><div class="mdk">FairScore</div><div class="mdv" style="font-family:Advercase;font-size:1.1rem">${m.fairscore}</div></div>`:''}
+                <div class="merch-detail-cell"><div class="mdk">Tier</div><div class="mdv" style="text-transform:capitalize">${m.payment_tier||'standard'}</div></div>
+              </div>
+              ${services.length?`<div class="mdk" style="font-size:.58rem;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px">Services</div><div class="merch-services-list">${services.map(s=>`<span class="merch-svc-pill">${s}</span>`).join('')}</div>`:''}
+              <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
+                ${m.website?`<a href="${m.website}" target="_blank" onclick="event.stopPropagation()" class="pact-btn" style="font-size:.76rem;padding:8px 16px;flex:none">Visit Website ↗</a>`:''}
+                <a href="https://solscan.io/account/${m.wallet}" target="_blank" onclick="event.stopPropagation()" class="pact-btn" style="font-size:.76rem;padding:8px 16px;flex:none">Solscan ↗</a>
+                ${hasX402?`<button class="pact-btn primary" style="font-size:.76rem;padding:8px 16px;flex:none" onclick="event.stopPropagation();navigator.clipboard.writeText('${m.x402_endpoint}')">Copy x402 Endpoint</button>`:''}
+              </div>
+              <div class="merch-close-hint">Click to collapse</div>
             </div>
           </div>`;
         }).join('');
       }catch(e){grid.innerHTML='<div class="empty">Failed to load merchants</div>'}
+    }
+
+    function toggleMerchCard(i){
+      const card=document.getElementById('mcard-'+i);
+      if(card) card.classList.toggle('expanded');
     }
 
     async function submitMerchantApp(){
