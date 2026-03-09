@@ -237,16 +237,15 @@
 
 <script>
 const API = 'https://fairscale-reputation-api-production.up.railway.app';
-const IMGUR_CLIENT_ID = 'YOUR_IMGUR_CLIENT_ID'; // Replace with your Imgur Client ID
 let adminKey = '';
 let currentFilter = '';
 
-// Imgur anonymous image upload
+// Local image upload — converts to base64 data URL, no external service needed
 async function uploadImage(fileInput, hiddenInputId, previewId) {
   const file = fileInput.files[0];
   if (!file) return;
   if (!file.type.startsWith('image/')) { toast('Please select an image file.', 'error'); return; }
-  if (file.size > 10 * 1024 * 1024) { toast('Image must be under 10MB.', 'error'); return; }
+  if (file.size > 5 * 1024 * 1024) { toast('Image must be under 5MB.', 'error'); return; }
 
   const label = fileInput.parentElement.querySelector('.img-upload-label');
   const progress = fileInput.parentElement.querySelector('.img-upload-progress');
@@ -256,33 +255,22 @@ async function uploadImage(fileInput, hiddenInputId, previewId) {
   if (label) label.style.display = 'none';
   if (progress) progress.style.display = 'flex';
 
-  try {
-    const formData = new FormData();
-    formData.append('image', file);
-
-    const r = await fetch('https://api.imgur.com/3/image', {
-      method: 'POST',
-      headers: { Authorization: 'Client-ID ' + IMGUR_CLIENT_ID },
-      body: formData,
-    });
-    const data = await r.json();
-    if (!data.success) throw new Error(data.data?.error || 'Upload failed');
-
-    const url = data.data.link;
-    document.getElementById(hiddenInputId).value = url;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const dataUrl = e.target.result;
+    document.getElementById(hiddenInputId).value = dataUrl;
 
     if (preview) {
-      preview.src = url;
+      preview.src = dataUrl;
       preview.style.display = 'block';
       if (zone) zone.classList.add('has-image');
-      // Add remove button
       let removeBtn = zone.querySelector('.img-upload-remove');
       if (!removeBtn) {
         removeBtn = document.createElement('button');
         removeBtn.className = 'img-upload-remove';
         removeBtn.textContent = '✕';
-        removeBtn.onclick = (e) => {
-          e.stopPropagation();
+        removeBtn.onclick = (ev) => {
+          ev.stopPropagation();
           preview.style.display = 'none';
           preview.src = '';
           document.getElementById(hiddenInputId).value = '';
@@ -295,12 +283,14 @@ async function uploadImage(fileInput, hiddenInputId, previewId) {
       }
     }
     if (progress) progress.style.display = 'none';
-    toast('Image uploaded!');
-  } catch (e) {
+    toast('Image loaded!');
+  };
+  reader.onerror = () => {
     if (progress) progress.style.display = 'none';
-    if (label) { label.style.display = 'block'; label.textContent = 'Upload failed — click to retry'; }
-    toast(e.message, 'error');
-  }
+    if (label) { label.style.display = 'block'; label.textContent = 'Failed — click to retry'; }
+    toast('Failed to read file.', 'error');
+  };
+  reader.readAsDataURL(file);
 }
 
 // Helper: create an image upload zone HTML string for dynamic forms (review/edit panels)
@@ -316,7 +306,7 @@ function imgUploadHTML(prefix, label, existingUrl) {
         <div class="img-upload-zone ${hasImg}" onclick="document.getElementById('${prefix}File').click()">
           <img id="${prefix}Preview" class="img-preview ${label.includes('Banner') ? 'banner-preview' : 'avatar-preview'}" src="${existingUrl || ''}" style="${imgStyle}">
           <div class="img-upload-label" style="${labelStyle}">Click to upload</div>
-          <div class="img-upload-progress" style="display:none"><div class="spinner" style="width:14px;height:14px"></div><span>Uploading...</span></div>
+          <div class="img-upload-progress" style="display:none"><div class="spinner" style="width:14px;height:14px"></div><span>Loading...</span></div>
           ${existingUrl ? `<button class="img-upload-remove" onclick="event.stopPropagation();document.getElementById('${prefix}Preview').style.display='none';document.getElementById('${prefix}').value='';this.parentElement.classList.remove('has-image');this.parentElement.querySelector('.img-upload-label').style.display='block';this.remove()">✕</button>` : ''}
         </div>
         <input type="hidden" id="${prefix}" value="${existingUrl || ''}">
