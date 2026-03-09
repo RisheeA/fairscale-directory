@@ -190,20 +190,35 @@
     .tip::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:#1a1612;color:#f5f0e8;font-size:.68rem;padding:6px 12px;border-radius:8px;white-space:nowrap;opacity:0;pointer-events:none;transition:.2s;z-index:50;font-weight:400;max-width:260px;white-space:normal;text-align:center;line-height:1.4;box-shadow:0 4px 12px rgba(0,0,0,.2)}
     .tip:hover::after{opacity:1}
     /* Leaderboard banner */
-    .lb-banner{padding:16px 32px;border-bottom:1px solid var(--border);background:linear-gradient(135deg,rgba(200,150,58,.06),rgba(61,122,98,.05),rgba(122,90,160,.03));position:relative;overflow:hidden}
-    .lb-banner::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),var(--accent),#8b5cf6);opacity:.4}
-    .lb-title{font-family:'Advercase';font-size:.8rem;color:var(--gold);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px}
-    .lb-row{display:flex;gap:6px;flex-wrap:wrap}
-    .lb-row::-webkit-scrollbar{height:4px}.lb-row::-webkit-scrollbar-thumb{background:var(--dim);border-radius:4px}
-    .lb-card{display:flex;align-items:center;gap:6px;padding:5px 10px;background:var(--card);border:1px solid var(--border);border-radius:8px;cursor:pointer;transition:.2s;box-shadow:var(--shadow);white-space:nowrap}
+    .lb-banner{padding:14px 32px;border-bottom:1px solid var(--border);background:rgba(200,150,58,.03);position:relative;overflow:hidden}
+    .lb-banner::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),var(--accent),var(--gold));opacity:.3}
+    .lb-title{font-family:'Advercase';font-size:.68rem;color:var(--gold);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px}
+    .lb-row{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:thin}
+    .lb-row::-webkit-scrollbar{height:3px}.lb-row::-webkit-scrollbar-thumb{background:var(--dim);border-radius:4px}
+    .lb-card{display:flex;align-items:center;gap:8px;padding:6px 14px;background:var(--card);border:1px solid var(--border);border-radius:10px;cursor:pointer;transition:.2s;box-shadow:var(--shadow);white-space:nowrap;flex-shrink:0}
     .lb-card:hover{border-color:var(--accent);transform:translateY(-1px);box-shadow:var(--shadow-lg)}
-    .lb-card.gold{border-color:var(--gold);background:rgba(200,150,58,.1)}
-    .lb-card.silver{border-color:#a0968a}
-    .lb-card.bronze{border-color:#b0845a}
-    .lb-rank{font-family:'Advercase';font-size:.8rem;color:var(--dim);width:14px;text-align:center}
-    .lb-card.gold .lb-rank{color:var(--gold)}.lb-card.silver .lb-rank{color:#8a8078}.lb-card.bronze .lb-rank{color:#b0845a}
-    .lb-name{font-weight:600;font-size:.62rem;color:var(--primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:65px}
-    .lb-score{font-family:'Advercase';font-size:.78rem;font-weight:700;color:var(--primary);margin-left:auto}
+    .lb-card.gold{border-color:var(--gold);background:rgba(200,150,58,.08)}
+    .lb-card.silver{border-color:var(--muted)}
+    .lb-card.bronze{border-color:var(--orange)}
+    .lb-rank{font-family:'Advercase';font-size:.75rem;color:var(--dim);width:14px;text-align:center;flex-shrink:0}
+    .lb-card.gold .lb-rank{color:var(--gold)}.lb-card.silver .lb-rank{color:var(--muted)}.lb-card.bronze .lb-rank{color:var(--orange)}
+    .lb-name{font-weight:600;font-size:.68rem;color:var(--primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:90px}
+    .lb-score{font-family:'Advercase';font-size:.82rem;font-weight:700;color:var(--primary);margin-left:4px}
+    /* Featured merchants banner */
+    .featured-banner{padding:14px 32px;border-bottom:1px solid var(--border);background:linear-gradient(135deg,rgba(61,122,98,.04),rgba(200,150,58,.03));position:relative;overflow:hidden}
+    .featured-banner::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),var(--gold));opacity:.3}
+    .featured-title{font-family:'Advercase';font-size:.68rem;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+    .featured-title span{font-size:.55rem;background:rgba(200,150,58,.12);color:var(--gold);padding:2px 8px;border-radius:4px;font-family:'DM Sans';letter-spacing:.04em}
+    .featured-row{display:flex;gap:10px;overflow-x:auto;padding-bottom:4px;scrollbar-width:thin}
+    .featured-row::-webkit-scrollbar{height:3px}.featured-row::-webkit-scrollbar-thumb{background:var(--dim);border-radius:4px}
+    .featured-card{display:flex;align-items:center;gap:10px;padding:8px 16px 8px 8px;background:var(--card);border:1px solid var(--border);border-radius:12px;cursor:pointer;transition:.2s;box-shadow:var(--shadow);white-space:nowrap;flex-shrink:0;text-decoration:none;color:var(--text)}
+    .featured-card:hover{border-color:var(--accent);transform:translateY(-1px);box-shadow:var(--shadow-lg)}
+    .featured-card img{width:36px;height:36px;border-radius:8px;object-fit:cover;border:1px solid var(--border)}
+    .featured-card .fc-emoji{width:36px;height:36px;border-radius:8px;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:1rem}
+    .featured-card .fc-info{display:flex;flex-direction:column;gap:1px}
+    .featured-card .fc-name{font-weight:600;font-size:.74rem;color:var(--primary)}
+    .featured-card .fc-cat{font-size:.56rem;color:var(--accent);text-transform:uppercase;letter-spacing:.04em}
+    .featured-card .fc-score{font-family:'Advercase';font-size:.9rem;font-weight:700;color:var(--primary);margin-left:auto;padding-left:8px}
     /* Dashboard */
     .dash{max-width:900px;margin:0 auto}
     .dash h1{font-family:'Advercase';font-size:1.6rem;color:var(--primary);margin-bottom:4px}
@@ -373,6 +388,7 @@
         <div class="hero-sub">Solana agents ranked by on-chain behavior, verification, and reputation. Powered by <a href="https://fairscale.xyz" target="_blank" style="color:var(--accent);text-decoration:none;font-weight:600">FairScale</a>.</div>
       </div>
       <div class="lb-banner" id="lbBanner"></div>
+      <div class="featured-banner" id="featuredBanner" style="display:none"></div>
       <div class="pag" id="pagTop"></div>
       <div class="filter-bar">
         <input type="text" id="dirSearch" placeholder="Search by name or wallet...">
@@ -795,8 +811,32 @@ if (decision === 'allow') {
       }catch(e){console.error('Dashboard error:',e)}
     }
 
-    loadDir();loadStats();loadLeaderboard();
+    loadDir();loadStats();loadLeaderboard();loadFeaturedMerchants();
     setInterval(loadLeaderboard, 60000);
+    setInterval(loadFeaturedMerchants, 120000);
+
+    // Featured merchants banner on main directory page
+    async function loadFeaturedMerchants(){
+      try{
+        const d=await(await fetch(`${API}/merchants`)).json();
+        const merchants=(d.merchants||[]).filter(m=>m.payment_tier==='premium'||m.payment_tier==='enterprise');
+        const banner=document.getElementById('featuredBanner');
+        if(!merchants.length){banner.style.display='none';return}
+        const catEmoji={defi:'💱',payments:'💳',nft:'🖼️',saas:'🔧',exchange:'📊',gaming:'🎮',social:'💬',infrastructure:'⚙️',general:'🏢',other:'📦'};
+        banner.style.display='block';
+        banner.innerHTML=`<div class="featured-title">Featured Merchants <span>Verified</span></div><div class="featured-row">${merchants.map(m=>{
+          const img=m.profile_image_url?`<img src="${m.profile_image_url}" alt="">`:`<div class="fc-emoji">${catEmoji[m.category]||'🏢'}</div>`;
+          const catLabels={defi:'DeFi',payments:'Payments',nft:'NFT',saas:'SaaS',exchange:'Exchange',gaming:'Gaming',social:'Social',infrastructure:'Infra',general:'General',other:'Other'};
+          return`<a class="featured-card" href="#" onclick="showPage('merchants');return false">${img}<div class="fc-info"><div class="fc-name">${m.business_name}</div><div class="fc-cat">${catLabels[m.category]||m.category}</div></div>${m.fairscore?`<div class="fc-score">${m.fairscore}</div>`:''}</a>`;
+        }).join('')}</div>`;
+        // Also show all verified merchants (not just premium) in a subtle row if there are standard-tier ones
+        const allMerch=(d.merchants||[]);
+        const standardOnly=allMerch.filter(m=>m.payment_tier==='standard');
+        if(standardOnly.length&&merchants.length){
+          banner.innerHTML+=`<div style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap;align-items:center"><span style="font-size:.56rem;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;font-weight:600">Also verified:</span>${standardOnly.map(m=>`<a href="#" onclick="showPage('merchants');return false" style="font-size:.66rem;padding:3px 10px;border-radius:6px;background:var(--card);border:1px solid var(--border);color:var(--text);text-decoration:none;transition:.15s">${m.business_name}</a>`).join('')}</div>`;
+        }
+      }catch(e){}
+    }
 
     // Merchant functions
     async function loadMerchants(){
