@@ -224,6 +224,7 @@
             </select>
           </div>
           <div class="form-group"><label class="form-label">Services Offered</label><input class="form-input" id="addServices" placeholder="Comma-separated: trading, lending, payments"></div>
+          <div class="form-group span2"><label class="form-label">x402 Endpoint</label><input class="form-input mono" id="addX402" placeholder="https://pay.merchant.com/x402 (optional)"></div>
           <div class="form-group span2"><label class="form-label">Description</label><textarea class="form-input" id="addDesc" rows="3" placeholder="What does this business do? How will they use FairScale?"></textarea></div>
         </div>
         <div style="display:flex;gap:10px;margin-top:20px">
@@ -585,6 +586,7 @@ async function addMerchant() {
     profile_image_url: document.getElementById('addAvatar').value.trim() || undefined,
     payment_tier: document.getElementById('addTier').value,
     services_offered: document.getElementById('addServices').value.trim() ? document.getElementById('addServices').value.split(',').map(s => s.trim()).filter(Boolean) : undefined,
+    x402_endpoint: document.getElementById('addX402').value.trim() || undefined,
     description: document.getElementById('addDesc').value.trim() || undefined,
   };
   Object.keys(body).forEach(k => body[k] === undefined && delete body[k]);
@@ -604,7 +606,7 @@ async function addMerchant() {
 }
 
 function clearAddForm() {
-  ['addName','addWallet','addEmail','addWebsite','addTwitter','addBanner','addAvatar','addServices','addDesc'].forEach(id => document.getElementById(id).value = '');
+  ['addName','addWallet','addEmail','addWebsite','addTwitter','addBanner','addAvatar','addServices','addX402','addDesc'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('addCategory').value = 'general';
   document.getElementById('addTier').value = 'standard';
 }
