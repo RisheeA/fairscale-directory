@@ -827,7 +827,7 @@ if (decision === 'allow') {
         banner.innerHTML=`<div class="featured-title">Featured Merchants <span>Verified</span></div><div class="featured-row">${merchants.map(m=>{
           const img=m.profile_image_url?`<img src="${m.profile_image_url}" alt="">`:`<div class="fc-emoji">${catEmoji[m.category]||'🏢'}</div>`;
           const catLabels={defi:'DeFi',payments:'Payments',nft:'NFT',saas:'SaaS',exchange:'Exchange',gaming:'Gaming',social:'Social',infrastructure:'Infra',general:'General',other:'Other'};
-          return`<a class="featured-card" href="#" onclick="showPage('merchants');return false">${img}<div class="fc-info"><div class="fc-name">${m.business_name}</div><div class="fc-cat">${catLabels[m.category]||m.category}</div></div>${m.fairscore?`<div class="fc-score">${m.fairscore}</div>`:''}</a>`;
+          return`<a class="featured-card" href="#" onclick="showPage('merchants');return false">${img}<div class="fc-info"><div class="fc-name">${m.business_name}</div><div class="fc-cat">${catLabels[m.category]||m.category}</div></div></a>`;
         }).join('')}</div>`;
         // Also show all verified merchants (not just premium) in a subtle row if there are standard-tier ones
         const allMerch=(d.merchants||[]);
@@ -854,7 +854,7 @@ if (decision === 'allow') {
           const services=(m.services_offered||[]);
           const hasX402=!!m.x402_endpoint;
           return`<div class="merch-card" id="mcard-${i}" onclick="toggleMerchCard(${i})">
-            <div class="merch-banner" style="${m.banner_url?`background-image:url(${m.banner_url})`:''}">${m.fairscore?`<div class="merch-score">${m.fairscore}</div>`:''}</div>
+            <div class="merch-banner" style="${m.banner_url?`background-image:url(${m.banner_url})`:''}"></div>
             <div style="position:relative">
               ${m.profile_image_url?`<img class="merch-avatar" src="${m.profile_image_url}" alt="${m.business_name}">`:`<div class="merch-avatar">${catEmoji[m.category]||'🏢'}</div>`}
             </div>
@@ -875,7 +875,6 @@ if (decision === 'allow') {
                 <div class="merch-detail-cell"><div class="mdk">Wallet Address</div><div class="mdv mono" style="cursor:pointer" onclick="event.stopPropagation();navigator.clipboard.writeText('${m.wallet}')" title="Click to copy">${m.wallet}</div></div>
                 <div class="merch-detail-cell"><div class="mdk">Verified Since</div><div class="mdv">${new Date(m.verified_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}</div></div>
                 ${hasX402?`<div class="merch-detail-cell x402" style="grid-column:span 2"><div class="mdk">x402 Payment Endpoint</div><div class="mdv mono" style="cursor:pointer" onclick="event.stopPropagation();navigator.clipboard.writeText('${m.x402_endpoint}')" title="Click to copy">${m.x402_endpoint}</div></div>`:''}
-                ${m.fairscore?`<div class="merch-detail-cell"><div class="mdk">FairScore</div><div class="mdv" style="font-family:Advercase;font-size:1.1rem">${m.fairscore}</div></div>`:''}
                 <div class="merch-detail-cell"><div class="mdk">Tier</div><div class="mdv" style="text-transform:capitalize">${m.payment_tier||'standard'}</div></div>
               </div>
               ${services.length?`<div class="mdk" style="font-size:.58rem;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px">Services</div><div class="merch-services-list">${services.map(s=>`<span class="merch-svc-pill">${s}</span>`).join('')}</div>`:''}
