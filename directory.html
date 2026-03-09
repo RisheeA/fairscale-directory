@@ -614,6 +614,10 @@ if (decision === 'allow') {
           <input id="maTwitter" placeholder="@yourhandle" style="width:100%;background:var(--surface);border:1.5px solid var(--border);border-radius:10px;padding:11px 14px;font-size:.84rem;color:var(--text);font-family:inherit;outline:none;transition:.2s" onfocus="this.style.borderColor='var(--accent)';this.style.boxShadow='0 0 0 3px rgba(61,122,98,.1)'" onblur="this.style.borderColor='var(--border)';this.style.boxShadow='none'">
         </div>
         <div>
+          <label style="font-size:.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;font-weight:500;display:block;margin-bottom:4px">x402 Payment Endpoint</label>
+          <input id="maX402" placeholder="https://pay.yourbusiness.com/x402 (optional)" style="width:100%;background:var(--surface);border:1.5px solid var(--border);border-radius:10px;padding:11px 14px;font-size:.82rem;color:var(--text);font-family:'SF Mono',SFMono-Regular,Consolas,monospace;letter-spacing:.02em;outline:none;transition:.2s" onfocus="this.style.borderColor='var(--accent)';this.style.boxShadow='0 0 0 3px rgba(61,122,98,.1)'" onblur="this.style.borderColor='var(--border)';this.style.boxShadow='none'">
+        </div>
+        <div>
           <label style="font-size:.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;font-weight:500;display:block;margin-bottom:4px">Description</label>
           <textarea id="maDesc" rows="3" placeholder="What does your business do? How would you use FairScale merchant verification?" style="width:100%;background:var(--surface);border:1.5px solid var(--border);border-radius:10px;padding:11px 14px;font-size:.84rem;color:var(--text);font-family:inherit;outline:none;resize:vertical;transition:.2s;min-height:70px" onfocus="this.style.borderColor='var(--accent)';this.style.boxShadow='0 0 0 3px rgba(61,122,98,.1)'" onblur="this.style.borderColor='var(--border)';this.style.boxShadow='none'"></textarea>
         </div>
@@ -828,15 +832,16 @@ if (decision === 'allow') {
       const category=document.getElementById('maCategory').value;
       const description=document.getElementById('maDesc').value.trim();
       const msg=document.getElementById('merchantApplyMsg');
+      const x402=document.getElementById('maX402').value.trim();
       msg.style.display='none';msg.textContent='';
       if(!name||!wallet||!email){msg.textContent='Please fill in all required fields.';msg.style.display='block';msg.style.background='#fae8e8';msg.style.color='var(--red)';msg.style.border='1px solid #f0d0d0';return}
       if(wallet.length<32){msg.textContent='Invalid wallet address.';msg.style.display='block';msg.style.background='#fae8e8';msg.style.color='var(--red)';msg.style.border='1px solid #f0d0d0';return}
       try{
-        const r=await fetch(`${API}/merchants/apply`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({business_name:name,wallet,contact_email:email,website:website||undefined,x_handle:x_handle||undefined,category,description:description||undefined})});
+        const r=await fetch(`${API}/merchants/apply`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({business_name:name,wallet,contact_email:email,website:website||undefined,x_handle:x_handle||undefined,x402_endpoint:x402||undefined,category,description:description||undefined})});
         const d=await r.json();
         if(!r.ok)throw new Error(d.error||'Failed');
         msg.textContent='Application submitted! We will review and get back to you.';msg.style.display='block';msg.style.background='#e8f4ee';msg.style.color='var(--accent)';msg.style.border='1px solid #c8e8d8';
-        ['maName','maWallet','maEmail','maWebsite','maTwitter','maDesc'].forEach(id=>document.getElementById(id).value='');
+        ['maName','maWallet','maEmail','maWebsite','maTwitter','maX402','maDesc'].forEach(id=>document.getElementById(id).value='');
       }catch(e){msg.textContent=e.message;msg.style.display='block';msg.style.background='#fae8e8';msg.style.color='var(--red)';msg.style.border='1px solid #f0d0d0'}
     }
     document.getElementById('merchantApplyModal').onclick=e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove('show')};
