@@ -754,7 +754,7 @@ if (decision === 'allow') {
               ${m.description?`<div class="merch-desc">${m.description}</div>`:''}
               <div class="merch-verified">✓ Verified by FairScale</div>
               <div class="merch-meta">
-                ${m.website?`<a href="${m.website}" target="_blank" onclick="event.stopPropagation()">🌐 Website</a>`:''}
+                ${m.website?`<a href="${m.website.startsWith('http')?m.website:'https://'+m.website}" target="_blank" onclick="event.stopPropagation()">🌐 Website</a>`:''}
                 ${m.x_handle?`<a href="https://twitter.com/${m.x_handle.replace('@','')}" target="_blank" onclick="event.stopPropagation()">𝕏 ${m.x_handle}</a>`:''}
                 ${hasX402?`<span style="color:var(--accent);border-color:rgba(61,122,98,.25);background:rgba(61,122,98,.06)">⚡ x402</span>`:''}
                 <span style="color:var(--dim)">${m.wallet.slice(0,6)}...${m.wallet.slice(-4)}</span>
@@ -770,7 +770,7 @@ if (decision === 'allow') {
               </div>
               ${services.length?`<div class="mdk" style="font-size:.58rem;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px">Services</div><div class="merch-services-list">${services.map(s=>`<span class="merch-svc-pill">${s}</span>`).join('')}</div>`:''}
               <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
-                ${m.website?`<a href="${m.website}" target="_blank" onclick="event.stopPropagation()" class="pact-btn" style="font-size:.76rem;padding:8px 16px;flex:none">Visit Website ↗</a>`:''}
+                ${m.website?`<a href="${m.website.startsWith('http')?m.website:'https://'+m.website}" target="_blank" onclick="event.stopPropagation()" class="pact-btn" style="font-size:.76rem;padding:8px 16px;flex:none">Visit Website ↗</a>`:''}
                 <a href="https://solscan.io/account/${m.wallet}" target="_blank" onclick="event.stopPropagation()" class="pact-btn" style="font-size:.76rem;padding:8px 16px;flex:none">Solscan ↗</a>
                 ${hasX402?`<button class="pact-btn primary" style="font-size:.76rem;padding:8px 16px;flex:none" onclick="event.stopPropagation();navigator.clipboard.writeText('${m.x402_endpoint}')">Copy x402 Endpoint</button>`:''}
               </div>
