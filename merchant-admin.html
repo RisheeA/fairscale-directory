@@ -107,6 +107,18 @@
     .toast.error{background:linear-gradient(135deg,#c44a3a,#b03a2a)}
     @keyframes slideInUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
 
+    /* Image upload */
+    .img-upload-zone{border:2px dashed var(--border);border-radius:10px;padding:16px;text-align:center;cursor:pointer;transition:.2s;background:var(--surface);position:relative;overflow:hidden;min-height:60px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px}
+    .img-upload-zone:hover{border-color:var(--accent);background:rgba(61,122,98,.03)}
+    .img-upload-zone.has-image{border-style:solid;padding:0}
+    .img-upload-label{font-size:.76rem;color:var(--dim)}
+    .img-upload-progress{display:flex;align-items:center;gap:6px;font-size:.76rem;color:var(--accent)}
+    .img-preview{max-width:100%;border-radius:8px;object-fit:cover}
+    .banner-preview{width:100%;height:100px;object-fit:cover;border-radius:8px}
+    .avatar-preview{width:80px;height:80px;border-radius:10px;object-fit:cover}
+    .img-upload-remove{position:absolute;top:6px;right:6px;width:22px;height:22px;background:rgba(26,22,18,.7);color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:.7rem;display:flex;align-items:center;justify-content:center;transition:.15s;z-index:2}
+    .img-upload-remove:hover{background:var(--red)}
+
     @media(max-width:768px){
       .main{padding:16px}
       .form-grid{grid-template-columns:1fr}
@@ -182,8 +194,30 @@
           </div>
           <div class="form-group"><label class="form-label">Website</label><input class="form-input" id="addWebsite" placeholder="https://..."></div>
           <div class="form-group"><label class="form-label">X Handle</label><input class="form-input" id="addTwitter" placeholder="@handle"></div>
-          <div class="form-group"><label class="form-label">Banner Image URL</label><input class="form-input" id="addBanner" placeholder="https://... (1200×400 recommended)"></div>
-          <div class="form-group"><label class="form-label">Profile Image URL</label><input class="form-input" id="addAvatar" placeholder="https://... (200×200 recommended)"></div>
+          <div class="form-group">
+            <label class="form-label">Banner Image (1200×400)</label>
+            <div class="img-upload" id="addBannerUpload">
+              <input type="file" accept="image/*" onchange="uploadImage(this,'addBanner','addBannerPreview')" style="display:none" id="addBannerFile">
+              <div class="img-upload-zone" onclick="document.getElementById('addBannerFile').click()">
+                <img id="addBannerPreview" class="img-preview banner-preview" style="display:none">
+                <div class="img-upload-label" id="addBannerLabel">Click to upload banner</div>
+                <div class="img-upload-progress" id="addBannerProgress" style="display:none"><div class="spinner" style="width:14px;height:14px"></div><span>Uploading...</span></div>
+              </div>
+              <input type="hidden" id="addBanner">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Profile Image (200×200)</label>
+            <div class="img-upload" id="addAvatarUpload">
+              <input type="file" accept="image/*" onchange="uploadImage(this,'addAvatar','addAvatarPreview')" style="display:none" id="addAvatarFile">
+              <div class="img-upload-zone" onclick="document.getElementById('addAvatarFile').click()">
+                <img id="addAvatarPreview" class="img-preview avatar-preview" style="display:none">
+                <div class="img-upload-label" id="addAvatarLabel">Click to upload profile image</div>
+                <div class="img-upload-progress" id="addAvatarProgress" style="display:none"><div class="spinner" style="width:14px;height:14px"></div><span>Uploading...</span></div>
+              </div>
+              <input type="hidden" id="addAvatar">
+            </div>
+          </div>
           <div class="form-group"><label class="form-label">Payment Tier</label>
             <select class="form-input" id="addTier">
               <option value="standard">Standard</option><option value="premium">Premium</option><option value="enterprise">Enterprise</option>
@@ -203,8 +237,92 @@
 
 <script>
 const API = 'https://fairscale-reputation-api-production.up.railway.app';
+const IMGUR_CLIENT_ID = 'YOUR_IMGUR_CLIENT_ID'; // Replace with your Imgur Client ID
 let adminKey = '';
 let currentFilter = '';
+
+// Imgur anonymous image upload
+async function uploadImage(fileInput, hiddenInputId, previewId) {
+  const file = fileInput.files[0];
+  if (!file) return;
+  if (!file.type.startsWith('image/')) { toast('Please select an image file.', 'error'); return; }
+  if (file.size > 10 * 1024 * 1024) { toast('Image must be under 10MB.', 'error'); return; }
+
+  const label = fileInput.parentElement.querySelector('.img-upload-label');
+  const progress = fileInput.parentElement.querySelector('.img-upload-progress');
+  const preview = document.getElementById(previewId);
+  const zone = fileInput.parentElement.querySelector('.img-upload-zone');
+
+  if (label) label.style.display = 'none';
+  if (progress) progress.style.display = 'flex';
+
+  try {
+    const formData = new FormData();
+    formData.append('image', file);
+
+    const r = await fetch('https://api.imgur.com/3/image', {
+      method: 'POST',
+      headers: { Authorization: 'Client-ID ' + IMGUR_CLIENT_ID },
+      body: formData,
+    });
+    const data = await r.json();
+    if (!data.success) throw new Error(data.data?.error || 'Upload failed');
+
+    const url = data.data.link;
+    document.getElementById(hiddenInputId).value = url;
+
+    if (preview) {
+      preview.src = url;
+      preview.style.display = 'block';
+      if (zone) zone.classList.add('has-image');
+      // Add remove button
+      let removeBtn = zone.querySelector('.img-upload-remove');
+      if (!removeBtn) {
+        removeBtn = document.createElement('button');
+        removeBtn.className = 'img-upload-remove';
+        removeBtn.textContent = '✕';
+        removeBtn.onclick = (e) => {
+          e.stopPropagation();
+          preview.style.display = 'none';
+          preview.src = '';
+          document.getElementById(hiddenInputId).value = '';
+          zone.classList.remove('has-image');
+          removeBtn.remove();
+          if (label) { label.style.display = 'block'; label.textContent = 'Click to upload'; }
+          fileInput.value = '';
+        };
+        zone.appendChild(removeBtn);
+      }
+    }
+    if (progress) progress.style.display = 'none';
+    toast('Image uploaded!');
+  } catch (e) {
+    if (progress) progress.style.display = 'none';
+    if (label) { label.style.display = 'block'; label.textContent = 'Upload failed — click to retry'; }
+    toast(e.message, 'error');
+  }
+}
+
+// Helper: create an image upload zone HTML string for dynamic forms (review/edit panels)
+function imgUploadHTML(prefix, label, existingUrl) {
+  const hasImg = existingUrl ? 'has-image' : '';
+  const imgStyle = existingUrl ? '' : 'display:none';
+  const labelStyle = existingUrl ? 'display:none' : '';
+  return `
+    <div class="form-group">
+      <label class="form-label">${label}</label>
+      <div class="img-upload">
+        <input type="file" accept="image/*" onchange="uploadImage(this,'${prefix}','${prefix}Preview')" style="display:none" id="${prefix}File">
+        <div class="img-upload-zone ${hasImg}" onclick="document.getElementById('${prefix}File').click()">
+          <img id="${prefix}Preview" class="img-preview ${label.includes('Banner') ? 'banner-preview' : 'avatar-preview'}" src="${existingUrl || ''}" style="${imgStyle}">
+          <div class="img-upload-label" style="${labelStyle}">Click to upload</div>
+          <div class="img-upload-progress" style="display:none"><div class="spinner" style="width:14px;height:14px"></div><span>Uploading...</span></div>
+          ${existingUrl ? `<button class="img-upload-remove" onclick="event.stopPropagation();document.getElementById('${prefix}Preview').style.display='none';document.getElementById('${prefix}').value='';this.parentElement.classList.remove('has-image');this.parentElement.querySelector('.img-upload-label').style.display='block';this.remove()">✕</button>` : ''}
+        </div>
+        <input type="hidden" id="${prefix}" value="${existingUrl || ''}">
+      </div>
+    </div>`;
+}
 
 function authenticate() {
   const key = document.getElementById('authKey').value.trim();
@@ -297,6 +415,10 @@ async function loadApplications() {
               </div>
               <div class="form-group"><label class="form-label">Banner URL</label><input class="form-input" id="rev-banner-${a.id}" placeholder="https://..."></div>
               <div class="form-group"><label class="form-label">Profile Image URL</label><input class="form-input" id="rev-avatar-${a.id}" placeholder="https://..."></div>
+            </div>
+            <div class="form-grid" style="margin-top:8px">
+              ${imgUploadHTML('rev-banner-img-'+a.id, 'Or upload Banner', '')}
+              ${imgUploadHTML('rev-avatar-img-'+a.id, 'Or upload Profile Image', '')}
               <div class="form-group"><label class="form-label">Payment Tier</label>
                 <select class="form-input" id="rev-tier-${a.id}">
                   <option value="standard">Standard</option><option value="premium">Premium</option><option value="enterprise">Enterprise</option>
@@ -338,12 +460,15 @@ async function reviewApp(id, decision) {
 }
 
 async function reviewAppWithDetails(id, decision) {
+  // Check uploaded images first, fall back to URL input
+  const bannerUploaded = document.getElementById('rev-banner-img-' + id)?.value?.trim();
+  const avatarUploaded = document.getElementById('rev-avatar-img-' + id)?.value?.trim();
   const body = {
     key: adminKey, id, decision,
     business_name: document.getElementById('rev-name-' + id)?.value?.trim() || undefined,
     category: document.getElementById('rev-cat-' + id)?.value || undefined,
-    banner_url: document.getElementById('rev-banner-' + id)?.value?.trim() || undefined,
-    profile_image_url: document.getElementById('rev-avatar-' + id)?.value?.trim() || undefined,
+    banner_url: bannerUploaded || document.getElementById('rev-banner-' + id)?.value?.trim() || undefined,
+    profile_image_url: avatarUploaded || document.getElementById('rev-avatar-' + id)?.value?.trim() || undefined,
     payment_tier: document.getElementById('rev-tier-' + id)?.value || undefined,
     description: document.getElementById('rev-desc-' + id)?.value?.trim() || undefined,
     notes: document.getElementById('rev-notes-' + id)?.value?.trim() || undefined,
@@ -394,8 +519,8 @@ async function loadVerified() {
           </div>
           <div class="form-group"><label class="form-label">Website</label><input class="form-input" id="ed-web-${m.id}" value="${m.website || ''}"></div>
           <div class="form-group"><label class="form-label">X Handle</label><input class="form-input" id="ed-tw-${m.id}" value="${m.x_handle || ''}"></div>
-          <div class="form-group"><label class="form-label">Banner URL</label><input class="form-input" id="ed-banner-${m.id}" value="${m.banner_url || ''}"></div>
-          <div class="form-group"><label class="form-label">Profile Image URL</label><input class="form-input" id="ed-avatar-${m.id}" value="${m.profile_image_url || ''}"></div>
+          ${imgUploadHTML('ed-banner-'+m.id, 'Banner Image', m.banner_url || '')}
+          ${imgUploadHTML('ed-avatar-'+m.id, 'Profile Image', m.profile_image_url || '')}
           <div class="form-group"><label class="form-label">Payment Tier</label>
             <select class="form-input" id="ed-tier-${m.id}">
               <option value="standard"${m.payment_tier === 'standard' ? ' selected' : ''}>Standard</option>
