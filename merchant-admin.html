@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FairScale Merchant Admin</title>
+  <link rel="icon" type="image/png" href="assets/icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    @font-face{font-family:'Advercase';src:url('assets/Advercase-Regular.ttf') format('truetype')}
+    @font-face{font-family:'Advercase';src:url('assets/Advercase-Bold.ttf') format('truetype');font-weight:700}
+    *{margin:0;padding:0;box-sizing:border-box}
+    :root{--bg:#f5f0e8;--surface:#faf7f2;--card:#ffffff;--border:#e8e0d4;--primary:#1a1612;--accent:#3d7a62;--gold:#c8963a;--text:#2c2620;--muted:#8a8078;--dim:#b8b0a4;--blue:#4a68b8;--red:#c44a3a;--orange:#c87a3a;--vgreen:#2d8a4a;--shadow:0 1px 3px rgba(26,22,18,.06),0 4px 12px rgba(26,22,18,.04);--shadow-lg:0 2px 8px rgba(26,22,18,.08),0 8px 24px rgba(26,22,18,.06)}
+    body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+    /* Auth gate */
+    .auth-gate{position:fixed;inset:0;z-index:200;background:var(--bg);display:flex;align-items:center;justify-content:center}
+    .auth-gate.hidden{display:none}
+    .auth-card{width:380px;text-align:center}
+    .auth-card img{height:28px;margin-bottom:20px;opacity:.7}
+    .auth-card h2{font-family:'Advercase';font-size:1.3rem;color:var(--primary)}
+    .auth-card p{font-size:.82rem;color:var(--muted);margin:6px 0 20px}
+    .auth-input{width:100%;background:var(--card);border:1.5px solid var(--border);border-radius:10px;padding:13px 16px;font-size:.88rem;color:var(--text);font-family:'SF Mono',monospace;outline:none;transition:.2s;letter-spacing:.03em}
+    .auth-input:focus{border-color:var(--accent);box-shadow:0 0 0 4px rgba(61,122,98,.08)}
+    .auth-btn{width:100%;margin-top:12px;padding:13px;background:linear-gradient(135deg,#3d7a62,#4a9878);color:#fff;border:none;border-radius:10px;font-family:'DM Sans';font-size:.88rem;font-weight:600;cursor:pointer;transition:.2s;box-shadow:0 2px 12px rgba(61,122,98,.25)}
+    .auth-btn:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(61,122,98,.35)}
+    .auth-error{font-size:.78rem;color:var(--red);margin-top:10px;display:none}
+    .auth-error.show{display:block}
+
+    /* Layout */
+    .topbar{display:flex;justify-content:space-between;align-items:center;padding:14px 28px;border-bottom:1px solid var(--border);background:var(--surface);position:sticky;top:0;z-index:50}
+    .topbar img{height:22px}
+    .topbar-right{display:flex;align-items:center;gap:12px}
+    .topbar-badge{font-size:.62rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;padding:4px 12px;border-radius:16px;background:linear-gradient(135deg,rgba(200,150,58,.12),rgba(200,150,58,.04));border:1px solid rgba(200,150,58,.2);color:var(--gold)}
+    .topbar-link{font-size:.78rem;color:var(--muted);text-decoration:none;transition:.15s}.topbar-link:hover{color:var(--accent)}
+
+    .main{max-width:1080px;margin:0 auto;padding:28px}
+
+    /* Tabs */
+    .tabs{display:flex;gap:0;background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:var(--shadow);margin-bottom:24px}
+    .tab{flex:1;padding:14px;font-size:.82rem;font-weight:500;color:var(--muted);cursor:pointer;border:none;background:none;font-family:inherit;transition:.2s;text-align:center;position:relative}
+    .tab.active{color:var(--accent);font-weight:600;background:rgba(61,122,98,.06)}
+    .tab.active::after{content:'';position:absolute;bottom:0;left:20%;right:20%;height:2px;background:var(--accent);border-radius:2px}
+    .tab:hover:not(.active){color:var(--text);background:rgba(0,0,0,.02)}
+    .tab .count{font-size:.65rem;background:var(--border);color:var(--muted);padding:1px 7px;border-radius:8px;margin-left:6px;font-weight:600}
+    .tab.active .count{background:rgba(61,122,98,.15);color:var(--accent)}
+
+    .tab-content{display:none}.tab-content.active{display:block;animation:fadeUp .3s ease}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+    /* Application cards */
+    .app-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px;margin-bottom:14px;box-shadow:var(--shadow);transition:.2s;position:relative}
+    .app-card:hover{box-shadow:var(--shadow-lg)}
+    .app-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px}
+    .app-name{font-family:'Source Serif 4',serif;font-weight:700;font-size:1.05rem;color:var(--primary)}
+    .app-wallet{font-family:monospace;font-size:.68rem;color:var(--dim);margin-top:2px;cursor:pointer}
+    .app-wallet:hover{color:var(--accent)}
+    .app-status{font-size:.62rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;padding:4px 12px;border-radius:8px}
+    .app-status.pending{background:#fef3e0;color:var(--orange);border:1px solid rgba(200,122,58,.2)}
+    .app-status.approved{background:#e8f4ee;color:var(--vgreen);border:1px solid rgba(45,138,74,.2)}
+    .app-status.rejected{background:#fae8e8;color:var(--red);border:1px solid rgba(196,74,58,.2)}
+    .app-meta{display:flex;flex-wrap:wrap;gap:14px;font-size:.78rem;color:var(--muted);margin-bottom:14px}
+    .app-meta a{color:var(--accent);text-decoration:none}.app-meta a:hover{text-decoration:underline}
+    .app-desc{font-size:.82rem;color:var(--text);line-height:1.55;margin-bottom:14px;background:var(--surface);padding:12px 16px;border-radius:10px;border:1px solid var(--border)}
+    .app-actions{display:flex;gap:8px;flex-wrap:wrap}
+
+    /* Buttons */
+    .btn{padding:9px 18px;border-radius:9px;font-family:'DM Sans';font-size:.78rem;font-weight:500;cursor:pointer;border:1px solid var(--border);background:var(--card);color:var(--text);box-shadow:var(--shadow);transition:.2s}
+    .btn:hover{transform:translateY(-1px);box-shadow:var(--shadow-lg)}
+    .btn.green{background:linear-gradient(135deg,#3d7a62,#4a9878);border-color:transparent;color:#fff;box-shadow:0 2px 8px rgba(61,122,98,.2)}
+    .btn.red{background:linear-gradient(135deg,#c44a3a,#d05a4a);border-color:transparent;color:#fff;box-shadow:0 2px 8px rgba(196,74,58,.2)}
+    .btn.gold{background:linear-gradient(135deg,#c8963a,#daa84a);border-color:transparent;color:#fff;box-shadow:0 2px 8px rgba(200,150,58,.2)}
+    .btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+
+    /* Form */
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .form-grid.full{grid-template-columns:1fr}
+    .form-group{display:flex;flex-direction:column;gap:4px}
+    .form-group.span2{grid-column:span 2}
+    .form-label{font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;font-weight:500}
+    .form-input{background:var(--surface);border:1.5px solid var(--border);border-radius:10px;padding:11px 14px;font-size:.84rem;color:var(--text);font-family:inherit;outline:none;transition:.2s}
+    .form-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(61,122,98,.1)}
+    .form-input::placeholder{color:var(--dim)}
+    .form-input.mono{font-family:'SF Mono',SFMono-Regular,Consolas,monospace;letter-spacing:.02em;font-size:.8rem}
+    textarea.form-input{resize:vertical;min-height:80px}
+    select.form-input{cursor:pointer}
+
+    /* Merchant list (verified) */
+    .merch-row{display:flex;align-items:center;gap:14px;padding:16px 18px;background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:10px;box-shadow:var(--shadow);transition:.2s}
+    .merch-row:hover{box-shadow:var(--shadow-lg);transform:translateY(-1px)}
+    .merch-row-img{width:44px;height:44px;border-radius:10px;background:var(--surface);border:1px solid var(--border);object-fit:cover;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0}
+    .merch-row-info{flex:1;min-width:0}
+    .merch-row-name{font-weight:600;font-size:.9rem;color:var(--primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .merch-row-sub{font-size:.7rem;color:var(--dim);margin-top:1px}
+    .merch-row-score{font-family:'Advercase';font-size:1.4rem;font-weight:700;color:var(--primary);flex-shrink:0}
+    .merch-row-actions{display:flex;gap:6px;flex-shrink:0}
+
+    /* Expand/detail panel */
+    .detail-panel{display:none;margin-top:12px;padding:16px;background:var(--surface);border:1px solid var(--border);border-radius:12px;animation:fadeUp .2s ease}
+    .detail-panel.open{display:block}
+
+    .empty{text-align:center;padding:48px 20px;color:var(--dim);font-size:.86rem}
+
+    /* Toast */
+    .toast{position:fixed;bottom:24px;right:24px;padding:14px 22px;border-radius:12px;font-size:.84rem;font-weight:500;color:#fff;box-shadow:var(--shadow-lg);z-index:300;animation:slideInUp .3s ease;transition:opacity .3s}
+    .toast.success{background:linear-gradient(135deg,#3d7a62,#2d8a4a)}
+    .toast.error{background:linear-gradient(135deg,#c44a3a,#b03a2a)}
+    @keyframes slideInUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+    @media(max-width:768px){
+      .main{padding:16px}
+      .form-grid{grid-template-columns:1fr}
+      .form-group.span2{grid-column:span 1}
+      .app-card{padding:16px}
+      .merch-row{flex-wrap:wrap;gap:10px}
+    }
+  </style>
+</head>
+<body>
+
+<!-- AUTH GATE -->
+<div class="auth-gate" id="authGate">
+  <div class="auth-card">
+    <img src="assets/logo.png" alt="FairScale">
+    <h2>Merchant Admin</h2>
+    <p>Enter your admin key to manage merchant verification.</p>
+    <input class="auth-input" id="authKey" type="password" placeholder="Admin key" autocomplete="off">
+    <button class="auth-btn" onclick="authenticate()">Sign In</button>
+    <div class="auth-error" id="authError"></div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div id="mainApp" style="display:none">
+  <div class="topbar">
+    <div style="display:flex;align-items:center;gap:12px">
+      <a href="directory.html"><img src="assets/logo.png" alt="FairScale"></a>
+      <span class="topbar-badge">Merchant Admin</span>
+    </div>
+    <div class="topbar-right">
+      <a href="directory.html" class="topbar-link">← Back to Directory</a>
+      <button class="btn" style="font-size:.72rem;padding:6px 12px" onclick="logout()">Sign Out</button>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="tabs">
+      <button class="tab active" id="tabApps" onclick="switchTab('apps')">Applications <span class="count" id="appsCount">0</span></button>
+      <button class="tab" id="tabVerified" onclick="switchTab('verified')">Verified Merchants <span class="count" id="verifiedCount">0</span></button>
+      <button class="tab" id="tabAdd" onclick="switchTab('add')">+ Add Merchant</button>
+    </div>
+
+    <!-- APPLICATIONS TAB -->
+    <div class="tab-content active" id="contentApps">
+      <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+        <button class="btn" id="filterAll" onclick="filterApps('')" style="font-weight:600;border-color:var(--accent);color:var(--accent)">All</button>
+        <button class="btn" id="filterPending" onclick="filterApps('pending')">Pending</button>
+        <button class="btn" id="filterApproved" onclick="filterApps('approved')">Approved</button>
+        <button class="btn" id="filterRejected" onclick="filterApps('rejected')">Rejected</button>
+      </div>
+      <div id="appsList"><div class="empty">Loading applications...</div></div>
+    </div>
+
+    <!-- VERIFIED TAB -->
+    <div class="tab-content" id="contentVerified">
+      <div id="verifiedList"><div class="empty">Loading merchants...</div></div>
+    </div>
+
+    <!-- ADD MERCHANT TAB -->
+    <div class="tab-content" id="contentAdd">
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:28px;box-shadow:var(--shadow)">
+        <h3 style="font-family:'Source Serif 4',serif;font-size:1.1rem;color:var(--primary);margin-bottom:4px">Add Verified Merchant</h3>
+        <p style="font-size:.82rem;color:var(--muted);margin-bottom:20px">Directly add a merchant to the verified directory. Skips the application flow.</p>
+        <div class="form-grid">
+          <div class="form-group"><label class="form-label">Business Name *</label><input class="form-input" id="addName" placeholder="e.g. Jupiter Exchange"></div>
+          <div class="form-group"><label class="form-label">Solana Wallet *</label><input class="form-input mono" id="addWallet" placeholder="Wallet address"></div>
+          <div class="form-group"><label class="form-label">Contact Email</label><input class="form-input" id="addEmail" placeholder="contact@example.com"></div>
+          <div class="form-group"><label class="form-label">Category</label>
+            <select class="form-input" id="addCategory">
+              <option value="general">General</option><option value="defi">DeFi Protocol</option><option value="payments">Payments / Fintech</option><option value="nft">NFT / Digital Goods</option><option value="saas">SaaS / Tools</option><option value="exchange">Exchange / Trading</option><option value="gaming">Gaming</option><option value="social">Social / Community</option><option value="infrastructure">Infrastructure</option><option value="other">Other</option>
+            </select>
+          </div>
+          <div class="form-group"><label class="form-label">Website</label><input class="form-input" id="addWebsite" placeholder="https://..."></div>
+          <div class="form-group"><label class="form-label">X Handle</label><input class="form-input" id="addTwitter" placeholder="@handle"></div>
+          <div class="form-group"><label class="form-label">Banner Image URL</label><input class="form-input" id="addBanner" placeholder="https://... (1200×400 recommended)"></div>
+          <div class="form-group"><label class="form-label">Profile Image URL</label><input class="form-input" id="addAvatar" placeholder="https://... (200×200 recommended)"></div>
+          <div class="form-group"><label class="form-label">Payment Tier</label>
+            <select class="form-input" id="addTier">
+              <option value="standard">Standard</option><option value="premium">Premium</option><option value="enterprise">Enterprise</option>
+            </select>
+          </div>
+          <div class="form-group"><label class="form-label">Services Offered</label><input class="form-input" id="addServices" placeholder="Comma-separated: trading, lending, payments"></div>
+          <div class="form-group span2"><label class="form-label">Description</label><textarea class="form-input" id="addDesc" rows="3" placeholder="What does this business do? How will they use FairScale?"></textarea></div>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:20px">
+          <button class="btn green" onclick="addMerchant()">Add to Verified Directory</button>
+          <button class="btn" onclick="clearAddForm()">Clear Form</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = 'https://fairscale-reputation-api-production.up.railway.app';
+let adminKey = '';
+let currentFilter = '';
+
+function authenticate() {
+  const key = document.getElementById('authKey').value.trim();
+  const err = document.getElementById('authError');
+  err.classList.remove('show');
+  if (!key) { err.textContent = 'Enter your admin key.'; err.classList.add('show'); return; }
+  adminKey = key;
+  // Test with a quick API call
+  fetch(`${API}/merchants/admin/applications?key=${encodeURIComponent(key)}&status=pending`)
+    .then(r => { if (!r.ok) throw new Error('Invalid key'); return r.json(); })
+    .then(() => {
+      document.getElementById('authGate').classList.add('hidden');
+      document.getElementById('mainApp').style.display = 'block';
+      loadApplications();
+      loadVerified();
+    })
+    .catch(e => { err.textContent = 'Invalid admin key.'; err.classList.add('show'); adminKey = ''; });
+}
+document.getElementById('authKey').addEventListener('keypress', e => { if (e.key === 'Enter') authenticate(); });
+
+function logout() { adminKey = ''; document.getElementById('authGate').classList.remove('hidden'); document.getElementById('mainApp').style.display = 'none'; document.getElementById('authKey').value = ''; }
+
+function switchTab(t) {
+  document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1)).classList.add('active');
+  document.getElementById('content' + t.charAt(0).toUpperCase() + t.slice(1)).classList.add('active');
+  if (t === 'apps') loadApplications();
+  if (t === 'verified') loadVerified();
+}
+
+function toast(msg, type = 'success') {
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(() => { el.style.opacity = '0'; setTimeout(() => el.remove(), 300); }, 3000);
+}
+
+function filterApps(status) {
+  currentFilter = status;
+  document.querySelectorAll('#contentApps .btn').forEach(b => { b.style.fontWeight = '400'; b.style.borderColor = 'var(--border)'; b.style.color = 'var(--text)'; });
+  const id = status ? 'filter' + status.charAt(0).toUpperCase() + status.slice(1) : 'filterAll';
+  const el = document.getElementById(id);
+  if (el) { el.style.fontWeight = '600'; el.style.borderColor = 'var(--accent)'; el.style.color = 'var(--accent)'; }
+  loadApplications();
+}
+
+const catLabels = { defi:'DeFi', payments:'Payments', nft:'NFT', saas:'SaaS', exchange:'Exchange', gaming:'Gaming', social:'Social', infrastructure:'Infra', general:'General', other:'Other' };
+
+async function loadApplications() {
+  const container = document.getElementById('appsList');
+  try {
+    const url = `${API}/merchants/admin/applications?key=${encodeURIComponent(adminKey)}${currentFilter ? '&status=' + currentFilter : ''}`;
+    const d = await (await fetch(url)).json();
+    const apps = d.applications || [];
+    document.getElementById('appsCount').textContent = apps.length;
+    if (!apps.length) { container.innerHTML = '<div class="empty">No applications' + (currentFilter ? ' with status "' + currentFilter + '"' : '') + '.</div>'; return; }
+    container.innerHTML = apps.map(a => `
+      <div class="app-card" id="app-${a.id}">
+        <div class="app-top">
+          <div>
+            <div class="app-name">${a.business_name}</div>
+            <div class="app-wallet" onclick="navigator.clipboard.writeText('${a.wallet}');toast('Wallet copied')" title="Click to copy">${a.wallet.slice(0, 10)}...${a.wallet.slice(-6)}</div>
+          </div>
+          <span class="app-status ${a.status}">${a.status}</span>
+        </div>
+        <div class="app-meta">
+          <span>📧 ${a.contact_email}</span>
+          ${a.website ? `<a href="${a.website}" target="_blank">🌐 ${a.website}</a>` : ''}
+          ${a.x_handle ? `<a href="https://twitter.com/${a.x_handle.replace('@', '')}" target="_blank">𝕏 ${a.x_handle}</a>` : ''}
+          <span>📁 ${catLabels[a.category] || a.category}</span>
+          <span style="color:var(--dim)">${new Date(a.applied_at).toLocaleDateString()}</span>
+        </div>
+        ${a.description ? `<div class="app-desc">${a.description}</div>` : ''}
+        ${a.status === 'pending' ? `
+          <div class="app-actions">
+            <button class="btn green" onclick="reviewApp('${a.id}', 'approved')">Approve</button>
+            <button class="btn red" onclick="reviewApp('${a.id}', 'rejected')">Reject</button>
+            <button class="btn" onclick="toggleDetail('${a.id}')">Review with Details</button>
+          </div>
+          <div class="detail-panel" id="detail-${a.id}">
+            <p style="font-size:.78rem;color:var(--muted);margin-bottom:12px">Override details before approving (leave blank to keep applicant's values):</p>
+            <div class="form-grid">
+              <div class="form-group"><label class="form-label">Business Name</label><input class="form-input" id="rev-name-${a.id}" value="${a.business_name}" placeholder="Override name"></div>
+              <div class="form-group"><label class="form-label">Category</label>
+                <select class="form-input" id="rev-cat-${a.id}">
+                  ${Object.entries(catLabels).map(([k,v]) => `<option value="${k}"${a.category === k ? ' selected' : ''}>${v}</option>`).join('')}
+                </select>
+              </div>
+              <div class="form-group"><label class="form-label">Banner URL</label><input class="form-input" id="rev-banner-${a.id}" placeholder="https://..."></div>
+              <div class="form-group"><label class="form-label">Profile Image URL</label><input class="form-input" id="rev-avatar-${a.id}" placeholder="https://..."></div>
+              <div class="form-group"><label class="form-label">Payment Tier</label>
+                <select class="form-input" id="rev-tier-${a.id}">
+                  <option value="standard">Standard</option><option value="premium">Premium</option><option value="enterprise">Enterprise</option>
+                </select>
+              </div>
+              <div class="form-group"><label class="form-label">Services</label><input class="form-input" id="rev-services-${a.id}" placeholder="Comma-separated"></div>
+              <div class="form-group span2"><label class="form-label">Description Override</label><textarea class="form-input" id="rev-desc-${a.id}" rows="2" placeholder="Leave blank to keep original">${a.description || ''}</textarea></div>
+              <div class="form-group span2"><label class="form-label">Admin Notes (internal)</label><input class="form-input" id="rev-notes-${a.id}" placeholder="Why approved/rejected"></div>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:14px">
+              <button class="btn green" onclick="reviewAppWithDetails('${a.id}', 'approved')">Approve with Details</button>
+              <button class="btn red" onclick="reviewAppWithDetails('${a.id}', 'rejected')">Reject with Notes</button>
+            </div>
+          </div>
+        ` : a.notes ? `<div style="font-size:.76rem;color:var(--muted);margin-top:8px;padding:8px 12px;background:var(--surface);border-radius:8px;border:1px solid var(--border)"><strong>Notes:</strong> ${a.notes}</div>` : ''}
+      </div>
+    `).join('');
+  } catch (e) { container.innerHTML = '<div class="empty">Failed to load applications.</div>'; }
+}
+
+function toggleDetail(id) {
+  const el = document.getElementById('detail-' + id);
+  if (el) el.classList.toggle('open');
+}
+
+async function reviewApp(id, decision) {
+  if (!confirm(`${decision === 'approved' ? 'Approve' : 'Reject'} this merchant?`)) return;
+  try {
+    const r = await fetch(`${API}/merchants/admin/review`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key: adminKey, id, decision })
+    });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error);
+    toast(`Merchant ${decision}!`);
+    loadApplications();
+    loadVerified();
+  } catch (e) { toast(e.message, 'error'); }
+}
+
+async function reviewAppWithDetails(id, decision) {
+  const body = {
+    key: adminKey, id, decision,
+    business_name: document.getElementById('rev-name-' + id)?.value?.trim() || undefined,
+    category: document.getElementById('rev-cat-' + id)?.value || undefined,
+    banner_url: document.getElementById('rev-banner-' + id)?.value?.trim() || undefined,
+    profile_image_url: document.getElementById('rev-avatar-' + id)?.value?.trim() || undefined,
+    payment_tier: document.getElementById('rev-tier-' + id)?.value || undefined,
+    description: document.getElementById('rev-desc-' + id)?.value?.trim() || undefined,
+    notes: document.getElementById('rev-notes-' + id)?.value?.trim() || undefined,
+    services_offered: document.getElementById('rev-services-' + id)?.value?.trim() ? document.getElementById('rev-services-' + id).value.split(',').map(s => s.trim()).filter(Boolean) : undefined,
+  };
+  // Remove undefined values
+  Object.keys(body).forEach(k => body[k] === undefined && delete body[k]);
+  try {
+    const r = await fetch(`${API}/merchants/admin/review`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error);
+    toast(`Merchant ${decision} with details!`);
+    loadApplications();
+    loadVerified();
+  } catch (e) { toast(e.message, 'error'); }
+}
+
+async function loadVerified() {
+  const container = document.getElementById('verifiedList');
+  try {
+    const d = await (await fetch(`${API}/merchants`)).json();
+    const merchants = d.merchants || [];
+    document.getElementById('verifiedCount').textContent = merchants.length;
+    if (!merchants.length) { container.innerHTML = '<div class="empty">No verified merchants yet. Approve applications or add directly.</div>'; return; }
+    container.innerHTML = merchants.map(m => `
+      <div class="merch-row" id="merch-${m.id}">
+        ${m.profile_image_url ? `<img class="merch-row-img" src="${m.profile_image_url}" alt="">` : `<div class="merch-row-img">${m.category === 'defi' ? '💱' : m.category === 'payments' ? '💳' : m.category === 'exchange' ? '📊' : '🏢'}</div>`}
+        <div class="merch-row-info">
+          <div class="merch-row-name">${m.business_name}</div>
+          <div class="merch-row-sub">${catLabels[m.category] || m.category} · ${m.wallet.slice(0, 6)}...${m.wallet.slice(-4)} · ${m.payment_tier || 'standard'}</div>
+        </div>
+        <div class="merch-row-score">${m.fairscore || '—'}</div>
+        <div class="merch-row-actions">
+          <button class="btn" onclick="toggleMerchEdit('${m.id}')" style="font-size:.72rem;padding:6px 12px">Edit</button>
+          <button class="btn" onclick="removeMerchant('${m.id}')" style="font-size:.72rem;padding:6px 12px;color:var(--red);border-color:rgba(196,74,58,.3)">Remove</button>
+        </div>
+      </div>
+      <div class="detail-panel" id="edit-${m.id}" style="margin-top:-4px;margin-bottom:10px">
+        <div class="form-grid">
+          <div class="form-group"><label class="form-label">Business Name</label><input class="form-input" id="ed-name-${m.id}" value="${m.business_name}"></div>
+          <div class="form-group"><label class="form-label">Category</label>
+            <select class="form-input" id="ed-cat-${m.id}">
+              ${Object.entries(catLabels).map(([k, v]) => `<option value="${k}"${m.category === k ? ' selected' : ''}>${v}</option>`).join('')}
+            </select>
+          </div>
+          <div class="form-group"><label class="form-label">Website</label><input class="form-input" id="ed-web-${m.id}" value="${m.website || ''}"></div>
+          <div class="form-group"><label class="form-label">X Handle</label><input class="form-input" id="ed-tw-${m.id}" value="${m.x_handle || ''}"></div>
+          <div class="form-group"><label class="form-label">Banner URL</label><input class="form-input" id="ed-banner-${m.id}" value="${m.banner_url || ''}"></div>
+          <div class="form-group"><label class="form-label">Profile Image URL</label><input class="form-input" id="ed-avatar-${m.id}" value="${m.profile_image_url || ''}"></div>
+          <div class="form-group"><label class="form-label">Payment Tier</label>
+            <select class="form-input" id="ed-tier-${m.id}">
+              <option value="standard"${m.payment_tier === 'standard' ? ' selected' : ''}>Standard</option>
+              <option value="premium"${m.payment_tier === 'premium' ? ' selected' : ''}>Premium</option>
+              <option value="enterprise"${m.payment_tier === 'enterprise' ? ' selected' : ''}>Enterprise</option>
+            </select>
+          </div>
+          <div class="form-group"><label class="form-label">Services</label><input class="form-input" id="ed-services-${m.id}" value="${(m.services_offered || []).join(', ')}"></div>
+          <div class="form-group span2"><label class="form-label">Description</label><textarea class="form-input" id="ed-desc-${m.id}" rows="2">${m.description || ''}</textarea></div>
+        </div>
+        <button class="btn green" style="margin-top:12px" onclick="updateMerchant('${m.id}')">Save Changes</button>
+      </div>
+    `).join('');
+  } catch (e) { container.innerHTML = '<div class="empty">Failed to load merchants.</div>'; }
+}
+
+function toggleMerchEdit(id) {
+  document.getElementById('edit-' + id)?.classList.toggle('open');
+}
+
+async function updateMerchant(id) {
+  const body = {
+    key: adminKey, id,
+    business_name: document.getElementById('ed-name-' + id)?.value?.trim(),
+    category: document.getElementById('ed-cat-' + id)?.value,
+    website: document.getElementById('ed-web-' + id)?.value?.trim() || null,
+    x_handle: document.getElementById('ed-tw-' + id)?.value?.trim() || null,
+    banner_url: document.getElementById('ed-banner-' + id)?.value?.trim() || null,
+    profile_image_url: document.getElementById('ed-avatar-' + id)?.value?.trim() || null,
+    payment_tier: document.getElementById('ed-tier-' + id)?.value,
+    services_offered: document.getElementById('ed-services-' + id)?.value?.split(',').map(s => s.trim()).filter(Boolean) || [],
+    description: document.getElementById('ed-desc-' + id)?.value?.trim() || null,
+  };
+  try {
+    const r = await fetch(`${API}/merchants/admin/update`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error);
+    toast('Merchant updated!');
+    loadVerified();
+  } catch (e) { toast(e.message, 'error'); }
+}
+
+async function removeMerchant(id) {
+  if (!confirm('Remove this merchant from the verified directory?')) return;
+  try {
+    const r = await fetch(`${API}/merchants/admin/remove`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key: adminKey, id })
+    });
+    if (!r.ok) throw new Error('Failed');
+    toast('Merchant removed.');
+    loadVerified();
+  } catch (e) { toast(e.message, 'error'); }
+}
+
+async function addMerchant() {
+  const name = document.getElementById('addName').value.trim();
+  const wallet = document.getElementById('addWallet').value.trim();
+  if (!name || !wallet) { toast('Business name and wallet are required.', 'error'); return; }
+  if (wallet.length < 32) { toast('Invalid wallet address.', 'error'); return; }
+
+  const body = {
+    key: adminKey, business_name: name, wallet,
+    contact_email: document.getElementById('addEmail').value.trim() || undefined,
+    category: document.getElementById('addCategory').value,
+    website: document.getElementById('addWebsite').value.trim() || undefined,
+    x_handle: document.getElementById('addTwitter').value.trim() || undefined,
+    banner_url: document.getElementById('addBanner').value.trim() || undefined,
+    profile_image_url: document.getElementById('addAvatar').value.trim() || undefined,
+    payment_tier: document.getElementById('addTier').value,
+    services_offered: document.getElementById('addServices').value.trim() ? document.getElementById('addServices').value.split(',').map(s => s.trim()).filter(Boolean) : undefined,
+    description: document.getElementById('addDesc').value.trim() || undefined,
+  };
+  Object.keys(body).forEach(k => body[k] === undefined && delete body[k]);
+
+  try {
+    const r = await fetch(`${API}/merchants/admin/add`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error);
+    toast(`${name} added to verified directory!`);
+    clearAddForm();
+    loadVerified();
+    switchTab('verified');
+  } catch (e) { toast(e.message, 'error'); }
+}
+
+function clearAddForm() {
+  ['addName','addWallet','addEmail','addWebsite','addTwitter','addBanner','addAvatar','addServices','addDesc'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('addCategory').value = 'general';
+  document.getElementById('addTier').value = 'standard';
+}
+</script>
+</body>
+</html>
