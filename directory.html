@@ -227,6 +227,29 @@
     .cp-grid{display:flex;flex-wrap:wrap;gap:6px}
     .cp-pill{font-size:.7rem;padding:5px 12px;border-radius:8px;background:linear-gradient(135deg,#e8ecf8,#f0f4ff);border:1px solid #c8d8f0;color:var(--blue);font-weight:500}
     @media(max-width:768px){.dash-grid{grid-template-columns:repeat(2,1fr)}.lb-banner{padding:10px 16px}.lb-row{flex-wrap:wrap}}
+    /* Merchants */
+    .merch-page{max-width:960px;margin:0 auto}
+    .merch-hero{text-align:center;padding-bottom:28px;border-bottom:1px solid var(--border);margin-bottom:24px}
+    .merch-hero h1{font-family:'Advercase';font-size:1.6rem;background:linear-gradient(135deg,#1a1612,var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .merch-sub{font-size:.86rem;color:var(--muted);margin:6px 0 18px;line-height:1.55}
+    .merch-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:18px}
+    .merch-card{background:linear-gradient(135deg,var(--card),#faf8f4);border:1px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:var(--shadow);transition:all .25s;cursor:default;position:relative}
+    .merch-card:hover{box-shadow:var(--shadow-lg);transform:translateY(-2px)}
+    .merch-banner{height:110px;background:linear-gradient(135deg,rgba(61,122,98,.15),rgba(200,150,58,.1));background-size:cover;background-position:center;position:relative}
+    .merch-banner::after{content:'';position:absolute;bottom:0;left:0;right:0;height:40px;background:linear-gradient(transparent,var(--card))}
+    .merch-avatar{width:56px;height:56px;border-radius:14px;border:3px solid var(--card);background:var(--surface);position:absolute;bottom:-28px;left:20px;z-index:2;box-shadow:var(--shadow);object-fit:cover;display:flex;align-items:center;justify-content:center;font-size:1.6rem}
+    .merch-body{padding:36px 20px 20px}
+    .merch-name{font-family:'Source Serif 4',serif;font-weight:700;font-size:1.05rem;color:var(--primary)}
+    .merch-cat{font-size:.62rem;text-transform:uppercase;letter-spacing:.06em;color:var(--gold);font-weight:600;margin-top:2px}
+    .merch-desc{font-size:.78rem;color:var(--muted);line-height:1.5;margin-top:8px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+    .merch-meta{display:flex;gap:6px;margin-top:12px;flex-wrap:wrap}
+    .merch-meta a,.merch-meta span{font-size:.66rem;padding:4px 10px;border-radius:6px;text-decoration:none;background:var(--surface);border:1px solid var(--border);color:var(--text);transition:.2s}
+    .merch-meta a:hover{border-color:var(--accent);color:var(--accent)}
+    .merch-score{position:absolute;top:12px;right:12px;font-family:'Advercase';font-size:1.1rem;font-weight:700;color:#fff;background:linear-gradient(135deg,rgba(26,22,18,.7),rgba(26,22,18,.5));backdrop-filter:blur(6px);padding:4px 12px;border-radius:10px;border:1px solid rgba(255,255,255,.15)}
+    .merch-verified{display:inline-flex;align-items:center;gap:4px;font-size:.6rem;font-weight:600;color:var(--accent);background:rgba(61,122,98,.08);padding:3px 8px;border-radius:6px;margin-top:10px}
+    .merch-empty{text-align:center;padding:60px 20px;color:var(--dim)}
+    .merch-empty h3{font-family:'Source Serif 4',serif;color:var(--primary);margin-bottom:8px}
+    @media(max-width:768px){.merch-grid{grid-template-columns:1fr}.merch-page{padding:0}}
     @keyframes fadeIn{from{opacity:0}to{opacity:1}}
     @keyframes slideUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
     @keyframes scaleIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
@@ -287,6 +310,7 @@
       <a href="#" class="sb-link" id="navLookup" onclick="document.getElementById('lookupModal').classList.add('show');document.getElementById('sidebar').classList.remove('open');return false"><span class="sb-icon">🔍</span> Check Any Wallet</a>
       <a href="#" class="sb-link" id="navFaq" onclick="showPage('faq');document.getElementById('sidebar').classList.remove('open');return false"><span class="sb-icon">📖</span> API Docs</a>
       <div class="sb-divider"></div>
+      <a href="#" class="sb-link" id="navMerchants" onclick="showPage('merchants');document.getElementById('sidebar').classList.remove('open');return false"><span class="sb-icon">🏪</span> Verified Merchants</a>
       <a href="https://fairscale.xyz" target="_blank" class="sb-link"><span class="sb-icon">🌐</span> FairScale App</a>
       <a href="https://twitter.com/fairscalexyz" target="_blank" class="sb-link"><span class="sb-icon">𝕏</span> Twitter</a>
     </nav>
@@ -514,6 +538,47 @@ if (decision === 'allow') {
       <div class="dash-section"><h2>Top 10 Agents</h2><div id="dashLeaderboard"></div></div>
     </div>
   </div>
+  <!-- MERCHANTS PAGE -->
+  <div class="page-view" id="merchantsPage">
+    <div class="merch-page">
+      <div class="merch-hero">
+        <h1>Verified Merchants</h1>
+        <p class="merch-sub">Trusted businesses on Solana, verified by FairScale. Eligible for agent spend via x402 lending.</p>
+        <button class="lookup-btn" onclick="document.getElementById('merchantApplyModal').classList.add('show')">Apply for Verification</button>
+      </div>
+      <div class="merch-grid" id="merchantGrid"><div class="empty">Loading merchants...</div></div>
+    </div>
+  </div>
+  <!-- MERCHANT APPLY MODAL -->
+  <div class="modal-overlay" id="merchantApplyModal">
+    <div class="modal-box" style="width:520px">
+      <h3>Apply for Merchant Verification</h3>
+      <p>Verified merchants are featured in our directory and eligible for agent spend via FairScale's lending platform.</p>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <input class="gate-input" id="maName" placeholder="Business name *" style="font-size:.84rem">
+        <input class="gate-input mono" id="maWallet" placeholder="Solana wallet address *" style="font-size:.84rem">
+        <input class="gate-input" id="maEmail" placeholder="Contact email *" style="font-size:.84rem">
+        <input class="gate-input" id="maWebsite" placeholder="Website (optional)" style="font-size:.84rem">
+        <input class="gate-input" id="maTwitter" placeholder="X handle e.g. @yourhandle (optional)" style="font-size:.84rem">
+        <select class="gate-input" id="maCategory" style="font-size:.84rem;cursor:pointer">
+          <option value="general">Category</option>
+          <option value="defi">DeFi Protocol</option>
+          <option value="payments">Payments / Fintech</option>
+          <option value="nft">NFT / Digital Goods</option>
+          <option value="saas">SaaS / Tools</option>
+          <option value="exchange">Exchange / Trading</option>
+          <option value="gaming">Gaming</option>
+          <option value="social">Social / Community</option>
+          <option value="infrastructure">Infrastructure</option>
+          <option value="other">Other</option>
+        </select>
+        <textarea class="gate-input" id="maDesc" rows="3" placeholder="Describe your business and how you'd use FairScale merchant verification..." style="font-size:.84rem;font-family:inherit;resize:vertical"></textarea>
+      </div>
+      <button class="gate-btn" style="margin-top:14px" onclick="submitMerchantApp()">Submit Application</button>
+      <div class="gate-msg" id="merchantApplyMsg"></div>
+      <button style="position:absolute;top:16px;right:16px;background:none;border:none;color:var(--muted);font-size:1.2rem;cursor:pointer" onclick="document.getElementById('merchantApplyModal').classList.remove('show')">✕</button>
+    </div>
+  </div>
   <div class="modal-overlay" id="lookupModal">
     <div class="modal-box">
       <h3>Look Up Any Wallet</h3>
@@ -530,10 +595,12 @@ if (decision === 'allow') {
       document.getElementById('dirPage').classList.toggle('active',p==='directory');
       document.getElementById('faqPage').classList.toggle('active',p==='faq');
       document.getElementById('dashPage').classList.toggle('active',p==='dash');
+      document.getElementById('merchantsPage').classList.toggle('active',p==='merchants');
       document.querySelectorAll('.sb-link').forEach(l=>l.classList.remove('act'));
-      const navMap={directory:'navDir',faq:'navFaq',dash:'navDash'};
+      const navMap={directory:'navDir',faq:'navFaq',dash:'navDash',merchants:'navMerchants'};
       if(navMap[p])document.getElementById(navMap[p]).classList.add('act');
       if(p==='dash')loadDashboard();
+      if(p==='merchants')loadMerchants();
     }
     document.getElementById('lookupModal').onclick=e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove('show')};
     document.getElementById('lookupBtn').onclick=doLookup;
@@ -644,7 +711,63 @@ if (decision === 'allow') {
     }
 
     loadDir();loadStats();loadLeaderboard();
-    setInterval(loadLeaderboard, 60000); // Refresh leaderboard every 60s
+    setInterval(loadLeaderboard, 60000);
+
+    // Merchant functions
+    async function loadMerchants(){
+      const grid=document.getElementById('merchantGrid');
+      try{
+        const d=await(await fetch(`${API}/merchants`)).json();
+        const merchants=d.merchants||[];
+        if(!merchants.length){
+          grid.innerHTML=`<div class="merch-empty" style="grid-column:1/-1"><h3>No verified merchants yet</h3><p style="font-size:.84rem;color:var(--muted);margin-top:4px">Be the first — apply for verification above.</p></div>`;
+          return;
+        }
+        grid.innerHTML=merchants.map(m=>{
+          const catLabels={defi:'DeFi',payments:'Payments',nft:'NFT',saas:'SaaS',exchange:'Exchange',gaming:'Gaming',social:'Social',infrastructure:'Infra',general:'General',other:'Other'};
+          const catEmoji={defi:'💱',payments:'💳',nft:'🖼️',saas:'🔧',exchange:'📊',gaming:'🎮',social:'💬',infrastructure:'⚙️',general:'🏢',other:'📦'};
+          return`<div class="merch-card">
+            <div class="merch-banner" style="${m.banner_url?`background-image:url(${m.banner_url})`:''}">${m.fairscore?`<div class="merch-score">${m.fairscore}</div>`:''}</div>
+            <div style="position:relative">
+              ${m.profile_image_url?`<img class="merch-avatar" src="${m.profile_image_url}" alt="${m.business_name}">`:`<div class="merch-avatar">${catEmoji[m.category]||'🏢'}</div>`}
+            </div>
+            <div class="merch-body">
+              <div class="merch-name">${m.business_name}</div>
+              <div class="merch-cat">${catLabels[m.category]||m.category}</div>
+              ${m.description?`<div class="merch-desc">${m.description}</div>`:''}
+              <div class="merch-verified">✓ Verified by FairScale</div>
+              <div class="merch-meta">
+                ${m.website?`<a href="${m.website}" target="_blank">🌐 Website</a>`:''}
+                ${m.x_handle?`<a href="https://twitter.com/${m.x_handle.replace('@','')}" target="_blank">𝕏 ${m.x_handle}</a>`:''}
+                <span style="color:var(--dim)">${m.wallet.slice(0,6)}...${m.wallet.slice(-4)}</span>
+              </div>
+            </div>
+          </div>`;
+        }).join('');
+      }catch(e){grid.innerHTML='<div class="empty">Failed to load merchants</div>'}
+    }
+
+    async function submitMerchantApp(){
+      const name=document.getElementById('maName').value.trim();
+      const wallet=document.getElementById('maWallet').value.trim();
+      const email=document.getElementById('maEmail').value.trim();
+      const website=document.getElementById('maWebsite').value.trim();
+      const x_handle=document.getElementById('maTwitter').value.trim();
+      const category=document.getElementById('maCategory').value;
+      const description=document.getElementById('maDesc').value.trim();
+      const msg=document.getElementById('merchantApplyMsg');
+      msg.className='gate-msg';msg.textContent='';
+      if(!name||!wallet||!email){msg.textContent='Please fill in all required fields.';msg.className='gate-msg error';return}
+      if(wallet.length<32){msg.textContent='Invalid wallet address.';msg.className='gate-msg error';return}
+      try{
+        const r=await fetch(`${API}/merchants/apply`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({business_name:name,wallet,contact_email:email,website:website||undefined,x_handle:x_handle||undefined,category,description:description||undefined})});
+        const d=await r.json();
+        if(!r.ok)throw new Error(d.error||'Failed');
+        msg.textContent='Application submitted! We will review and get back to you.';msg.className='gate-msg success';
+        ['maName','maWallet','maEmail','maWebsite','maTwitter','maDesc'].forEach(id=>document.getElementById(id).value='');
+      }catch(e){msg.textContent=e.message;msg.className='gate-msg error'}
+    }
+    document.getElementById('merchantApplyModal').onclick=e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove('show')};
   </script>
 </body>
 </html>
